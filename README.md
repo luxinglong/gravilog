@@ -4,7 +4,13 @@ Gravilog 是一个单文件个人日志 / 笔记编辑器。它没有构建流�
 
 ## 快速开始
 
-直接用浏览器打开 `index.html`。
+Windows 上推荐双击 `start-gravilog.bat` 启动。脚本会自动启动本地 HTTP 服务，并打开类似下面的地址：
+
+```text
+http://localhost:端口/index.html
+```
+
+也可以直接用浏览器打开 `index.html`，但文件链接持久化在 `file://` 打开方式下可能不稳定。
 
 首次加载需要联网获取 KaTeX 和 highlight.js 的 CDN 资源。浏览器缓存后，后续加载会更快。
 
