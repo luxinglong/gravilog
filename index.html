@@ -24,12 +24,13 @@
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/markdown.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/plaintext.min.js"></script>
 <style>
+:root{--sidebar-w:clamp(320px,24vw,420px)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#fff;color:#1a1a2e;height:100vh;display:flex;flex-direction:column;transition:background .3s,color .3s}
 .main{display:flex;flex:1;overflow:hidden}
 
-.doc-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.doc{flex:1;padding:32px 40px 80px;overflow-y:auto;font-size:15px;line-height:1.8;outline:none;word-break:break-word}
+.doc-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:0 clamp(28px,5vw,96px)}
+.doc{flex:1;width:min(100%,860px);margin:0 auto;padding:36px 0 88px;overflow-y:auto;font-size:15px;line-height:1.8;outline:none;word-break:break-word}
 .doc:empty::before{content:'开始写点什么...';color:#d0d0d0;pointer-events:none}
 .doc h1,.doc h2,.doc h3,.doc h4{margin:12px 0 4px;line-height:1.4}
 .doc h1{font-size:24px}.doc h2{font-size:20px}.doc h3{font-size:17px}.doc h4{font-size:15px;font-weight:700}
@@ -60,7 +61,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .tex-display{display:block;text-align:center;margin:8px 0;padding:6px;background:#fafaff;border-radius:4px;cursor:pointer}
 .tex-display:hover{background:#eef}
 
-.fbar{position:fixed;top:12px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:4px 8px;display:flex;align-items:center;gap:1px;box-shadow:0 2px 12px rgba(0,0,0,0.08);z-index:100}
+.fbar{position:fixed;top:12px;left:calc((100vw - var(--sidebar-w))/2);transform:translateX(-50%);background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:4px 8px;display:flex;align-items:center;gap:1px;box-shadow:0 2px 12px rgba(0,0,0,0.08);z-index:100}
 .fbar button{background:none;border:none;border-radius:6px;width:30px;height:30px;cursor:pointer;font-size:13px;color:#555;display:flex;align-items:center;justify-content:center}
 .fbar button:hover{background:#f0f0ff;color:#333}
 .fbar .sep{width:1px;height:16px;background:#e8e8e8;margin:0 2px}
@@ -96,59 +97,59 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .img-modal.show{display:flex}
 .img-modal img{max-width:90%;max-height:90%;border-radius:4px}
 
-.sidebar{width:320px;flex-shrink:0;background:#fafafa;border-left:1px solid #e8e8e8;display:flex;flex-direction:column;overflow:hidden}
-.cal-hd{padding:12px 14px;border-bottom:1px solid #eee;flex-shrink:0}
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:#f8f9fb;border-left:1px solid #dfe3ea;display:flex;flex-direction:column;overflow:hidden}
+.cal-hd{padding:12px 14px;border-bottom:1px solid #dfe3ea;flex-shrink:0;background:#fff}
 .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.cal-nav button{background:none;border:1px solid #ddd;border-radius:5px;width:26px;height:26px;cursor:pointer;font-size:14px;color:#555;display:flex;align-items:center;justify-content:center}
-.cal-nav button:hover{background:#eee}
-.cal-title{font-size:14px;font-weight:600}
+.cal-nav button{background:#fff;border:1px solid #cfd6e0;border-radius:5px;width:26px;height:26px;cursor:pointer;font-size:14px;color:#374151;display:flex;align-items:center;justify-content:center}
+.cal-nav button:hover{background:#eef2ff;border-color:#aeb8ca}
+.cal-title{font-size:14px;font-weight:700;color:#1f2937}
 .cal-views{display:flex;gap:2px}
-.cal-views button{flex:1;padding:4px 0;border:1px solid #ddd;border-radius:5px;background:#fff;font-size:11px;cursor:pointer;color:#666;transition:all .15s}
+.cal-views button{flex:1;padding:4px 0;border:1px solid #cfd6e0;border-radius:5px;background:#fff;font-size:11px;cursor:pointer;color:#4b5563;transition:all .15s}
 .cal-views button.active{background:#667eea;color:#fff;border-color:#667eea}
 .cal-views button:hover:not(.active){background:#f0f0f0}
-.cal-body{flex:1;overflow-y:auto}
+.cal-body{flex:1;overflow-y:auto;min-height:0}
 .cal-month{padding:8px 12px}
-.cal-wk{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:10px;color:#aaa;margin-bottom:3px}
+.cal-wk{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:10px;color:#6b7280;margin-bottom:3px;font-weight:600}
 .cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
-.cal-d{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:6px;font-size:12px;cursor:pointer;position:relative;transition:background .12s}
-.cal-d:hover{background:#f0f0ff}
-.cal-d.om{color:#d0d0d0}
+.cal-d{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:6px;font-size:12px;cursor:pointer;position:relative;transition:background .12s;color:#374151}
+.cal-d:hover{background:#e9ecff}
+.cal-d.om{color:#b3bac6}
 .cal-d.td{font-weight:700;color:#667eea}
 .cal-d.sel{background:#667eea;color:#fff}
 .cal-d.sel.td{color:#fff}
 .cal-d .dot{width:3px;height:3px;border-radius:50%;background:#667eea;position:absolute;bottom:2px}
 .cal-d.sel .dot{background:#fff}
 .cal-year{padding:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.mm{border:1px solid #eee;border-radius:6px;padding:5px;cursor:pointer;transition:border-color .15s}
+.mm{border:1px solid #dfe3ea;background:#fff;border-radius:6px;padding:5px;cursor:pointer;transition:border-color .15s,background .15s}
 .mm:hover{border-color:#667eea}
 .mm-t{font-size:11px;font-weight:600;text-align:center;margin-bottom:2px;color:#333}
 .mm .cal-wk{font-size:7px}
 .mm .cal-days{font-size:7px;gap:0}
 .mm .cal-d{border-radius:3px;font-size:7px}
 .mm .cal-d .dot{width:2px;height:2px;bottom:0}
-.dv{display:flex;flex-direction:column}
-.dv-hd{padding:10px 12px;text-align:center;font-size:14px;font-weight:600;color:#333;border-bottom:1px solid #eee}
-.dv-tl{flex:1;overflow-y:auto;position:relative}
-.dv-hr{display:flex;border-bottom:1px solid #f2f2f2;min-height:32px}
-.dv-lb{width:36px;flex-shrink:0;font-size:9px;color:#bbb;text-align:right;padding:3px 5px 0 0;border-right:1px solid #eee}
-.dv-sl{flex:1;padding:1px 4px;min-height:32px}
+.dv{display:flex;flex-direction:column;height:100%;min-height:0}
+.dv-hd{padding:10px 12px;text-align:center;font-size:14px;font-weight:700;color:#1f2937;border-bottom:1px solid #dfe3ea;background:#fff}
+.dv-tl{flex:1;overflow:hidden;position:relative;display:flex;flex-direction:column;min-height:0}
+.dv-hr{display:flex;border-bottom:1px solid #e7eaf0;min-height:0;flex:1}
+.dv-lb{width:36px;flex-shrink:0;font-size:9px;color:#8b95a5;text-align:right;padding:3px 5px 0 0;border-right:1px solid #dfe3ea}
+.dv-sl{flex:1;padding:1px 4px;min-height:0}
 .dv-sl:hover{background:#f8f8ff}
 .dv-now{position:absolute;left:36px;right:0;height:2px;background:#e74c3c;z-index:2;pointer-events:none}
 .dv-now::before{content:'';position:absolute;left:-3px;top:-2px;width:6px;height:6px;background:#e74c3c;border-radius:50%}
-.wv{display:flex;flex-direction:column}
-.wv-hd{display:flex;border-bottom:1px solid #eee;flex-shrink:0}
+.wv{display:flex;flex-direction:column;height:100%;min-height:0}
+.wv-hd{display:flex;border-bottom:1px solid #dfe3ea;flex-shrink:0;background:#fff}
 .wv-gt{width:36px;flex-shrink:0}
 .wv-dhs{display:flex;flex:1}
-.wv-dh{flex:1;text-align:center;padding:6px 1px;font-size:10px;border-left:1px solid #f2f2f2}
+.wv-dh{flex:1;text-align:center;padding:6px 1px;font-size:10px;border-left:1px solid #e7eaf0;color:#4b5563}
 .wv-dh .wn{display:block;font-size:14px;font-weight:600;margin-top:1px}
 .wv-dh.td .wn{background:#667eea;color:#fff;border-radius:50%;width:24px;height:24px;line-height:24px;margin:1px auto 0}
 .wv-dh.sel{background:#f0f0ff}
-.wv-bd{flex:1;overflow-y:auto;display:flex;position:relative}
-.wv-tc{width:36px;flex-shrink:0}
-.wv-tl{height:32px;font-size:9px;color:#bbb;text-align:right;padding:1px 5px 0 0}
+.wv-bd{flex:1;overflow:hidden;display:flex;position:relative;min-height:0}
+.wv-tc{width:36px;flex-shrink:0;display:flex;flex-direction:column}
+.wv-tl{height:auto;flex:1;min-height:0;font-size:9px;color:#8b95a5;text-align:right;padding:1px 5px 0 0}
 .wv-cols{display:flex;flex:1}
-.wv-col{flex:1;border-left:1px solid #f2f2f2}
-.wv-cl{height:32px;border-bottom:1px solid #f5f5f5;padding:0 2px}
+.wv-col{flex:1;border-left:1px solid #e7eaf0;display:flex;flex-direction:column}
+.wv-cl{height:auto;flex:1;min-height:0;border-bottom:1px solid #edf0f5;padding:0 2px}
 .wv-cl:hover{background:#f8f8ff}
 .wv-now{position:absolute;left:36px;right:0;height:2px;background:#e74c3c;z-index:2;pointer-events:none}
 .wv-now::before{content:'';position:absolute;left:-3px;top:-2px;width:6px;height:6px;background:#e74c3c;border-radius:50%}
@@ -177,7 +178,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .td-dlg-b .ok{background:#667eea;color:#fff;border-color:#667eea}
 
 ::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px}
+::-webkit-scrollbar-thumb{background:#d4d9e1;border-radius:2px}
+.doc{scrollbar-width:thin;scrollbar-color:transparent transparent}
+.doc::-webkit-scrollbar{width:3px}
+.doc::-webkit-scrollbar-thumb{background:transparent;border-radius:3px}
+.doc:hover::-webkit-scrollbar-thumb{background:rgba(148,163,184,.22)}
 
 /* Dark theme */
 body.dark{
@@ -242,7 +247,9 @@ body.dark .cal-views button{background:rgba(13,17,23,.42);border-color:var(--dar
 body.dark .cal-views button.active{background:linear-gradient(135deg,var(--dark-accent),var(--dark-accent-2));color:#071018;border-color:transparent;box-shadow:0 8px 20px rgba(45,212,191,.16)}
 body.dark .cal-views button:hover:not(.active){background:rgba(32,43,56,.9);color:#fff}
 body.dark .cal-d:hover{background:rgba(139,156,255,.13)}
-body.dark .cal-d.om{color:#475569}
+body.dark .cal-wk{color:#8b98aa}
+body.dark .cal-d{color:#d2dae5}
+body.dark .cal-d.om{color:#5c6878}
 body.dark .cal-d.td{color:#9deee4}
 body.dark .cal-d.sel{background:linear-gradient(135deg,var(--dark-accent),var(--dark-accent-2));color:#071018;box-shadow:0 8px 18px rgba(45,212,191,.16)}
 body.dark .cal-d.sel.td{color:#071018}
@@ -251,18 +258,18 @@ body.dark .cal-year .mm{background:rgba(19,25,34,.45);border-color:var(--dark-li
 body.dark .cal-year .mm:hover{border-color:rgba(139,156,255,.55);background:rgba(24,33,45,.9)}
 body.dark .mm-t{color:var(--dark-text)}
 
-body.dark .dv-hd{color:var(--dark-text);border-bottom-color:var(--dark-line)}
-body.dark .dv-hr{border-bottom-color:rgba(148,163,184,.1)}
+body.dark .dv-hd{color:var(--dark-text);border-bottom-color:var(--dark-line);background:rgba(19,25,34,.55)}
+body.dark .dv-hr{border-bottom-color:rgba(148,163,184,.14)}
 body.dark .dv-lb{color:var(--dark-faint);border-right-color:var(--dark-line)}
 body.dark .dv-sl:hover{background:rgba(139,156,255,.1)}
 body.dark .dv-now,body.dark .wv-now{background:var(--dark-danger);box-shadow:0 0 14px rgba(251,113,133,.45)}
 body.dark .dv-now::before,body.dark .wv-now::before{background:var(--dark-danger)}
-body.dark .wv-hd{border-bottom-color:var(--dark-line)}
+body.dark .wv-hd{border-bottom-color:var(--dark-line);background:rgba(19,25,34,.55)}
 body.dark .wv-dh{border-left-color:rgba(148,163,184,.1);color:#b8c4d2}
 body.dark .wv-dh.sel{background:rgba(139,156,255,.12)}
 body.dark .wv-dh.td .wn{background:linear-gradient(135deg,var(--dark-accent),var(--dark-accent-2));color:#071018}
-body.dark .wv-col{border-left-color:rgba(148,163,184,.1)}
-body.dark .wv-cl{border-bottom-color:rgba(148,163,184,.08)}
+body.dark .wv-col{border-left-color:rgba(148,163,184,.14)}
+body.dark .wv-cl{border-bottom-color:rgba(148,163,184,.11)}
 body.dark .wv-cl:hover{background:rgba(139,156,255,.1)}
 body.dark .wv-tl{color:var(--dark-faint)}
 
@@ -284,6 +291,9 @@ body.dark .td-dlg-b button{background:rgba(13,17,23,.9);border-color:var(--dark-
 body.dark .td-dlg-b .ok{background:linear-gradient(135deg,var(--dark-accent),var(--dark-accent-2));color:#071018;border-color:transparent}
 
 body.dark ::-webkit-scrollbar-thumb{background:#3b4756}
+body.dark .doc{scrollbar-color:transparent transparent}
+body.dark .doc::-webkit-scrollbar-thumb{background:transparent}
+body.dark .doc:hover::-webkit-scrollbar-thumb{background:rgba(148,163,184,.18)}
 
 </style>
 </head>
@@ -365,7 +375,7 @@ body.dark ::-webkit-scrollbar-thumb{background:#3b4756}
 <input type="file" id="importPicker" accept=".json" style="display:none" onchange="handleImport(event)">
 
 <script>
-const STORAGE_KEY='diary_doc',DATES_KEY='diary_edit_dates',META_KEY='diary_meta';
+const STORAGE_KEY='diary_doc',DATES_KEY='diary_edit_dates',META_KEY='diary_meta',HANDLE_NAME_KEY='diary_file_name';
 let calView='month',calYear=new Date().getFullYear(),calMonth=new Date().getMonth(),calWeekStart=getMon(new Date()),selectedDate=null,saveTimer=null;
 let texDisplay=false,fileHandle=null,selImg=null,fileWritable=false,fileWritePromise=Promise.resolve(),fileWritePending=false;
 
@@ -539,6 +549,7 @@ doc.addEventListener('input',()=>{
 });
 doc.addEventListener('blur',()=>{clearTimeout(saveTimer);save()});
 doc.addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&handleCodeEnter(e))return;
   if(e.key==='Enter'){handleMdEnter(e)}
   if(e.key==='Tab'){handleTab(e)}
 });
@@ -774,6 +785,62 @@ function getCursorBlock(){
   return null;
 }
 
+function getCursorCode(){
+  const s=window.getSelection();if(!s.rangeCount)return null;
+  let n=s.anchorNode;
+  if(!n)return null;
+  if(n.nodeType===3)n=n.parentElement;
+  return n&&n.closest?n.closest('pre code'):null;
+}
+
+function getTextOffsetInCode(code,node,offset){
+  const range=document.createRange();
+  range.selectNodeContents(code);
+  range.setEnd(node,offset);
+  return range.toString().length;
+}
+
+function getSelectionOffsetsInCode(code){
+  const s=window.getSelection();if(!s.rangeCount)return null;
+  if(!code.contains(s.anchorNode)||!code.contains(s.focusNode))return null;
+  const a=getTextOffsetInCode(code,s.anchorNode,s.anchorOffset);
+  const f=getTextOffsetInCode(code,s.focusNode,s.focusOffset);
+  return {start:Math.min(a,f),end:Math.max(a,f),backward:a>f};
+}
+
+function getCodePointAtOffset(code,offset){
+  const walker=document.createTreeWalker(code,NodeFilter.SHOW_TEXT,null);
+  let pos=0,last=null;
+  while(walker.nextNode()){
+    const node=walker.currentNode;
+    last=node;
+    if(pos+node.length>=offset)return {node,offset:Math.max(0,offset-pos)};
+    pos+=node.length;
+  }
+  if(last)return {node:last,offset:last.length};
+  return {node:code,offset:0};
+}
+
+function selectRangeInCode(code,start,end,backward){
+  code.focus();
+  const sel=window.getSelection();
+  const range=document.createRange();
+  const a=getCodePointAtOffset(code,start);
+  const b=getCodePointAtOffset(code,end);
+  range.setStart(a.node,a.offset);
+  range.setEnd(b.node,b.offset);
+  sel.removeAllRanges();
+  if(backward&&sel.extend){
+    const endRange=document.createRange();
+    endRange.setStart(b.node,b.offset);
+    endRange.collapse(true);
+    sel.addRange(endRange);
+    sel.extend(a.node,a.offset);
+  }else{
+    sel.addRange(range);
+  }
+}
+
 function handleMdEnter(e){
   // Code block: ``` or ```python — triggered by Enter
   const s=window.getSelection();if(s.rangeCount){
@@ -830,8 +897,85 @@ function handleMdEnter(e){
 }
 
 function handleTab(e){
+  const code=getCursorCode();
+  if(code){
+    e.preventDefault();
+    e.shiftKey?outdentCodeSelection(code):indentCodeSelection(code);
+    showSt('saving');clearTimeout(saveTimer);
+    saveTimer=setTimeout(()=>{save();showSt('saved')},600);
+    return;
+  }
   const blk=getCursorBlock();if(!blk)return;
   if(blk.nodeName==='LI'){e.preventDefault();e.shiftKey?document.execCommand('outdent'):document.execCommand('indent')}
+}
+
+function handleCodeEnter(e){
+  const code=getCursorCode();
+  if(!code)return false;
+  const sel=getSelectionOffsetsInCode(code);
+  if(!sel)return false;
+  e.preventDefault();
+  const text=code.textContent||'';
+  const lineStart=text.lastIndexOf('\n',Math.max(0,sel.start-1))+1;
+  const linePrefix=text.slice(lineStart,sel.start);
+  const indent=(linePrefix.match(/^[\t ]*/)||[''])[0];
+  const insert='\n'+indent;
+  code.textContent=text.slice(0,sel.start)+insert+text.slice(sel.end);
+  rehighlightCode(code,false);
+  selectRangeInCode(code,sel.start+insert.length,sel.start+insert.length,false);
+  showSt('saving');clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{save();showSt('saved')},600);
+  return true;
+}
+
+function indentCodeSelection(code){
+  const sel=getSelectionOffsetsInCode(code);if(!sel)return;
+  const tab='    ';
+  const text=code.textContent||'';
+  if(sel.start===sel.end){
+    const next=text.slice(0,sel.start)+tab+text.slice(sel.end);
+    code.textContent=next;
+    rehighlightCode(code,false);
+    selectRangeInCode(code,sel.start+tab.length,sel.start+tab.length,false);
+    return;
+  }
+  const lineStart=text.lastIndexOf('\n',Math.max(0,sel.start-1))+1;
+  const lineEnd=sel.end>sel.start&&text[sel.end-1]==='\n'?sel.end-1:sel.end;
+  const before=text.slice(0,lineStart);
+  const target=text.slice(lineStart,lineEnd);
+  const after=text.slice(lineEnd);
+  const lineCount=target.split('\n').length;
+  const next=before+target.replace(/^/gm,tab)+after;
+  code.textContent=next;
+  rehighlightCode(code,false);
+  selectRangeInCode(code,sel.start+tab.length,sel.end+lineCount*tab.length,sel.backward);
+}
+
+function outdentCodeSelection(code){
+  const sel=getSelectionOffsetsInCode(code);if(!sel)return;
+  const text=code.textContent||'';
+  const lineStart=text.lastIndexOf('\n',Math.max(0,sel.start-1))+1;
+  const lineEnd=sel.end>sel.start&&text[sel.end-1]==='\n'?sel.end-1:sel.end;
+  const before=text.slice(0,lineStart);
+  const target=text.slice(lineStart,lineEnd);
+  const after=text.slice(lineEnd);
+  let removedBeforeStart=0,removedTotal=0,pos=lineStart;
+  const nextTarget=target.split('\n').map(line=>{
+    let rm=0;
+    if(line.startsWith('\t'))rm=1;
+    else if(line.startsWith('    '))rm=4;
+    else if(line.startsWith('  '))rm=2;
+    else if(line.startsWith(' '))rm=1;
+    if(pos<sel.start)removedBeforeStart+=Math.min(rm,sel.start-pos);
+    removedTotal+=rm;
+    pos+=line.length+1;
+    return line.slice(rm);
+  }).join('\n');
+  code.textContent=before+nextTarget+after;
+  rehighlightCode(code,false);
+  const nextStart=Math.max(lineStart,sel.start-removedBeforeStart);
+  const nextEnd=Math.max(nextStart,sel.end-removedTotal);
+  selectRangeInCode(code,nextStart,nextEnd,sel.backward);
 }
 
 // ===== Click handlers =====
@@ -897,23 +1041,29 @@ function tblAddRow(pos){
   save();
 }
 function tblAddCol(pos){
-  const td=getCursorTd();if(!td)return;const tr=td.parentNode;const tbl=tr.parentNode;
-  const idx=Array.from(tr.children).indexOf(td);
-  const isThead=tbl.querySelector('thead');
+  const td=getCursorTd();if(!td)return;const tbl=td.closest('table');
+  if(!tbl)return;
+  const idx=td.cellIndex;
   Array.from(tbl.rows).forEach(row=>{
-    if(idx<row.children.length){
-      const ref=row.children[idx];
-      const c=document.createElement(ref.tagName);c.innerHTML='<br>';
-      if(pos==='before')row.insertBefore(c,ref);else row.insertBefore(c,ref.nextSibling);
-    }
+    const cells=Array.from(row.cells);
+    const ref=cells[Math.min(idx,cells.length-1)];
+    const c=document.createElement(row.parentElement&&row.parentElement.tagName==='THEAD'?'th':'td');
+    c.innerHTML='<br>';
+    if(!ref)row.appendChild(c);
+    else if(pos==='before')row.insertBefore(c,ref);
+    else row.insertBefore(c,ref.nextSibling);
   });
   save();
 }
 function tblDelRow(){const td=getCursorTd();if(!td)return;const tr=td.parentNode;if(tr.parentNode.rows.length>1)tr.remove();save()}
 function tblDelCol(){
-  const td=getCursorTd();if(!td)return;const tr=td.parentNode;const tbl=tr.parentNode;
-  const idx=Array.from(tr.children).indexOf(td);
-  Array.from(tbl.rows).forEach(row=>{if(row.children[idx]&&row.children.length>1)row.children[idx].remove()});
+  const td=getCursorTd();if(!td)return;const tbl=td.closest('table');
+  if(!tbl)return;
+  const idx=td.cellIndex;
+  const rows=Array.from(tbl.rows);
+  const maxCols=Math.max(...rows.map(row=>row.cells.length));
+  if(maxCols<=1)return;
+  rows.forEach(row=>{if(row.cells[idx])row.cells[idx].remove()});
   save();
 }
 function tblDelTable(){const td=getCursorTd();if(!td)return;const tbl=td.closest('table');if(tbl)tbl.remove();hideCtxBars();save()}
@@ -1084,25 +1234,46 @@ async function restoreHandle(){
   if(!hasFSAP)return;
   try{
     const db=await openDB();
-    const item=await new Promise((res,rej)=>{
-      const tx=db.transaction('handles','readonly');
-      const req=tx.objectStore('handles').get('diary');
-      req.onsuccess=()=>res(req.result);
-      req.onerror=()=>rej(req.error);
-    });
+    const item=await idbGet(db,'diary');
     if(!item||!item.handle){updateStorStatus(false);return}
     fileHandle=item.handle;
-    const ok=await verifyHandle();
+    const ok=await verifyHandle(true);
     if(ok)await syncFromLinkedFile();
   }catch(e){console.error('恢复文件链接失败',e);updateStorStatus(false)}
 }
-function openDB(){return new Promise((res,rej)=>{const req=indexedDB.open('diaryDB',1);req.onupgradeneeded=()=>req.result.createObjectStore('handles');req.onsuccess=()=>res(req.result);req.onerror=()=>rej(req.error)})}
-async function saveHandle(){if(!fileHandle)return;try{const db=await openDB();const tx=db.transaction('handles','readwrite');tx.objectStore('handles').put({handle:fileHandle},'diary')}catch(e){console.error('保存文件链接失败',e)}}
-async function verifyHandle(){
+function openDB(){return new Promise((res,rej)=>{const req=indexedDB.open('diaryDB',1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('handles'))req.result.createObjectStore('handles')};req.onsuccess=()=>res(req.result);req.onerror=()=>rej(req.error)})}
+function idbGet(db,key){
+  return new Promise((res,rej)=>{
+    const tx=db.transaction('handles','readonly');
+    const req=tx.objectStore('handles').get(key);
+    req.onsuccess=()=>res(req.result);
+    req.onerror=()=>rej(req.error);
+    tx.onerror=()=>rej(tx.error);
+  });
+}
+function idbPut(db,key,value){
+  return new Promise((res,rej)=>{
+    const tx=db.transaction('handles','readwrite');
+    tx.objectStore('handles').put(value,key);
+    tx.oncomplete=()=>res();
+    tx.onerror=()=>rej(tx.error);
+    tx.onabort=()=>rej(tx.error);
+  });
+}
+async function saveHandle(){
+  if(!fileHandle)return false;
+  try{
+    const db=await openDB();
+    await idbPut(db,'diary',{handle:fileHandle,name:fileHandle.name,savedAt:new Date().toISOString()});
+    localStorage.setItem(HANDLE_NAME_KEY,fileHandle.name);
+    return true;
+  }catch(e){console.error('保存文件链接失败',e);return false}
+}
+async function verifyHandle(askPermission){
   if(!fileHandle)return false;
   try{
     let p=await fileHandle.queryPermission({mode:'readwrite'});
-    if(p==='prompt')p=await fileHandle.requestPermission({mode:'readwrite'});
+    if(p==='prompt'&&askPermission)p=await fileHandle.requestPermission({mode:'readwrite'});
     fileWritable=p==='granted';
     updateStorStatus(fileWritable);
     return fileWritable;
@@ -1110,7 +1281,9 @@ async function verifyHandle(){
 }
 function updateStorStatus(ok){
   const el=document.getElementById('storStatus');
-  if(ok&&fileHandle)el.innerHTML='<span class="dot-ok"></span>已链接: '+fileHandle.name;
+  if(ok&&fileHandle)el.innerHTML='<span class="dot-ok"></span>已链接: '+escAttr(fileHandle.name);
+  else if(fileHandle)el.innerHTML='<span class="dot-no"></span>已记住: '+escAttr(fileHandle.name)+'（点击链接文件恢复写入）';
+  else if(localStorage.getItem(HANDLE_NAME_KEY))el.innerHTML='<span class="dot-no"></span>链接失效: '+escAttr(localStorage.getItem(HANDLE_NAME_KEY))+'（请重新选择一次）';
   else el.innerHTML='<span class="dot-no"></span>未链接文件';
 }
 function newerSnapshot(a,b){
@@ -1120,11 +1293,20 @@ function newerSnapshot(a,b){
 async function linkFile(){
   if(!hasFSAP){alert('当前浏览器不支持文件系统API，请使用 Chrome/Edge，或用导出/导入功能');return}
   try{
+    if(fileHandle&&!fileWritable){
+      const ok=await verifyHandle(true);
+      if(!ok){alert('需要读写权限');return}
+      const saved=await saveHandle();
+      if(!saved){alert('浏览器未能保存文件链接，请确认使用 Chrome/Edge 并通过 http://localhost 或 https 打开页面');return}
+      await syncFromLinkedFile();
+      return;
+    }
     const h=await window.showOpenFilePicker({types:[{description:'日记数据',accept:{'application/json':['.json']}}],multiple:false});
     fileHandle=h[0];
-    const ok=await verifyHandle();
+    const ok=await verifyHandle(true);
     if(!ok){alert('需要读写权限');return}
-    await saveHandle();
+    const saved=await saveHandle();
+    if(!saved){alert('浏览器未能保存文件链接，请确认使用 Chrome/Edge 并通过 http://localhost 或 https 打开页面');return}
     await syncFromLinkedFile();
   }catch(e){if(e.name!=='AbortError')console.error(e)}
 }
@@ -1161,7 +1343,7 @@ function queueFileWrite(snapshot){
 async function writeToHandle(snapshot){
   if(!fileHandle)return;
   try{
-    const ok=fileWritable||await verifyHandle();
+    const ok=fileWritable||await verifyHandle(false);
     if(!ok)return;
     const d=snapshot||getLocalSnapshot();
     const w=await fileHandle.createWritable();
@@ -1189,9 +1371,9 @@ function navPrev(){if(calView==='month'){calMonth--;if(calMonth<0){calMonth=11;c
 function navNext(){if(calView==='month'){calMonth++;if(calMonth>11){calMonth=0;calYear++}}else if(calView==='year')calYear++;else if(calView==='day'){const d=new Date(calYear,calMonth,selectedDate?+selectedDate.split('-')[2]:new Date().getDate());d.setDate(d.getDate()+1);calYear=d.getFullYear();calMonth=d.getMonth();selectedDate=ds(d)}else if(calView==='week')calWeekStart=addD(calWeekStart,7);renderCal()}
 function renderCal(){const m={day:'vDay',week:'vWeek',month:'vMonth',year:'vYear'};document.querySelectorAll('.cal-views button').forEach(b=>b.classList.remove('active'));document.getElementById(m[calView]).classList.add('active');const title=document.getElementById('calTitle'),body=document.getElementById('calBody');if(calView==='month'){title.textContent=calYear+'年'+(calMonth+1)+'月';body.innerHTML='<div class="cal-month">'+monthGrid(calYear,calMonth)+'</div>'}else if(calView==='year'){title.textContent=calYear+'年';let h='<div class="cal-year">';for(let i=0;i<12;i++)h+='<div class="mm" onclick="calYear='+calYear+';calMonth='+i+';switchView(\'month\')"><div class="mm-t">'+(i+1)+'月</div>'+monthGrid(calYear,i)+'</div>';h+='</div>';body.innerHTML=h}else if(calView==='day'){if(!selectedDate)selectedDate=todayStr();const p=selectedDate.split('-');calYear=+p[0];calMonth=+p[1]-1;title.textContent=fmtD(selectedDate);body.innerHTML=dayView(selectedDate);scrollNow()}else if(calView==='week'){title.textContent=fmtDs(ds(calWeekStart))+' — '+fmtDs(ds(addD(calWeekStart,6)));body.innerHTML=weekView(calWeekStart);scrollNowW()}}
 function monthGrid(y,m){const wd=['一','二','三','四','五','六','日'],f=new Date(y,m,1);let sd=f.getDay();sd=sd===0?6:sd-1;const dim=new Date(y,m+1,0).getDate(),pd=new Date(y,m,0).getDate(),td=todayStr(),ed=new Set(getDates());let h='<div class="cal-wk">';wd.forEach(w=>h+='<span>'+w+'</span>');h+='</div><div class="cal-days">';for(let i=sd-1;i>=0;i--)h+='<span class="cal-d om">'+(pd-i)+'</span>';for(let d=1;d<=dim;d++){const s=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');let c='cal-d';if(s===td)c+=' td';if(s===selectedDate)c+=' sel';h+='<span class="'+c+'" onclick="selDate(\''+s+'\')">'+d+(ed.has(s)?'<span class="dot"></span>':'')+'</span>'}const tc=sd+dim,rm=(7-tc%7)%7;for(let i=1;i<=rm;i++)h+='<span class="cal-d om">'+i+'</span>';h+='</div>';return h}
-function dayView(s){let h='<div class="dv"><div class="dv-hd">'+fmtD(s)+'</div><div class="dv-tl" id="dvTl">';for(let i=0;i<24;i++){const l=String(i).padStart(2,'0');h+='<div class="dv-hr"><div class="dv-lb">'+l+':00</div><div class="dv-sl"></div></div>'}if(s===todayStr()){const n=new Date(),t=n.getHours()*60+n.getMinutes(),top=t/(24*60)*(24*32);h+='<div class="dv-now" style="top:'+top+'px"></div>'}h+='</div></div>';return h}
+function dayView(s){let h='<div class="dv"><div class="dv-hd">'+fmtD(s)+'</div><div class="dv-tl" id="dvTl">';for(let i=0;i<24;i++){const l=String(i).padStart(2,'0');h+='<div class="dv-hr"><div class="dv-lb">'+l+':00</div><div class="dv-sl"></div></div>'}if(s===todayStr()){const n=new Date(),t=n.getHours()*60+n.getMinutes(),top=t/(24*60)*100;h+='<div class="dv-now" style="top:'+top+'%"></div>'}h+='</div></div>';return h}
 function scrollNow(){requestAnimationFrame(()=>{const t=document.getElementById('dvTl');if(!t)return;const n=new Date(),top=(n.getHours()*60+n.getMinutes())/(24*60)*t.scrollHeight;t.scrollTop=top-t.clientHeight/3})}
-function weekView(mon){const td=todayStr();let h='<div class="wv"><div class="wv-hd"><div class="wv-gt"></div><div class="wv-dhs">';for(let i=0;i<7;i++){const d=addD(mon,i),s=ds(d);h+='<div class="wv-dh'+(s===td?' td':'')+(s===selectedDate?' sel':'')+'" onclick="selDate(\''+s+'\')">'+WN[i]+'<span class="wn">'+d.getDate()+'</span></div>'}h+='</div></div><div class="wv-bd" id="wvBd"><div class="wv-tc">';for(let i=0;i<24;i++)h+='<div class="wv-tl">'+String(i).padStart(2,'0')+'</div>';h+='</div><div class="wv-cols">';for(let i=0;i<7;i++){h+='<div class="wv-col">';for(let j=0;j<24;j++)h+='<div class="wv-cl"></div>';h+='</div>'}h+='</div>';if(td>=ds(mon)&&td<=ds(addD(mon,6))){const n=new Date(),t=n.getHours()*60+n.getMinutes(),top=t/(24*60)*(24*32);h+='<div class="wv-now" style="top:'+top+'px"></div>'}h+='</div></div>';return h}
+function weekView(mon){const td=todayStr();let h='<div class="wv"><div class="wv-hd"><div class="wv-gt"></div><div class="wv-dhs">';for(let i=0;i<7;i++){const d=addD(mon,i),s=ds(d);h+='<div class="wv-dh'+(s===td?' td':'')+(s===selectedDate?' sel':'')+'" onclick="selDate(\''+s+'\')">'+WN[i]+'<span class="wn">'+d.getDate()+'</span></div>'}h+='</div></div><div class="wv-bd" id="wvBd"><div class="wv-tc">';for(let i=0;i<24;i++)h+='<div class="wv-tl">'+String(i).padStart(2,'0')+'</div>';h+='</div><div class="wv-cols">';for(let i=0;i<7;i++){h+='<div class="wv-col">';for(let j=0;j<24;j++)h+='<div class="wv-cl"></div>';h+='</div>'}h+='</div>';if(td>=ds(mon)&&td<=ds(addD(mon,6))){const n=new Date(),t=n.getHours()*60+n.getMinutes(),top=t/(24*60)*100;h+='<div class="wv-now" style="top:'+top+'%"></div>'}h+='</div></div>';return h}
 function scrollNowW(){requestAnimationFrame(()=>{const b=document.getElementById('wvBd');if(!b)return;const n=new Date(),top=(n.getHours()*60+n.getMinutes())/(24*60)*b.scrollHeight;b.scrollTop=top-b.clientHeight/3})}
 function selDate(s){selectedDate=s;const p=s.split('-');calYear=+p[0];calMonth=+p[1]-1;renderCal();doc.focus()}
 </script>

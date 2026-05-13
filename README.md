@@ -1,115 +1,152 @@
 # Gravilog
 
-A minimalist, single-file personal journal with content-gravity editing — everything gravitates around your words.
+Gravilog 是一个单文件个人日志 / 笔记编辑器。它没有构建流程、没有后端服务，直接打开 `index.html` 就可以写作。内容默认保存在浏览器本地，也可以链接一个 JSON 文件，用于云盘同步和手动备份。
 
-Zero build, zero backend. Open `index.html` in a browser and start writing. Data persists in localStorage with optional File System Access API for cloud-sync integration.
+## 快速开始
 
-## Philosophy
+直接用浏览器打开 `index.html`。
 
-**Content gravity** — the editor pulls everything toward your content. No chrome, no clutter, no setup. Just open and write. Rich formatting emerges naturally from Markdown-like shortcuts, not from toolbar hunting. The interface disappears so your words stay at the center.
+首次加载需要联网获取 KaTeX 和 highlight.js 的 CDN 资源。浏览器缓存后，后续加载会更快。
 
-## Quick Start
+建议使用 Chrome 或 Edge。如果需要“链接文件”自动保存到本地 JSON 文件，必须使用支持 File System Access API 的浏览器。
 
-Open `index.html` in a browser. That's it.
+## 主要功能
 
-> First load requires internet (KaTeX + highlight.js CDN). After that, the browser caches them.
+| 功能 | 说明 |
+| --- | --- |
+| 富文本编辑 | 支持加粗、斜体、下划线、删除线、列表、引用等 |
+| Markdown 快捷输入 | 输入常见 Markdown 语法后自动转换 |
+| LaTeX 公式 | 支持 `$...$` 行内公式和 `$$...$$` 块级公式 |
+| 代码块 | 支持语法高亮、语言下拉选择、Tab 缩进、自动保持缩进 |
+| 图片 | 支持插入、粘贴、对齐、缩放、双击预览 |
+| 表格 | 支持插入表格、增删行列、删除表格 |
+| 待办事项 | 支持复选框和回车续写 |
+| 日历 | 支持日、周、月、年视图，自动标记有内容的日期 |
+| 日夜模式 | 暗色模式使用更现代的深色层次和高对比日历 |
+| 自动保存 | 保存到 localStorage，可选同步写入链接文件 |
 
-## Features
+## 编辑体验
 
-| Feature | Description |
-|---------|-------------|
-| Rich text editing | Bold, italic, underline, strikethrough, lists, blockquotes |
-| Markdown shortcuts | Type Markdown syntax, it converts automatically |
-| LaTeX math | Inline `$...$` and display `$$...$$`, auto-rendered via KaTeX |
-| Code blocks | Syntax-highlighted, specify language, real-time highlighting |
-| Images | Insert/paste, resize, align (float/inline/center), full-screen preview |
-| Tables | Insert, add/remove rows & columns |
-| Todo lists | Checkable items, auto-continue on Enter |
-| Calendar | Day/week/month/year views, marks dates with entries |
-| Persistence | Auto-save to localStorage + file link / export / import |
+编辑区采用居中阅读宽度，左右保留留白，避免正文在大屏上铺得过宽。顶部工具栏默认与左侧编辑工作区居中对齐，而不是按整个浏览器窗口居中。
 
-## Markdown Shortcuts
+右侧日历栏为响应式宽度。日视图和周视图会根据窗口高度自动铺满，当前时间线使用百分比定位，窗口大小变化后仍能保持准确位置。
 
-Type syntax then press **Space** to convert:
+编辑区滚动条默认弱化，悬停时才轻微显示，减少正文和留白之间的突兀边界。
 
-| Input | Result |
-|-------|--------|
-| `#` + Space | Heading 1 |
-| `##` + Space | Heading 2 |
-| `-` or `*` + Space | Unordered list |
-| `1.` + Space | Ordered list |
-| `- [ ]` + Space | Todo (unchecked) |
-| `- [x]` + Space | Todo (checked) |
-| `>` + Space | Blockquote |
+## Markdown 快捷输入
 
-Type closing syntax to auto-render:
+输入下面内容后按空格会自动转换：
 
-| Input | Result |
-|-------|--------|
-| `**bold**` | **bold** |
-| `*italic*` | *italic* |
-| `` `code` `` | `code` |
-| `$E=mc^2$` | Inline math |
-| `$$\int_0^1 x dx$$` | Display math |
+| 输入 | 结果 |
+| --- | --- |
+| `# ` | 一级标题 |
+| `## ` | 二级标题 |
+| `- ` 或 `* ` | 无序列表 |
+| `1. ` | 有序列表 |
+| `- [ ] ` | 未完成待办 |
+| `- [x] ` | 已完成待办 |
+| `> ` | 引用 |
 
-### Code blocks
+输入闭合语法后会自动渲染：
 
-Type `` ``` `` or `` ```python `` then press **Enter** to create a code block. Hover to see the language label in the top-right corner — click it to cycle through languages.
+| 输入 | 结果 |
+| --- | --- |
+| `**bold**` | 加粗 |
+| `*italic*` | 斜体 |
+| `` `code` `` | 行内代码 |
+| `$E=mc^2$` | 行内公式 |
+| `$$\int_0^1 x dx$$` | 块级公式 |
 
-### List operations
+## 代码块
 
-- **Tab** — indent
-- **Shift+Tab** — outdent
-- **Enter** on empty list item — exit list
+输入 `` ``` `` 或 `` ```python `` 后按回车，可以创建代码块。
+
+代码块支持：
+
+- 右上角下拉菜单选择语言。
+- 实时语法高亮。
+- `Tab` 插入 4 个空格。
+- 选中多行后按 `Tab` 批量缩进。
+- `Shift+Tab` 反缩进。
+- 在代码块中按回车会自动继承当前行缩进。
+
+支持的语言包括 Text、Python、JavaScript、TypeScript、Java、C++、C#、Go、Rust、Bash、SQL、JSON、YAML、XML、HTML、CSS、Markdown。
+
+## 表格
+
+点击工具栏表格按钮可以插入表格。点击任意单元格后会出现表格工具栏，可执行：
+
+- 上方 / 下方插入行
+- 左侧 / 右侧插入列
+- 删除行
+- 删除列
+- 删除整张表
+
+插入列和删除列会同步处理标题行与正文行，避免表头和内容列数不一致。
+
+## 图片
+
+支持通过工具栏插入图片，也支持直接粘贴图片。
+
+点击图片后可以：
+
+- 左对齐
+- 居中
+- 右对齐
+- 缩放到 25%、50%、75%、100%
+- 删除图片
+
+双击图片可以打开全屏预览。
 
 ## LaTeX
 
-- **Auto-render**: type `$...$` or `$$...$$` — renders on close
-- **Toolbar**: click `$` or `$$` button for a popup with live preview
-- **Edit**: click any rendered formula to re-edit
+- 输入 `$...$` 渲染行内公式。
+- 输入 `$$...$$` 渲染块级公式。
+- 点击已经渲染的公式可以重新编辑。
 
-## Images
+## 日历
 
-- **Insert**: toolbar camera button, or Ctrl+V paste
-- **Align**: click image for floating toolbar — left float / center / right float / inline
-- **Resize**: 25% / 50% / 75% / 100%
-- **Preview**: double-click for full-screen
+右侧日历提供四种视图：
 
-## Tables
+| 视图 | 说明 |
+| --- | --- |
+| 日 | 24 小时时间轴，自动铺满可用高度 |
+| 周 | 7 天时间轴，自动铺满可用高度 |
+| 月 | 标准月历，有内容的日期显示圆点 |
+| 年 | 12 个迷你月历，有内容的日期显示圆点 |
 
-- Click toolbar table button to insert
-- Click any cell for floating toolbar: insert row/column, delete row/column/table
+当天会高亮显示。日视图和周视图会显示当前时间线。
 
-## Calendar
+## 数据保存
 
-Right sidebar with four views:
+### 本地自动保存
 
-- **Month** — standard grid, dots on dates with entries
-- **Week** — 7-day timeline with current-time marker
-- **Day** — 24-hour timeline
-- **Year** — 12 mini-month grids with entry dots
+每次编辑都会在 600ms 防抖后保存到 `localStorage`。页面失焦、刷新或隐藏时也会尽量立即保存一次，降低内容丢失风险。
 
-## Data Storage
+### 链接文件
 
-### Auto-save
+点击右侧“链接文件”可以选择一个 JSON 文件，例如云盘同步目录中的 `diary.json`。
 
-Content saves to localStorage on every edit (600ms debounce).
+链接文件后：
 
-### Link file (recommended)
+- 编辑内容会写入该 JSON 文件。
+- 页面会把文件句柄保存到 IndexedDB。
+- 刷新后会尝试自动恢复上次链接的文件。
+- 如果浏览器仍保留写权限，会自动继续写入。
+- 如果浏览器要求重新授权，界面会提示已记住文件，需要点击“链接文件”恢复写入。
 
-Click "Link File" in the sidebar to connect a local JSON file (e.g. in a cloud-sync folder):
+重要限制：
 
-- Edits write to the file in real time
-- Opening the page reads the latest content
-- Works with OneDrive, Nutstore, etc.
-- Requires Chrome/Edge (File System Access API)
+- 自动恢复写权限受浏览器安全策略限制，网页不能绕过浏览器权限模型。
+- 推荐使用 Chrome 或 Edge。
+- 为了让文件句柄更稳定地持久化，建议通过 `http://localhost` 或 HTTPS 打开页面，而不是直接双击 `index.html` 使用 `file://` 打开。
 
-### Export / Import
+### 导出 / 导入
 
-- **Export**: save as `diary_YYYY-MM-DD.json`
-- **Import**: restore from a JSON file
+- 导出会生成 `diary_YYYY-MM-DD.json`。
+- 导入可以恢复已有 JSON 数据。
 
-### Data format
+### 数据格式
 
 ```json
 {
@@ -119,33 +156,39 @@ Click "Link File" in the sidebar to connect a local JSON file (e.g. in a cloud-s
 }
 ```
 
-## Toolbar
+## 工具栏
 
-Appears at top-center when editor is focused:
+编辑器聚焦时，顶部工具栏会显示在左侧编辑工作区上方。
 
-| Button | Function |
-|--------|----------|
-| **B** | Bold |
-| *I* | Italic |
-| U | Underline |
-| ~~S~~ | Strikethrough |
-| • | Unordered list |
-| 1. | Ordered list |
-| " | Blockquote |
-| █ | Insert table |
-| 📷 | Insert image |
-| </> | Insert code block |
-| ☐ | Insert todo |
-| $ | Inline LaTeX |
-| $$ | Display LaTeX |
+| 按钮 | 功能 |
+| --- | --- |
+| B | 加粗 |
+| I | 斜体 |
+| U | 下划线 |
+| S | 删除线 |
+| `-` | 无序列表 |
+| `1.` | 有序列表 |
+| `"` | 引用 |
+| 表格 | 插入表格 |
+| 图片 | 插入图片 |
+| `</>` | 插入代码块 |
+| 待办 | 插入待办事项 |
+| 水彩笔 | 高亮文本 |
+| 月亮 / 太阳 | 切换日夜模式 |
 
-Status indicator on the right: `...` = saving, `OK` = saved.
+右侧状态文字：
 
-## Browser Support
+- `...` 表示正在保存。
+- `OK` 表示保存完成。
 
-- **Recommended**: Chrome 86+, Edge 86+ (full file-link support)
-- **Basic**: Firefox, Safari (no file link, use export/import instead)
-- Requires internet for CDN resources (KaTeX, highlight.js)
+## 浏览器支持
+
+| 浏览器 | 支持情况 |
+| --- | --- |
+| Chrome / Edge | 推荐，支持链接文件 |
+| Firefox / Safari | 可编辑和本地保存，但通常不支持链接文件 |
+
+File System Access API 是浏览器能力，不是 Gravilog 自己实现的文件权限系统。因此不同浏览器、不同打开方式、不同隐私设置下，文件链接的持久性会有差异。
 
 ## License
 
