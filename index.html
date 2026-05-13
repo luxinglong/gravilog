@@ -25,7 +25,7 @@
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/plaintext.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#fff;color:#1a1a2e;height:100vh;display:flex;flex-direction:column}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#fff;color:#1a1a2e;height:100vh;display:flex;flex-direction:column;transition:background .3s,color .3s}
 .main{display:flex;flex:1;overflow:hidden}
 
 .doc-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden}
@@ -38,10 +38,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .doc table th{background:#f7f7f7;font-weight:600}
 .doc img{max-width:100%;border-radius:4px;margin:6px 0;cursor:pointer;transition:outline .15s;vertical-align:bottom}
 .doc img.sel-img{outline:2px solid #667eea;outline-offset:2px}
-.doc img.align-left{float:left;margin-right:12px;margin-bottom:6px;max-width:50%}
+.doc img.align-left{display:block;margin-right:auto;margin-bottom:6px;max-width:50%;float:none}
 .doc img.align-center{display:block;margin-left:auto;margin-right:auto;float:none;max-width:100%}
-.doc img.align-right{float:right;margin-left:12px;margin-bottom:6px;max-width:50%}
-.doc img.align-inline{display:inline;float:none;vertical-align:middle;max-width:40%}
+.doc img.align-right{display:block;margin-left:auto;margin-bottom:6px;max-width:50%;float:none}
 .doc blockquote{border-left:3px solid #667eea;padding-left:12px;color:#666;margin:6px 0}
 .doc ul,.doc ol{margin-left:24px;margin-top:4px;margin-bottom:4px;padding-left:0}
 .doc ul ul,.doc ol ol,.doc ul ol,.doc ol ul{margin-left:20px}
@@ -60,12 +59,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .tex-display{display:block;text-align:center;margin:8px 0;padding:6px;background:#fafaff;border-radius:4px;cursor:pointer}
 .tex-display:hover{background:#eef}
 
-.fbar{position:fixed;top:12px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:4px 8px;display:flex;align-items:center;gap:1px;box-shadow:0 2px 12px rgba(0,0,0,0.08);z-index:100;opacity:0;pointer-events:none;transition:opacity .2s}
-.fbar.show{opacity:1;pointer-events:auto}
+.fbar{position:fixed;top:12px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:4px 8px;display:flex;align-items:center;gap:1px;box-shadow:0 2px 12px rgba(0,0,0,0.08);z-index:100}
 .fbar button{background:none;border:none;border-radius:6px;width:30px;height:30px;cursor:pointer;font-size:13px;color:#555;display:flex;align-items:center;justify-content:center}
 .fbar button:hover{background:#f0f0ff;color:#333}
 .fbar .sep{width:1px;height:16px;background:#e8e8e8;margin:0 2px}
 .fbar .st{margin-left:6px;font-size:10px;color:#bbb;white-space:nowrap}
+
+.hl-picker{display:none;position:fixed;z-index:200;background:#fff;border:1px solid #e0e0e0;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.12);padding:10px;width:auto}
+.hl-picker.show{display:block}
+.hl-picker .hl-colors{display:flex;gap:6px;flex-wrap:wrap}
+.hl-picker .hl-dot{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border .15s,transform .15s}
+.hl-picker .hl-dot:hover{transform:scale(1.2)}
+.hl-picker .hl-dot.active{border:2px solid #333}
+.hl-picker .hl-remove{width:24px;height:24px;border-radius:50%;cursor:pointer;border:1px solid #ddd;background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#999;transition:background .15s}
+.hl-picker .hl-remove:hover{background:#f5f5f5}
+
+.doc span.hl{border-radius:2px;padding:1px 0}
 
 .ctx-bar{position:fixed;background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:4px 6px;display:none;gap:2px;box-shadow:0 2px 12px rgba(0,0,0,0.1);z-index:150;align-items:center;flex-wrap:wrap}
 .ctx-bar.show{display:flex}
@@ -168,6 +177,90 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px}
+
+/* Dark theme */
+body.dark{background:#1a1a2e;color:#e0e0e0}
+body.dark .doc{color:#e0e0e0}
+body.dark .doc:empty::before{color:#555}
+body.dark .doc table td,body.dark .doc table th{border-color:#3a3a5c}
+body.dark .doc table th{background:#252545}
+body.dark .doc blockquote{border-left-color:#667eea;color:#999}
+body.dark .doc pre{background:#252545;border-color:#3a3a5c}
+body.dark .doc code{background:#2a2a4a}
+body.dark .doc pre code{background:none}
+body.dark .code-lang{background:#1a1a2e;border-color:#3a3a5c;color:#888}
+body.dark .code-dots{color:#666}
+body.dark .todo-item.checked .todo-text{color:#666}
+body.dark .tex{background:#252545}
+body.dark .tex:hover{background:#2a2a4a}
+body.dark .tex-display{background:#252545}
+body.dark .tex-display:hover{background:#2a2a4a}
+
+body.dark .fbar{background:#252545;border-color:#3a3a5c;box-shadow:0 2px 12px rgba(0,0,0,0.3)}
+body.dark .fbar button{color:#bbb}
+body.dark .fbar button:hover{background:#3a3a5c;color:#fff}
+body.dark .fbar .sep{background:#3a3a5c}
+
+body.dark .hl-picker{background:#252545;border-color:#3a3a5c}
+body.dark .hl-picker .hl-remove{border-color:#3a3a5c;background:#1a1a2e;color:#888}
+body.dark .hl-picker .hl-remove:hover{background:#252545}
+
+body.dark .ctx-bar{background:#252545;border-color:#3a3a5c;box-shadow:0 2px 12px rgba(0,0,0,0.3)}
+body.dark .ctx-bar button{color:#bbb}
+body.dark .ctx-bar button:hover{background:#3a3a5c;color:#fff}
+body.dark .ctx-bar .sep{background:#3a3a5c}
+
+body.dark .tex-input{background:#252545;border-color:#3a3a5c}
+body.dark .tex-input textarea{background:#1a1a2e;border-color:#3a3a5c;color:#e0e0e0}
+body.dark .tex-input textarea:focus{border-color:#667eea}
+body.dark .tex-input .ti-btns button{background:#1a1a2e;border-color:#3a3a5c;color:#e0e0e0}
+body.dark .tex-input .ti-btns .ok{background:#667eea;color:#fff;border-color:#667eea}
+
+body.dark .sidebar{background:#1e1e38;border-left-color:#3a3a5c}
+body.dark .cal-hd{border-bottom-color:#3a3a5c}
+body.dark .cal-nav button{border-color:#3a3a5c;color:#bbb}
+body.dark .cal-nav button:hover{background:#252545}
+body.dark .cal-title{color:#e0e0e0}
+body.dark .cal-views button{background:#252545;border-color:#3a3a5c;color:#bbb}
+body.dark .cal-views button.active{background:#667eea;color:#fff;border-color:#667eea}
+body.dark .cal-views button:hover:not(.active){background:#2a2a4a}
+body.dark .cal-d:hover{background:#2a2a4a}
+body.dark .cal-d.om{color:#444}
+body.dark .cal-d .dot{background:#8b9cf7}
+body.dark .cal-year .mm{border-color:#3a3a5c}
+body.dark .cal-year .mm:hover{border-color:#667eea}
+body.dark .mm-t{color:#e0e0e0}
+
+body.dark .dv-hd{color:#e0e0e0;border-bottom-color:#3a3a5c}
+body.dark .dv-hr{border-bottom-color:#2a2a4a}
+body.dark .dv-lb{color:#666;border-right-color:#3a3a5c}
+body.dark .dv-sl:hover{background:#252545}
+body.dark .wv-hd{border-bottom-color:#3a3a5c}
+body.dark .wv-dh{border-left-color:#2a2a4a;color:#bbb}
+body.dark .wv-dh.sel{background:#252545}
+body.dark .wv-col{border-left-color:#2a2a4a}
+body.dark .wv-cl{border-bottom-color:#222}
+body.dark .wv-cl:hover{background:#252545}
+body.dark .wv-tl{color:#666}
+
+body.dark .stor{background:#1e1e38;border-top-color:#3a3a5c}
+body.dark .stor-title{color:#888}
+body.dark .stor-status{color:#8b9cf7}
+body.dark .stor-btns button{background:#252545;border-color:#3a3a5c;color:#bbb}
+body.dark .stor-btns button:hover{background:#3a3a5c;border-color:#667eea;color:#fff}
+body.dark .stor-btns button.primary{background:#667eea;color:#fff;border-color:#667eea}
+body.dark .stor-hint{color:#555}
+
+body.dark .td-dlg-in{background:#252545}
+body.dark .td-dlg-in h3{color:#e0e0e0}
+body.dark .td-dlg-in label{color:#888}
+body.dark .td-dlg-in input{background:#1a1a2e;border-color:#3a3a5c;color:#e0e0e0}
+body.dark .td-dlg-in input:focus{border-color:#667eea}
+body.dark .td-dlg-b button{background:#1a1a2e;border-color:#3a3a5c;color:#e0e0e0}
+body.dark .td-dlg-b .ok{background:#667eea;color:#fff;border-color:#667eea}
+
+body.dark ::-webkit-scrollbar-thumb{background:#444}
+
 </style>
 </head>
 <body>
@@ -204,17 +297,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
   <span class="sep"></span>
   <button onclick="insertTodo()" title="待办事项">&#9744;</button>
   <span class="sep"></span>
-  <button onclick="showTexInput(false)" title="行内LaTeX">$</button>
-  <button onclick="showTexInput(true)" title="独立LaTeX">$$</button>
+  <button onclick="applyHighlight()" title="水彩笔" id="hlBtn">&#9998;</button>
+  <span class="sep"></span>
+  <button onclick="toggleDark()" title="日夜模式" id="darkBtn">&#9790;</button>
   <span class="st" id="st"></span>
 </div>
 
 <!-- Image toolbar -->
 <div class="ctx-bar" id="imgBar">
-  <button onclick="imgAlign('left')">左浮动</button>
+  <button onclick="imgAlign('left')">左对齐</button>
   <button onclick="imgAlign('center')">居中</button>
-  <button onclick="imgAlign('right')">右浮动</button>
-  <button onclick="imgAlign('inline')">行内</button>
+  <button onclick="imgAlign('right')">右对齐</button>
   <span class="sep"></span>
   <button onclick="imgSize('25%')">25%</button>
   <button onclick="imgSize('50%')">50%</button>
@@ -241,6 +334,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 <div class="img-modal" id="imgModal" onclick="this.classList.remove('show')"><img id="imgModalSrc" src=""></div>
 <div class="td-dlg" id="tdDlg"><div class="td-dlg-in"><h3>插入表格</h3><label>行数</label><input type="number" id="tRows" value="3" min="1" max="20"><label>列数</label><input type="number" id="tCols" value="3" min="1" max="10"><div class="td-dlg-b"><button onclick="hideTableDlg()">取消</button><button class="ok" onclick="insertTable()">插入</button></div></div></div>
 <div class="tex-input" id="texInput"><textarea id="texArea" placeholder="输入 LaTeX，如 E=mc^2"></textarea><div class="ti-preview" id="texPreview"></div><div class="ti-btns"><button onclick="hideTexInput()">取消</button><button class="ok" onclick="confirmTex()">插入</button></div></div>
+<div class="hl-picker" id="hlPicker">
+  <div class="hl-colors" id="hlColors"></div>
+</div>
 <input type="file" id="imgPicker" accept="image/*" style="display:none" onchange="handleImg(event)">
 <input type="file" id="importPicker" accept=".json" style="display:none" onchange="handleImport(event)">
 
@@ -248,6 +344,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 const STORAGE_KEY='diary_doc',DATES_KEY='diary_edit_dates';
 let calView='month',calYear=new Date().getFullYear(),calMonth=new Date().getMonth(),calWeekStart=getMon(new Date()),selectedDate=null,saveTimer=null;
 let texDisplay=false,fileHandle=null,selImg=null;
+
+const DARK_KEY='diary_dark';
+function initDark(){
+  if(localStorage.getItem(DARK_KEY)==='1')document.body.classList.add('dark');
+  updateDarkBtn();
+}
+function toggleDark(){
+  document.body.classList.toggle('dark');
+  localStorage.setItem(DARK_KEY,document.body.classList.contains('dark')?'1':'0');
+  updateDarkBtn();
+}
+function updateDarkBtn(){
+  document.getElementById('darkBtn').textContent=document.body.classList.contains('dark')?'☀':'☾';
+}
+initDark();
 
 const doc=document.getElementById('doc');
 doc.innerHTML=localStorage.getItem(STORAGE_KEY)||'';
@@ -271,6 +382,10 @@ function renderAllContent(){
   // Highlight code
   doc.querySelectorAll('pre code').forEach(el=>{
     if(!el.classList.contains('hljs')){try{hljs.highlightElement(el)}catch(e){}}
+  });
+  // Tag highlight spans
+  doc.querySelectorAll('span[style*="background-color"]').forEach(s=>{
+    if(!s.classList.contains('hl'))s.classList.add('hl');
   });
 }
 
@@ -345,7 +460,7 @@ function getDates(){return JSON.parse(localStorage.getItem(DATES_KEY)||'[]')}
 doc.addEventListener('focus',()=>document.getElementById('fbar').classList.add('show'));
 doc.addEventListener('blur',()=>setTimeout(()=>{
   if(!document.activeElement||!document.activeElement.closest('.fbar,.ctx-bar,.tex-input,.td-dlg')){
-    document.getElementById('fbar').classList.remove('show');hideCtxBars();
+    hideCtxBars();
   }
 },200));
 
@@ -376,19 +491,30 @@ function autoRenderCheck(){
   const hm=before.match(/^(#{1,6})\s+$/);
   if(hm){n.textContent='';document.execCommand('formatBlock',false,'h'+hm[1].length);return}
 
-  // Unordered list: - or * (alone on line)
-  if(/^[-*]\s+$/.test(before)){n.textContent='';document.execCommand('insertUnorderedList');return}
-
-  // Ordered list: 1. (alone on line)
-  if(/^\d+\.\s+$/.test(before)){n.textContent='';document.execCommand('insertOrderedList');return}
-
-  // Todo: - [ ] or - [x]
+  // Todo: - [ ] or - [x] (must check before unordered list)
   const tm=before.match(/^- \[([ xX])\]\s+$/);
   if(tm){const checked=tm[1]!==' ';
     n.textContent='';
     const html='<div class="todo-item'+(checked?' checked':'')+'"><input type="checkbox"'+(checked?' checked':'')+'><span class="todo-text"><br></span></div>';
     document.execCommand('insertHTML',false,html);return;
   }
+
+  // Todo inside list item: after "- " triggers UL, user types "[ ] " inside <li>
+  const li=n.parentNode&&n.parentNode.closest?n.parentNode.closest('li'):null;
+  if(li){
+    const tm2=before.match(/^\[([ xX])\]\s+$/);
+    if(tm2){const checked=tm2[1]!==' ';
+      li.remove();
+      const html='<div class="todo-item'+(checked?' checked':'')+'"><input type="checkbox"'+(checked?' checked':'')+'><span class="todo-text"><br></span></div>';
+      document.execCommand('insertHTML',false,html);return;
+    }
+  }
+
+  // Unordered list: - or * (alone on line)
+  if(/^[-*]\s+$/.test(before)){n.textContent='';document.execCommand('insertUnorderedList');return}
+
+  // Ordered list: 1. (alone on line)
+  if(/^\d+\.\s+$/.test(before)){n.textContent='';document.execCommand('insertOrderedList');return}
 
   // Blockquote: >
   if(/^>\s+$/.test(before)){n.textContent='';document.execCommand('formatBlock',false,'blockquote');return}
@@ -561,7 +687,24 @@ function handleMdEnter(e){
   // Continue todo
   if(blk.classList&&blk.classList.contains('todo-item')){
     e.preventDefault();
-    document.execCommand('insertHTML',false,'</div><div class="todo-item"><input type="checkbox"><span class="todo-text"><br></span></div>');
+    // Empty todo → exit todo mode
+    if(blk.textContent.trim()===''){
+      const p=document.createElement('p');p.innerHTML='<br>';
+      blk.after(p);blk.remove();
+      const range=document.createRange();range.setStart(p,0);range.collapse(true);
+      const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+      save();return;
+    }
+    const newItem=document.createElement('div');
+    newItem.className='todo-item';
+    newItem.innerHTML='<input type="checkbox"><span class="todo-text"><br></span>';
+    blk.after(newItem);
+    // Move cursor into new todo text
+    const textSpan=newItem.querySelector('.todo-text');
+    const range=document.createRange();
+    range.setStart(textSpan,0);range.collapse(true);
+    const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+    save();
   }
 }
 
@@ -620,7 +763,7 @@ function showImgBar(img){
   bar.style.top=Math.max(4,r.top-36)+'px';bar.style.left=Math.max(4,r.left)+'px';
   bar.classList.add('show');
 }
-function imgAlign(a){if(!selImg)return;selImg.classList.remove('align-left','align-center','align-right','align-inline');if(a!=='center')selImg.classList.add('align-'+a);save()}
+function imgAlign(a){if(!selImg)return;selImg.classList.remove('align-left','align-center','align-right');selImg.classList.add('align-'+a);save()}
 function imgSize(pct){if(!selImg)return;selImg.style.width=pct;selImg.style.maxWidth=pct;save()}
 function imgDelete(){if(!selImg)return;selImg.remove();selImg=null;hideCtxBars();save()}
 
@@ -664,6 +807,79 @@ function hideCtxBars(){document.getElementById('imgBar').classList.remove('show'
 
 // ===== Editor Commands =====
 function execCmd(c,v){doc.focus();document.execCommand(c,false,v||null)}
+
+// ===== Watercolor Highlight =====
+const hlColors=[
+  {name:'黄',bg:'rgba(255,235,59,0.35)'},
+  {name:'绿',bg:'rgba(76,175,80,0.3)'},
+  {name:'蓝',bg:'rgba(33,150,243,0.3)'},
+  {name:'粉',bg:'rgba(233,30,99,0.25)'},
+  {name:'橙',bg:'rgba(255,152,0,0.3)'},
+  {name:'紫',bg:'rgba(156,39,176,0.25)'},
+  {name:'青',bg:'rgba(0,188,212,0.3)'}
+];
+let hlPickerVisible=false,hlSavedRange=null;
+(function initHlPicker(){
+  const box=document.getElementById('hlColors');
+  hlColors.forEach((c,i)=>{
+    const d=document.createElement('div');d.className='hl-dot';d.style.background=c.bg;d.title=c.name;
+    d.onclick=()=>applyHlColor(i);box.appendChild(d);
+  });
+  const rm=document.createElement('div');rm.className='hl-remove';rm.title='清除';rm.innerHTML='&#10005;';
+  rm.onclick=()=>removeHighlight();box.appendChild(rm);
+})();
+function applyHighlight(){
+  // Save selection before opening picker
+  const sel=window.getSelection();
+  if(sel&&sel.rangeCount>0)hlSavedRange=sel.getRangeAt(0).cloneRange();
+  else hlSavedRange=null;
+  toggleHlPicker();
+}
+function toggleHlPicker(){
+  const p=document.getElementById('hlPicker');
+  if(hlPickerVisible){p.classList.remove('show');hlPickerVisible=false;return}
+  const btn=document.getElementById('hlBtn'),r=btn.getBoundingClientRect();
+  p.style.top=(r.bottom+6)+'px';p.style.left=(r.left+r.width/2-60)+'px';
+  p.classList.add('show');hlPickerVisible=true;
+}
+function applyHlColor(i){
+  const c=hlColors[i];
+  // Restore saved selection
+  if(hlSavedRange){
+    const sel=window.getSelection();sel.removeAllRanges();sel.addRange(hlSavedRange);
+  }
+  doc.focus();
+  document.execCommand('hiliteColor',false,c.bg);
+  doc.querySelectorAll('span[style*="background-color"]').forEach(s=>{
+    if(!s.classList.contains('hl'))s.classList.add('hl');
+  });
+  document.getElementById('hlPicker').classList.remove('show');hlPickerVisible=false;hlSavedRange=null;
+  save();
+}
+function removeHighlight(){
+  if(hlSavedRange){
+    const sel=window.getSelection();sel.removeAllRanges();sel.addRange(hlSavedRange);
+  }
+  const sel=window.getSelection();
+  if(!sel||sel.isCollapsed){
+    const node=sel.anchorNode;
+    const span=node&&node.parentElement&&node.parentElement.closest('span.hl');
+    if(span){
+      const parent=span.parentNode;
+      while(span.firstChild)parent.insertBefore(span.firstChild,span);
+      parent.removeChild(span);
+    }
+  }else{
+    document.execCommand('hiliteColor',false,'transparent');
+  }
+  document.getElementById('hlPicker').classList.remove('show');hlPickerVisible=false;hlSavedRange=null;
+  save();
+}
+document.addEventListener('mousedown',e=>{
+  if(hlPickerVisible&&!e.target.closest('#hlPicker')&&!e.target.closest('#hlBtn')){
+    document.getElementById('hlPicker').classList.remove('show');hlPickerVisible=false;
+  }
+});
 function showTableDlg(){document.getElementById('tdDlg').classList.add('show')}
 function hideTableDlg(){document.getElementById('tdDlg').classList.remove('show')}
 function insertTable(){
