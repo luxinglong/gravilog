@@ -321,8 +321,8 @@ body.dark .doc:hover::-webkit-scrollbar-thumb{background:rgba(148,163,184,.18)}
   <button onclick="execCmd('underline')" title="下划线"><u>U</u></button>
   <button onclick="execCmd('strikeThrough')" title="删除线"><s>S</s></button>
   <span class="sep"></span>
-  <button onclick="execCmd('insertUnorderedList')" title="无序列表">&#8226;</button>
-  <button onclick="execCmd('insertOrderedList')" title="有序列表">1.</button>
+  <button onclick="insertList('ul')" title="无序列表">&#8226;</button>
+  <button onclick="insertList('ol')" title="有序列表">1.</button>
   <button onclick="execCmd('formatBlock','<blockquote>')" title="引用">&#8220;</button>
   <span class="sep"></span>
   <button onclick="showTableDlg()" title="表格">&#9638;</button>
@@ -653,10 +653,10 @@ function autoRenderCheck(){
   }
 
   // Unordered list: - or * (alone on line)
-  if(/^[-*]\s+$/.test(before)){n.textContent='';document.execCommand('insertUnorderedList');return}
+  if(/^[-*]\s+$/.test(before)){insertList('ul',{markerNode:n,markerLength:before.length});return}
 
   // Ordered list: 1. (alone on line)
-  if(/^\d+\.\s+$/.test(before)){n.textContent='';document.execCommand('insertOrderedList');return}
+  if(/^\d+\.\s+$/.test(before)){insertList('ol',{markerNode:n,markerLength:before.length});return}
 
   // Blockquote: >
   if(/^>\s+$/.test(before)){n.textContent='';document.execCommand('formatBlock',false,'blockquote');return}
@@ -783,6 +783,97 @@ function getCursorBlock(){
     n=n.parentNode;
   }
   return null;
+}
+
+function setCursorInText(el,offset){
+  const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null);
+  let pos=0,last=null;
+  while(walker.nextNode()){
+    const node=walker.currentNode;
+    last=node;
+    const next=pos+node.length;
+    if(next>=offset){
+      const range=document.createRange();
+      range.setStart(node,Math.max(0,offset-pos));
+      range.collapse(true);
+      const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+      return;
+    }
+    pos=next;
+  }
+  const range=document.createRange();
+  if(last)range.setStart(last,last.length);
+  else range.setStart(el,0);
+  range.collapse(true);
+  const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+}
+
+function textOffsetInElement(el,node,offset){
+  const range=document.createRange();
+  range.selectNodeContents(el);
+  try{range.setEnd(node,offset)}catch(e){return el.textContent.length}
+  return range.toString().length;
+}
+
+function ensureEditableLine(){
+  const p=document.createElement('p');
+  p.appendChild(document.createElement('br'));
+  doc.appendChild(p);
+  const range=document.createRange();
+  range.setStart(p,0);range.collapse(true);
+  const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+  return p;
+}
+
+function unwrapListItem(li){
+  const list=li.parentNode;
+  const p=document.createElement('p');
+  while(li.firstChild)p.appendChild(li.firstChild);
+  if(!p.childNodes.length)p.appendChild(document.createElement('br'));
+  list.parentNode.insertBefore(p,list);
+  li.remove();
+  if(!list.children.length)list.remove();
+  setCursorInText(p,p.textContent.length);
+  save();
+}
+
+function insertList(kind,opts){
+  doc.focus();
+  const tag=kind==='ol'?'ol':'ul';
+  const sel=window.getSelection();
+  if(!sel.rangeCount)return;
+  let block=getCursorBlock();
+  if(!block)block=ensureEditableLine();
+
+  if(block.nodeName==='LI'){
+    if(block.parentNode&&block.parentNode.nodeName.toLowerCase()===tag)unwrapListItem(block);
+    else document.execCommand(tag==='ol'?'insertOrderedList':'insertUnorderedList');
+    return;
+  }
+
+  const anchor=sel.anchorNode;
+  const anchorOffset=sel.anchorOffset;
+  const markerNode=opts&&opts.markerNode;
+  const markerLength=opts&&opts.markerLength||0;
+  let cursorOffset=0;
+  if(markerNode&&block.contains(markerNode)){
+    const start=textOffsetInElement(block,markerNode,0);
+    const before=markerNode.textContent.slice(0,markerLength);
+    const after=markerNode.textContent.slice(markerLength);
+    markerNode.textContent=after;
+    cursorOffset=start;
+  }else if(block.contains(anchor)){
+    cursorOffset=textOffsetInElement(block,anchor,anchorOffset);
+  }
+
+  const list=document.createElement(tag);
+  const li=document.createElement('li');
+  while(block.firstChild)li.appendChild(block.firstChild);
+  if(!li.textContent.trim()&&!li.querySelector('img,table,pre,.tex,.tex-display'))li.innerHTML='<br>';
+  list.appendChild(li);
+  block.replaceWith(list);
+  setCursorInText(li,cursorOffset);
+  save();
 }
 
 function getCursorCode(){
