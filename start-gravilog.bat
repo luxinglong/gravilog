@@ -3,7 +3,7 @@ setlocal
 
 cd /d "%~dp0"
 
-where py >nul 2>nul
+where python >nul 2>nul
 if %errorlevel%==0 (
   set "PYTHON_CMD=python"
 ) else (
@@ -19,11 +19,7 @@ if %errorlevel%==0 (
   )
 )
 
-for /f %%P in ('powershell -NoProfile -ExecutionPolicy Bypass -Command "$listener=[Net.Sockets.TcpListener]::new([Net.IPAddress]::Loopback,0);$listener.Start();$port=$listener.LocalEndpoint.Port;$listener.Stop();$port"') do set "PORT=%%P"
-
-if "%PORT%"=="" (
-  set "PORT=8000"
-)
+set "PORT=8765"
 
 set "URL=http://localhost:%PORT%/index.html"
 

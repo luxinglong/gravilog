@@ -29,8 +29,15 @@
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#fff;color:#1a1a2e;height:100vh;display:flex;flex-direction:column;transition:background .3s,color .3s}
 .main{display:flex;flex:1;overflow:hidden}
 
-.doc-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:0 clamp(28px,5vw,96px)}
-.doc{flex:1;width:min(100%,860px);margin:0 auto;padding:36px 0 88px;overflow-y:auto;font-size:15px;line-height:1.8;outline:none;word-break:break-word}
+.doc-wrap{--gravity-depth:0;--gravity-motion:0;--gravity-shift:0px;--gravity-shadow:0px;--gravity-blur:0px;--gravity-stretch:1;flex:1;display:flex;flex-direction:column;overflow:hidden;padding:0 clamp(28px,5vw,96px);position:relative;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(248,250,252,.82) 48%,rgba(241,245,249,.72))}
+.doc-wrap::before{content:'';position:absolute;inset:-18px 0;pointer-events:none;background:linear-gradient(90deg,transparent 0,transparent calc(50% - 431px),rgba(99,102,241,.055) calc(50% - 430px),transparent calc(50% - 428px),transparent calc(50% + 428px),rgba(45,212,191,.055) calc(50% + 430px),transparent calc(50% + 431px)),repeating-linear-gradient(180deg,rgba(148,163,184,.09) 0 1px,transparent 1px 96px);background-position:0 calc(var(--gravity-depth)*-120px + var(--gravity-shift));opacity:calc(.2 + var(--gravity-motion)*.55);filter:blur(var(--gravity-blur));transform:scaleY(var(--gravity-stretch));transform-origin:center;mask-image:linear-gradient(180deg,transparent 0,#000 18%,#000 78%,transparent 100%);transition:opacity .08s ease-out,filter .08s ease-out,transform .08s ease-out}
+.doc-wrap::after{content:'';position:absolute;left:0;right:0;top:0;height:118px;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,255,255,.72) 54%,transparent),linear-gradient(180deg,rgba(99,102,241,calc(var(--gravity-motion)*.14)),transparent 70%);z-index:2}
+.doc{flex:1;width:min(100%,860px);margin:0 auto;padding:52px 0 96px;overflow-y:auto;font-size:15px;line-height:1.8;outline:none;word-break:break-word;position:relative;z-index:3}
+.doc.gravity-flow>*{text-shadow:0 var(--gravity-shadow) calc(var(--gravity-motion)*30px) rgba(15,23,42,.28);transition:text-shadow .08s ease-out}
+.doc.gravity-flow>*.gravity-past{opacity:1;filter:none}
+@media (max-width:980px){
+  .doc{padding-top:48px}
+}
 .doc:empty::before{content:'开始写点什么...';color:#d0d0d0;pointer-events:none}
 .doc h1,.doc h2,.doc h3,.doc h4{margin:12px 0 4px;line-height:1.4}
 .doc h1{font-size:24px}.doc h2{font-size:20px}.doc h3{font-size:17px}.doc h4{font-size:15px;font-weight:700}
@@ -61,21 +68,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .tex-display{display:block;text-align:center;margin:8px 0;padding:6px;background:#fafaff;border-radius:4px;cursor:pointer}
 .tex-display:hover{background:#eef}
 
-.fbar{position:fixed;top:12px;left:calc((100vw - var(--sidebar-w))/2);transform:translateX(-50%);background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:4px 8px;display:flex;align-items:center;gap:1px;box-shadow:0 2px 12px rgba(0,0,0,0.08);z-index:100}
-.fbar button{background:none;border:none;border-radius:6px;width:30px;height:30px;cursor:pointer;font-size:13px;color:#555;display:flex;align-items:center;justify-content:center}
-.fbar button:hover{background:#f0f0ff;color:#333}
+.fbar{position:fixed;top:12px;left:calc((100vw - var(--sidebar-w))/2);transform:translateX(-50%);background:rgba(255,255,255,.92);border:1px solid rgba(226,232,240,.9);border-radius:12px;padding:5px 8px;display:flex;align-items:center;gap:2px;box-shadow:0 10px 30px rgba(15,23,42,.1),0 1px 2px rgba(15,23,42,.06);z-index:100;backdrop-filter:blur(14px)}
+.fbar button{background:none;border:none;border-radius:8px;width:31px;height:31px;cursor:pointer;color:#5f6673;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s,box-shadow .15s,transform .15s}
+.fbar button:hover{background:#f4f6ff;color:#20263a;box-shadow:inset 0 0 0 1px rgba(102,126,234,.08)}
+.fbar button:active{transform:translateY(1px)}
 .fbar button:disabled{opacity:.3;cursor:default;pointer-events:none}
-.fbar .sep{width:1px;height:16px;background:#e8e8e8;margin:0 2px}
+.fbar button svg{width:17px;height:17px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fbar button .solid{fill:currentColor;stroke:none}
+.fbar button .txt{font-size:15px;font-weight:700;line-height:1;font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+.fbar button .txt.italic{font-style:italic}
+.fbar .split{display:flex;align-items:center;gap:0}
+.fbar .split button:first-child{border-radius:8px 4px 4px 8px}
+.fbar .split button:last-child{width:21px;border-radius:4px 8px 8px 4px}
+.fbar .split button:last-child svg{width:13px;height:13px}
+.fbar .color-mark{position:relative}
+.fbar .color-mark::after{content:'';position:absolute;left:7px;right:7px;bottom:5px;height:2px;border-radius:2px;background:var(--mark-color,#ffeb3b)}
+.fbar .theme-sun{display:none}
+body.dark .fbar .theme-moon{display:none}
+body.dark .fbar .theme-sun{display:block}
+.fbar .sep{width:1px;height:18px;background:#e8e8e8;margin:0 3px}
 .fbar .st{margin-left:6px;font-size:10px;color:#bbb;white-space:nowrap}
 
-.hl-picker{display:none;position:fixed;z-index:200;background:#fff;border:1px solid #e0e0e0;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.12);padding:10px;width:auto}
-.hl-picker.show{display:block}
-.hl-picker .hl-colors{display:flex;gap:6px;flex-wrap:wrap}
-.hl-picker .hl-dot{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border .15s,transform .15s}
-.hl-picker .hl-dot:hover{transform:scale(1.2)}
-.hl-picker .hl-dot.active{border:2px solid #333}
-.hl-picker .hl-remove{width:24px;height:24px;border-radius:50%;cursor:pointer;border:1px solid #ddd;background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#999;transition:background .15s}
-.hl-picker .hl-remove:hover{background:#f5f5f5}
+.color-picker{display:none;position:fixed;z-index:200;background:#fff;border:1px solid #e0e0e0;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.12);padding:10px;width:auto}
+.color-picker.show{display:block}
+.color-picker .color-grid{display:flex;gap:6px;flex-wrap:wrap}
+.color-picker .color-dot{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border .15s,transform .15s}
+.color-picker .color-dot:hover{transform:scale(1.2)}
+.color-picker .color-dot.active{border:2px solid #fff;box-shadow:0 0 0 1px #333}
+.color-picker .color-remove{width:24px;height:24px;border-radius:50%;cursor:pointer;border:1px solid #ddd;background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#999;transition:background .15s}
+.color-picker .color-remove:hover{background:#f5f5f5}
 
 .doc span.hl{border-radius:2px;padding:1px 0}
 
@@ -167,6 +188,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .stor-btns button.primary:hover{opacity:.85}
 .stor-hint{font-size:10px;color:#bbb;margin-top:6px;line-height:1.4}
 
+.mount-gate{position:fixed;inset:0;z-index:900;background:rgba(248,250,252,.82);backdrop-filter:blur(18px);display:flex;align-items:center;justify-content:center;padding:24px}
+.mount-gate.hide{display:none}
+.mount-panel{width:min(92vw,380px);background:rgba(255,255,255,.92);border:1px solid rgba(226,232,240,.9);border-radius:14px;box-shadow:0 24px 70px rgba(15,23,42,.16);padding:22px}
+.mount-title{font-size:18px;font-weight:700;color:#111827;margin-bottom:8px}
+.mount-copy{font-size:13px;line-height:1.7;color:#64748b;margin-bottom:16px}
+.mount-file{font-size:12px;color:#475569;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;margin-bottom:14px;word-break:break-all}
+.mount-actions{display:flex;gap:8px}
+.mount-actions button{height:34px;padding:0 14px;border-radius:8px;border:1px solid #d7dce5;background:#fff;color:#334155;font-size:13px;cursor:pointer}
+.mount-actions .primary{background:#667eea;border-color:#667eea;color:#fff;flex:1}
+.mount-actions button:disabled{opacity:.55;cursor:default}
+.mount-msg{min-height:18px;margin-top:12px;font-size:12px;color:#64748b}
+.mount-msg.err{color:#dc2626}
+body.mounting .doc-wrap,body.mounting .sidebar{filter:blur(1px);pointer-events:none}
+body.mounting .fbar{display:none}
+
 .td-dlg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.2);z-index:999;align-items:center;justify-content:center}
 .td-dlg.show{display:flex}
 .td-dlg-in{background:#fff;border-radius:10px;padding:20px;width:260px}
@@ -203,6 +239,10 @@ body.dark{
   color:var(--dark-text);
 }
 body.dark .doc{color:var(--dark-text)}
+body.dark .doc-wrap{background:linear-gradient(180deg,rgba(13,17,23,.96),rgba(15,21,29,.9) 48%,rgba(10,15,22,.96))}
+body.dark .doc-wrap::before{background:linear-gradient(90deg,transparent 0,transparent calc(50% - 431px),rgba(139,156,255,.07) calc(50% - 430px),transparent calc(50% - 428px),transparent calc(50% + 428px),rgba(45,212,191,.06) calc(50% + 430px),transparent calc(50% + 431px)),repeating-linear-gradient(180deg,rgba(148,163,184,.05) 0 1px,transparent 1px 104px);opacity:calc(.16 + var(--gravity-motion)*.32)}
+body.dark .doc-wrap::after{background:linear-gradient(180deg,rgba(13,17,23,.98),rgba(13,17,23,.72) 54%,transparent)}
+body.dark .doc.gravity-flow>*{text-shadow:0 var(--gravity-shadow) calc(var(--gravity-motion)*32px) rgba(0,0,0,.48)}
 body.dark .doc:empty::before{color:var(--dark-faint)}
 body.dark .doc table td,body.dark .doc table th{border-color:var(--dark-line-strong)}
 body.dark .doc table th{background:rgba(24,33,45,.86)}
@@ -225,9 +265,9 @@ body.dark .fbar button:hover{background:rgba(139,156,255,.16);color:#fff}
 body.dark .fbar button:disabled{opacity:.3;pointer-events:none}
 body.dark .fbar .sep{background:var(--dark-line)}
 
-body.dark .hl-picker{background:rgba(19,25,34,.95);border-color:var(--dark-line);box-shadow:0 18px 42px rgba(0,0,0,.35)}
-body.dark .hl-picker .hl-remove{border-color:var(--dark-line);background:rgba(13,17,23,.92);color:var(--dark-muted)}
-body.dark .hl-picker .hl-remove:hover{background:rgba(32,43,56,.9)}
+body.dark .color-picker{background:rgba(19,25,34,.95);border-color:var(--dark-line);box-shadow:0 18px 42px rgba(0,0,0,.35)}
+body.dark .color-picker .color-remove{border-color:var(--dark-line);background:rgba(13,17,23,.92);color:var(--dark-muted)}
+body.dark .color-picker .color-remove:hover{background:rgba(32,43,56,.9)}
 
 body.dark .ctx-bar{background:rgba(19,25,34,.9);border-color:var(--dark-line);box-shadow:0 18px 46px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.05);backdrop-filter:blur(18px)}
 body.dark .ctx-bar button{color:#c8d3df}
@@ -283,6 +323,16 @@ body.dark .stor-btns button:hover{background:rgba(139,156,255,.14);border-color:
 body.dark .stor-btns button.primary{background:linear-gradient(135deg,var(--dark-accent),var(--dark-accent-2));color:#071018;border-color:transparent}
 body.dark .stor-hint{color:var(--dark-faint)}
 
+body.dark .mount-gate{background:rgba(13,17,23,.78)}
+body.dark .mount-panel{background:rgba(19,25,34,.94);border-color:var(--dark-line);box-shadow:0 24px 80px rgba(0,0,0,.42)}
+body.dark .mount-title{color:var(--dark-text)}
+body.dark .mount-copy{color:var(--dark-muted)}
+body.dark .mount-file{background:rgba(13,17,23,.72);border-color:var(--dark-line);color:#c8d3df}
+body.dark .mount-actions button{background:rgba(13,17,23,.86);border-color:var(--dark-line);color:var(--dark-text)}
+body.dark .mount-actions .primary{background:linear-gradient(135deg,var(--dark-accent),var(--dark-accent-2));border-color:transparent;color:#071018}
+body.dark .mount-msg{color:var(--dark-muted)}
+body.dark .mount-msg.err{color:#fb7185}
+
 body.dark .td-dlg{background:rgba(2,6,12,.56);backdrop-filter:blur(6px)}
 body.dark .td-dlg-in{background:rgba(19,25,34,.98);border:1px solid var(--dark-line);box-shadow:0 24px 70px rgba(0,0,0,.48)}
 body.dark .td-dlg-in h3{color:var(--dark-text)}
@@ -300,8 +350,27 @@ body.dark .doc:hover::-webkit-scrollbar-thumb{background:rgba(148,163,184,.18)}
 </style>
 </head>
 <body>
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 8H4V3"/><path d="M4 8c2.2-2.7 5.1-4 8.3-3.6 4.3.5 7.7 4.1 7.7 8.6 0 4.7-3.8 8.5-8.5 8.5-2.4 0-4.6-1-6.1-2.6"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 24 24"><path d="M15 8h5V3"/><path d="M20 8c-2.2-2.7-5.1-4-8.3-3.6C7.4 4.9 4 8.5 4 13c0 4.7 3.8 8.5 8.5 8.5 2.4 0 4.6-1 6.1-2.6"/></symbol>
+  <symbol id="i-ul" viewBox="0 0 24 24"><path d="M9 6h11"/><path d="M9 12h11"/><path d="M9 18h11"/><path d="M4.5 6h.01"/><path d="M4.5 12h.01"/><path d="M4.5 18h.01"/></symbol>
+  <symbol id="i-ol" viewBox="0 0 24 24"><path d="M10 6h10"/><path d="M10 12h10"/><path d="M10 18h10"/><path d="M4 5h1v4"/><path d="M4 9h2"/><path d="M4 12h2l-2 3h2"/><path d="M4 19h2"/><path d="M5.8 18v4"/></symbol>
+  <symbol id="i-quote" viewBox="0 0 24 24"><path d="M9 8H5.8c-.5 0-.8.3-.8.8V12h4v5H4.5C4 17 4 16.7 4 16.3V12c0-3 1.4-5 4.4-6"/><path d="M20 8h-3.2c-.5 0-.8.3-.8.8V12h4v5h-4.5c-.5 0-.5-.3-.5-.7V12c0-3 1.4-5 4.4-6"/></symbol>
+  <symbol id="i-table" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M4 10h16"/><path d="M4 15h16"/><path d="M9 5v14"/><path d="M15 5v14"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="m4 16 4.2-4.2a1.6 1.6 0 0 1 2.3 0L15 16"/><path d="m13 14 1.2-1.2a1.6 1.6 0 0 1 2.3 0L20 16.3"/><circle cx="16.5" cy="9" r="1.2"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 9-4 3 4 3"/><path d="m16 9 4 3-4 3"/><path d="m14 5-4 14"/></symbol>
+  <symbol id="i-todo" viewBox="0 0 24 24"><rect x="4" y="5" width="15" height="15" rx="3"/><path d="m8 12.5 2.5 2.5L16 9"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="m4 20 4.3-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Z"/><path d="m13.5 7.5 3 3"/><path d="M13 20h7"/></symbol>
+  <symbol id="i-highlighter" viewBox="0 0 24 24"><path d="m4 20 4-1 9.5-9.5a2.1 2.1 0 0 0-3-3L5 16l-1 4Z"/><path d="m13.5 7.5 3 3"/><path d="M8 19h12"/></symbol>
+  <symbol id="i-text-color" viewBox="0 0 24 24"><path d="M5 20h14"/><path d="m8 16 4-11 4 11"/><path d="M9.5 12h5"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 14.2A7.8 7.8 0 0 1 9.8 3.5 8.8 8.8 0 1 0 20.5 14.2Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2"/><path d="M12 19.5v2"/><path d="m4.6 4.6 1.4 1.4"/><path d="m18 18 1.4 1.4"/><path d="M2.5 12h2"/><path d="M19.5 12h2"/><path d="m4.6 19.4 1.4-1.4"/><path d="m18 6 1.4-1.4"/></symbol>
+</svg>
 <div class="main">
-  <div class="doc-wrap"><div class="doc" id="doc" contenteditable="true"></div></div>
+  <div class="doc-wrap" id="docWrap">
+    <div class="doc gravity-flow" id="doc" contenteditable="true"></div>
+  </div>
   <div class="sidebar">
     <div class="cal-hd">
       <div class="cal-nav"><button onclick="navPrev()">&#8249;</button><span class="cal-title" id="calTitle"></span><button onclick="navNext()">&#8250;</button></div>
@@ -317,28 +386,48 @@ body.dark .doc:hover::-webkit-scrollbar-thumb{background:rgba(148,163,184,.18)}
   </div>
 </div>
 
+<div class="mount-gate" id="mountGate">
+  <div class="mount-panel">
+    <div class="mount-title">挂载同步文件</div>
+    <div class="mount-copy">Gravilog 会先连接你的 diary.json，同步完成后再进入编辑模式，避免忘记挂载造成文件未同步。</div>
+    <div class="mount-file" id="mountFile">正在检查上次同步文件...</div>
+    <div class="mount-actions">
+      <button class="primary" id="mountPrimary" onclick="mountStartupFile()">继续</button>
+      <button id="mountChoose" onclick="chooseAndMountFile()">选择文件</button>
+    </div>
+    <div class="mount-msg" id="mountMsg"></div>
+  </div>
+</div>
+
 <div class="fbar" id="fbar">
-  <button onclick="doUndo()" title="撤销 (Ctrl+Z)" id="undoBtn">&#8630;</button>
-  <button onclick="doRedo()" title="重做 (Ctrl+Y)" id="redoBtn">&#8631;</button>
+  <button onclick="doUndo()" title="撤销 (Ctrl+Z)" aria-label="撤销" id="undoBtn"><svg><use href="#i-undo"></use></svg></button>
+  <button onclick="doRedo()" title="重做 (Ctrl+Y)" aria-label="重做" id="redoBtn"><svg><use href="#i-redo"></use></svg></button>
   <span class="sep"></span>
-  <button onclick="execCmd('bold')" title="加粗"><b>B</b></button>
-  <button onclick="execCmd('italic')" title="斜体"><i>I</i></button>
-  <button onclick="execCmd('underline')" title="下划线"><u>U</u></button>
-  <button onclick="execCmd('strikeThrough')" title="删除线"><s>S</s></button>
+  <button onclick="execCmd('bold')" title="加粗" aria-label="加粗"><span class="txt">B</span></button>
+  <button onclick="execCmd('italic')" title="斜体" aria-label="斜体"><span class="txt italic">I</span></button>
+  <button onclick="execCmd('underline')" title="下划线" aria-label="下划线"><span class="txt"><u>U</u></span></button>
+  <button onclick="execCmd('strikeThrough')" title="删除线" aria-label="删除线"><span class="txt"><s>S</s></span></button>
   <span class="sep"></span>
-  <button onclick="insertList('ul')" title="无序列表">&#8226;</button>
-  <button onclick="insertList('ol')" title="有序列表">1.</button>
-  <button onclick="execCmd('formatBlock','<blockquote>')" title="引用">&#8220;</button>
+  <button onclick="insertList('ul')" title="无序列表" aria-label="无序列表"><svg><use href="#i-ul"></use></svg></button>
+  <button onclick="insertList('ol')" title="有序列表" aria-label="有序列表"><svg><use href="#i-ol"></use></svg></button>
+  <button onclick="execCmd('formatBlock','<blockquote>')" title="引用" aria-label="引用"><svg><use href="#i-quote"></use></svg></button>
   <span class="sep"></span>
-  <button onclick="showTableDlg()" title="表格">&#9638;</button>
-  <button onclick="pickImg()" title="图片">&#128247;</button>
-  <button onclick="insertCodeBlock()" title="代码块">&lt;/&gt;</button>
+  <button onclick="showTableDlg()" title="表格" aria-label="表格"><svg><use href="#i-table"></use></svg></button>
+  <button onclick="pickImg()" title="图片" aria-label="图片"><svg><use href="#i-image"></use></svg></button>
+  <button onclick="insertCodeBlock()" title="代码块" aria-label="代码块"><svg><use href="#i-code"></use></svg></button>
   <span class="sep"></span>
-  <button onclick="insertTodo()" title="待办事项">&#9744;</button>
+  <button onclick="insertTodo()" title="待办事项" aria-label="待办事项"><svg><use href="#i-todo"></use></svg></button>
   <span class="sep"></span>
-  <button onclick="applyHighlight()" title="水彩笔" id="hlBtn">&#9998;</button>
+  <span class="split">
+    <button onclick="applyHighlight()" title="水彩笔" aria-label="水彩笔" id="hlBtn" class="color-mark" style="--mark-color:#ffeb3b"><svg><use href="#i-highlighter"></use></svg></button>
+    <button onclick="toggleHlPicker()" title="选择水彩笔颜色" aria-label="选择水彩笔颜色" id="hlMenuBtn"><svg><use href="#i-chevron"></use></svg></button>
+  </span>
+  <span class="split">
+    <button onclick="applyTextColor()" title="字体颜色" aria-label="字体颜色" id="textColorBtn" class="color-mark" style="--mark-color:#111111"><svg><use href="#i-text-color"></use></svg></button>
+    <button onclick="toggleTextColorPicker()" title="选择字体颜色" aria-label="选择字体颜色" id="textColorMenuBtn"><svg><use href="#i-chevron"></use></svg></button>
+  </span>
   <span class="sep"></span>
-  <button onclick="toggleDark()" title="日夜模式" id="darkBtn">&#9790;</button>
+  <button onclick="toggleDark()" title="日夜模式" aria-label="日夜模式" id="darkBtn"><svg class="theme-moon"><use href="#i-moon"></use></svg><svg class="theme-sun"><use href="#i-sun"></use></svg></button>
   <span class="st" id="st"></span>
 </div>
 
@@ -373,14 +462,17 @@ body.dark .doc:hover::-webkit-scrollbar-thumb{background:rgba(148,163,184,.18)}
 <div class="img-modal" id="imgModal" onclick="this.classList.remove('show')"><img id="imgModalSrc" src=""></div>
 <div class="td-dlg" id="tdDlg"><div class="td-dlg-in"><h3>插入表格</h3><label>行数</label><input type="number" id="tRows" value="3" min="1" max="20"><label>列数</label><input type="number" id="tCols" value="3" min="1" max="10"><div class="td-dlg-b"><button onclick="hideTableDlg()">取消</button><button class="ok" onclick="insertTable()">插入</button></div></div></div>
 <div class="tex-input" id="texInput"><textarea id="texArea" placeholder="输入 LaTeX，如 E=mc^2"></textarea><div class="ti-preview" id="texPreview"></div><div class="ti-btns"><button onclick="hideTexInput()">取消</button><button class="ok" onclick="confirmTex()">插入</button></div></div>
-<div class="hl-picker" id="hlPicker">
-  <div class="hl-colors" id="hlColors"></div>
+<div class="color-picker" id="hlPicker">
+  <div class="color-grid" id="hlColors"></div>
+</div>
+<div class="color-picker" id="textColorPicker">
+  <div class="color-grid" id="textColors"></div>
 </div>
 <input type="file" id="imgPicker" accept="image/*" style="display:none" onchange="handleImg(event)">
 <input type="file" id="importPicker" accept=".json" style="display:none" onchange="handleImport(event)">
 
 <script>
-const STORAGE_KEY='diary_doc',DATES_KEY='diary_edit_dates',META_KEY='diary_meta',HANDLE_NAME_KEY='diary_file_name';
+const STORAGE_KEY='diary_doc',DATES_KEY='diary_edit_dates',META_KEY='diary_meta',HANDLE_NAME_KEY='diary_file_name',PENDING_SYNC_KEY='diary_pending_sync';
 let calView='month',calYear=new Date().getFullYear(),calMonth=new Date().getMonth(),calWeekStart=getMon(new Date()),selectedDate=null,saveTimer=null;
 let texDisplay=false,fileHandle=null,selImg=null,fileWritable=false,fileWritePromise=Promise.resolve(),fileWritePending=false;
 
@@ -395,12 +487,83 @@ function toggleDark(){
   updateDarkBtn();
 }
 function updateDarkBtn(){
-  document.getElementById('darkBtn').textContent=document.body.classList.contains('dark')?'☀':'☾';
+  const btn=document.getElementById('darkBtn');
+  const dark=document.body.classList.contains('dark');
+  btn.title=dark?'切换到日间模式':'切换到夜间模式';
+  btn.setAttribute('aria-label',btn.title);
 }
 initDark();
 
 const doc=document.getElementById('doc');
 doc.innerHTML=localStorage.getItem(STORAGE_KEY)||'';
+doc.setAttribute('contenteditable','false');
+document.body.classList.add('mounting');
+const docWrap=document.getElementById('docWrap');
+let gravityRaf=0,gravityMotion=0,gravityDir=1,gravityLast=0,gravityVelocity=0,gravityScrollRaf=0,gravityScrollLast=0;
+function clamp01(n){return Math.max(0,Math.min(1,n))}
+function setGravityVars(){
+  const shift=gravityDir*gravityMotion*150;
+  const shadow=gravityDir*gravityMotion*20;
+  docWrap.style.setProperty('--gravity-motion',gravityMotion.toFixed(3));
+  docWrap.style.setProperty('--gravity-shift',shift.toFixed(2)+'px');
+  docWrap.style.setProperty('--gravity-shadow',shadow.toFixed(2)+'px');
+  docWrap.style.setProperty('--gravity-blur',(gravityMotion*2.4).toFixed(2)+'px');
+  docWrap.style.setProperty('--gravity-stretch',(1+gravityMotion*.032).toFixed(4));
+}
+function updateGravityUI(){
+  gravityRaf=0;
+  const max=Math.max(1,doc.scrollHeight-doc.clientHeight);
+  const depth=clamp01(doc.scrollTop/max);
+  docWrap.style.setProperty('--gravity-depth',depth.toFixed(4));
+  setGravityVars();
+}
+function queueGravityUI(){
+  if(!gravityRaf)gravityRaf=requestAnimationFrame(updateGravityUI);
+}
+function decayGravityMotion(now){
+  if(!gravityLast)gravityLast=now;
+  const dt=Math.min(48,now-gravityLast);
+  gravityLast=now;
+  gravityMotion*=Math.pow(.82,dt/16);
+  if(gravityMotion<.015)gravityMotion=0;
+  setGravityVars();
+  if(gravityMotion>0)requestAnimationFrame(decayGravityMotion);
+  else gravityLast=0;
+}
+function runGravityScroll(now){
+  if(!gravityScrollLast)gravityScrollLast=now;
+  const dt=Math.min(48,now-gravityScrollLast);
+  gravityScrollLast=now;
+  doc.scrollTop+=gravityVelocity*dt/16;
+  gravityVelocity*=Math.pow(.91,dt/16);
+  if(Math.abs(gravityVelocity)>0.18){
+    gravityScrollRaf=requestAnimationFrame(runGravityScroll);
+  }else{
+    gravityVelocity=0;
+    gravityScrollRaf=0;
+    gravityScrollLast=0;
+  }
+}
+doc.addEventListener('wheel',e=>{
+  if(e.ctrlKey)return;
+  e.preventDefault();
+  const abs=Math.min(1200,Math.abs(e.deltaY));
+  const sign=e.deltaY>=0?1:-1;
+  const normalized=abs/120;
+  const nonlinear=abs*.22+Math.pow(normalized,2.35)*115;
+  const impulse=clamp01(nonlinear/620);
+  if(impulse<=0)return;
+  gravityDir=sign;
+  gravityVelocity+=sign*nonlinear*.18;
+  gravityVelocity=Math.max(-170,Math.min(170,gravityVelocity));
+  gravityMotion=clamp01(gravityMotion+impulse*1.25);
+  setGravityVars();
+  if(!gravityLast)requestAnimationFrame(decayGravityMotion);
+  if(!gravityScrollRaf)gravityScrollRaf=requestAnimationFrame(runGravityScroll);
+},{passive:false});
+doc.addEventListener('scroll',queueGravityUI,{passive:true});
+window.addEventListener('resize',queueGravityUI);
+queueGravityUI();
 
 // ===== Undo / Redo =====
 const MAX_UNDO=80;
@@ -449,7 +612,7 @@ doc.addEventListener('keydown',function(e){
   if((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))){e.preventDefault();doRedo();return}
 });
 
-renderCal();restoreHandle();
+initStartupMount();
 
 const CODE_LANGS=[
   ['plaintext','Text'],['python','Python'],['javascript','JavaScript'],['typescript','TypeScript'],
@@ -589,6 +752,7 @@ function renderAllContent(){
   doc.querySelectorAll('span[style*="background-color"]').forEach(s=>{
     if(!s.classList.contains('hl'))s.classList.add('hl');
   });
+  queueGravityUI();
 }
 
 // ===== Auto-save =====
@@ -599,6 +763,7 @@ doc.addEventListener('input',()=>{
   setTimeout(()=>{autoRenderCheck()},0);
   // Real-time syntax highlighting in code blocks
   highlightCodeBlock();
+  queueGravityUI();
 });
 doc.addEventListener('blur',()=>{clearTimeout(saveTimer);save()});
 doc.addEventListener('keydown',function(e){
@@ -642,6 +807,12 @@ function saveLocalSnapshot(snapshot){
   localStorage.setItem(DATES_KEY,JSON.stringify(snapshot.dates||[]));
   localStorage.setItem(META_KEY,JSON.stringify({savedAt:snapshot.savedAt||new Date().toISOString()}));
 }
+function setPendingSync(pending){
+  if(pending)localStorage.setItem(PENDING_SYNC_KEY,'1');
+  else localStorage.removeItem(PENDING_SYNC_KEY);
+  updateStorStatus(fileWritable);
+}
+function hasPendingSync(){return localStorage.getItem(PENDING_SYNC_KEY)==='1'}
 function getLocalSnapshot(){
   let meta={};
   try{meta=JSON.parse(localStorage.getItem(META_KEY)||'{}')}catch(e){}
@@ -1219,56 +1390,90 @@ function execCmd(c,v){doc.focus();document.execCommand(c,false,v||null)}
 
 // ===== Watercolor Highlight =====
 const hlColors=[
-  {name:'黄',bg:'rgba(255,235,59,0.35)'},
-  {name:'绿',bg:'rgba(76,175,80,0.3)'},
-  {name:'蓝',bg:'rgba(33,150,243,0.3)'},
-  {name:'粉',bg:'rgba(233,30,99,0.25)'},
-  {name:'橙',bg:'rgba(255,152,0,0.3)'},
-  {name:'紫',bg:'rgba(156,39,176,0.25)'},
-  {name:'青',bg:'rgba(0,188,212,0.3)'}
+  {name:'Yellow',bg:'rgba(255,235,59,0.35)',mark:'#ffeb3b'},
+  {name:'Green',bg:'rgba(76,175,80,0.3)',mark:'#4caf50'},
+  {name:'Blue',bg:'rgba(33,150,243,0.3)',mark:'#2196f3'},
+  {name:'Pink',bg:'rgba(233,30,99,0.25)',mark:'#e91e63'},
+  {name:'Orange',bg:'rgba(255,152,0,0.3)',mark:'#ff9800'},
+  {name:'Purple',bg:'rgba(156,39,176,0.25)',mark:'#9c27b0'},
+  {name:'Cyan',bg:'rgba(0,188,212,0.3)',mark:'#00bcd4'}
 ];
-let hlPickerVisible=false,hlSavedRange=null;
+const textColors=[
+  {name:'Black',color:'#111111'},
+  {name:'Gray',color:'#6b7280'},
+  {name:'Red',color:'#dc2626'},
+  {name:'Orange',color:'#ea580c'},
+  {name:'Green',color:'#16a34a'},
+  {name:'Blue',color:'#2563eb'},
+  {name:'Purple',color:'#7c3aed'}
+];
+let hlPickerVisible=false,textColorPickerVisible=false,hlSavedRange=null,textColorSavedRange=null,selectedHlIndex=0,selectedTextColorIndex=0;
 (function initHlPicker(){
   const box=document.getElementById('hlColors');
   hlColors.forEach((c,i)=>{
-    const d=document.createElement('div');d.className='hl-dot';d.style.background=c.bg;d.title=c.name;
+    const d=document.createElement('div');d.className='color-dot';d.style.background=c.bg;d.title=c.name;
+    if(i===selectedHlIndex)d.classList.add('active');
     d.onclick=()=>applyHlColor(i);box.appendChild(d);
   });
-  const rm=document.createElement('div');rm.className='hl-remove';rm.title='清除';rm.innerHTML='&#10005;';
+  const rm=document.createElement('div');rm.className='color-remove';rm.title='清除';rm.innerHTML='&#10005;';
   rm.onclick=()=>removeHighlight();box.appendChild(rm);
+  const textBox=document.getElementById('textColors');
+  textColors.forEach((c,i)=>{
+    const d=document.createElement('div');d.className='color-dot';d.style.background=c.color;d.title=c.name;
+    if(i===selectedTextColorIndex)d.classList.add('active');
+    d.onclick=()=>applyTextColorValue(i);textBox.appendChild(d);
+  });
 })();
-function applyHighlight(){
-  // Save selection before opening picker
+function saveSelectionFor(kind){
   const sel=window.getSelection();
-  if(sel&&sel.rangeCount>0)hlSavedRange=sel.getRangeAt(0).cloneRange();
-  else hlSavedRange=null;
-  toggleHlPicker();
+  const range=sel&&sel.rangeCount>0?sel.getRangeAt(0).cloneRange():null;
+  if(kind==='hl')hlSavedRange=range;
+  else textColorSavedRange=range;
+}
+function restoreSelection(range){
+  if(!range)return;
+  const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+}
+function closeColorPickers(){
+  document.getElementById('hlPicker').classList.remove('show');
+  document.getElementById('textColorPicker').classList.remove('show');
+  hlPickerVisible=false;textColorPickerVisible=false;
+}
+function positionPicker(picker,anchor){
+  const p=document.getElementById(picker),btn=document.getElementById(anchor),r=btn.getBoundingClientRect();
+  p.style.top=(r.bottom+6)+'px';p.style.left=(r.left+r.width/2-70)+'px';
+}
+function updateColorDots(boxId,index){
+  document.querySelectorAll('#'+boxId+' .color-dot').forEach((d,i)=>d.classList.toggle('active',i===index));
+}
+function applyHighlight(){
+  saveSelectionFor('hl');
+  applyHlColor(selectedHlIndex);
 }
 function toggleHlPicker(){
   const p=document.getElementById('hlPicker');
-  if(hlPickerVisible){p.classList.remove('show');hlPickerVisible=false;return}
-  const btn=document.getElementById('hlBtn'),r=btn.getBoundingClientRect();
-  p.style.top=(r.bottom+6)+'px';p.style.left=(r.left+r.width/2-60)+'px';
+  if(hlPickerVisible){closeColorPickers();return}
+  saveSelectionFor('hl');
+  closeColorPickers();
+  positionPicker('hlPicker','hlMenuBtn');
   p.classList.add('show');hlPickerVisible=true;
 }
 function applyHlColor(i){
   const c=hlColors[i];
-  // Restore saved selection
-  if(hlSavedRange){
-    const sel=window.getSelection();sel.removeAllRanges();sel.addRange(hlSavedRange);
-  }
+  selectedHlIndex=i;
+  document.getElementById('hlBtn').style.setProperty('--mark-color',c.mark);
+  updateColorDots('hlColors',i);
+  restoreSelection(hlSavedRange);
   doc.focus();
   document.execCommand('hiliteColor',false,c.bg);
   doc.querySelectorAll('span[style*="background-color"]').forEach(s=>{
     if(!s.classList.contains('hl'))s.classList.add('hl');
   });
-  document.getElementById('hlPicker').classList.remove('show');hlPickerVisible=false;hlSavedRange=null;
+  closeColorPickers();hlSavedRange=null;
   pushUndo();save();
 }
 function removeHighlight(){
-  if(hlSavedRange){
-    const sel=window.getSelection();sel.removeAllRanges();sel.addRange(hlSavedRange);
-  }
+  restoreSelection(hlSavedRange);
   const sel=window.getSelection();
   if(!sel||sel.isCollapsed){
     const node=sel.anchorNode;
@@ -1281,12 +1486,35 @@ function removeHighlight(){
   }else{
     document.execCommand('hiliteColor',false,'transparent');
   }
-  document.getElementById('hlPicker').classList.remove('show');hlPickerVisible=false;hlSavedRange=null;
+  closeColorPickers();hlSavedRange=null;
+  pushUndo();save();
+}
+function applyTextColor(){
+  saveSelectionFor('text');
+  applyTextColorValue(selectedTextColorIndex);
+}
+function toggleTextColorPicker(){
+  const p=document.getElementById('textColorPicker');
+  if(textColorPickerVisible){closeColorPickers();return}
+  saveSelectionFor('text');
+  closeColorPickers();
+  positionPicker('textColorPicker','textColorMenuBtn');
+  p.classList.add('show');textColorPickerVisible=true;
+}
+function applyTextColorValue(i){
+  const c=textColors[i];
+  selectedTextColorIndex=i;
+  document.getElementById('textColorBtn').style.setProperty('--mark-color',c.color);
+  updateColorDots('textColors',i);
+  restoreSelection(textColorSavedRange);
+  doc.focus();
+  document.execCommand('foreColor',false,c.color);
+  closeColorPickers();textColorSavedRange=null;
   pushUndo();save();
 }
 document.addEventListener('mousedown',e=>{
-  if(hlPickerVisible&&!e.target.closest('#hlPicker')&&!e.target.closest('#hlBtn')){
-    document.getElementById('hlPicker').classList.remove('show');hlPickerVisible=false;
+  if((hlPickerVisible||textColorPickerVisible)&&!e.target.closest('.color-picker')&&!e.target.closest('#hlMenuBtn')&&!e.target.closest('#textColorMenuBtn')){
+    closeColorPickers();
   }
 });
 function showTableDlg(){document.getElementById('tdDlg').classList.add('show')}
@@ -1373,19 +1601,108 @@ function editTex(el){
 function escAttr(s){return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 
 // ===== File Storage =====
-const hasFSAP='showSaveFilePicker' in window;
+const hasFSAP='showOpenFilePicker' in window;
+function setMountBusy(busy){
+  const primary=document.getElementById('mountPrimary'),choose=document.getElementById('mountChoose');
+  if(primary)primary.disabled=busy;
+  if(choose)choose.disabled=busy;
+}
+function setMountMsg(msg,isErr){
+  const el=document.getElementById('mountMsg');
+  if(!el)return;
+  el.textContent=msg||'';
+  el.classList.toggle('err',!!isErr);
+}
+function setMountFileText(text){
+  const el=document.getElementById('mountFile');
+  if(el)el.textContent=text;
+}
+function prepareMountGate(hasLast){
+  const primary=document.getElementById('mountPrimary'),choose=document.getElementById('mountChoose');
+  if(primary)primary.textContent=hasLast?'挂载上次同步文件':'选择同步文件';
+  if(choose)choose.style.display=hasLast?'inline-flex':'none';
+}
+function unlockEditor(){
+  document.getElementById('mountGate').classList.add('hide');
+  document.body.classList.remove('mounting');
+  doc.setAttribute('contenteditable','true');
+  updateStorStatus(true);
+  doc.focus();
+}
+async function initStartupMount(){
+  const lastName=localStorage.getItem(HANDLE_NAME_KEY);
+  prepareMountGate(!!lastName);
+  setMountFileText(lastName?'正在检查上次同步文件: '+lastName:'正在检查同步文件记录...');
+  setMountMsg('');
+  try{renderCal()}catch(e){console.error('日历渲染失败',e)}
+  const timer=setTimeout(()=>{
+    if(!fileHandle){
+      prepareMountGate(!!lastName);
+      setMountFileText(lastName?'上次文件名: '+lastName:'没有上次同步文件记录，请选择 diary.json。');
+      setMountMsg(lastName?'读取上次文件记录超时，请点击“选择文件”重新挂载一次。':'请选择 diary.json 作为同步文件。',!!lastName);
+    }
+  },1800);
+  try{await restoreHandle()}finally{clearTimeout(timer)}
+}
 async function restoreHandle(){
-  if(!hasFSAP)return;
+  if(!hasFSAP){
+    updateStorStatus(false);
+    prepareMountGate(false);
+    setMountFileText('当前浏览器不支持文件挂载，请使用 Chrome 或 Edge。');
+    setMountMsg('无法进入文件同步模式。',true);
+    return false;
+  }
   try{
     const db=await openDB();
     const item=await idbGet(db,'diary');
-    if(!item||!item.handle){updateStorStatus(false);return}
+    if(!item||!item.handle){
+      updateStorStatus(false);
+      prepareMountGate(false);
+      const lastName=localStorage.getItem(HANDLE_NAME_KEY);
+      if(lastName){
+        setMountFileText('上次文件名: '+lastName);
+        setMountMsg('浏览器没有可恢复的文件句柄。通常是启动地址变了或站点数据被清理，需要重新选择一次。',true);
+      }else{
+        setMountFileText('没有上次同步文件记录，请选择 diary.json。');
+        setMountMsg('');
+      }
+      return false;
+    }
     fileHandle=item.handle;
-    const ok=await verifyHandle(true);
-    if(ok)await syncFromLinkedFile();
-  }catch(e){console.error('恢复文件链接失败',e);updateStorStatus(false)}
+    setMountFileText('上次同步文件: '+fileHandle.name);
+    prepareMountGate(true);
+    let p='prompt';
+    try{p=await fileHandle.queryPermission({mode:'readwrite'})}catch(e){}
+    fileWritable=p==='granted';
+    updateStorStatus(fileWritable);
+    const ok=fileWritable;
+    if(ok){
+      setMountMsg('正在自动挂载并同步...');
+      await syncFromLinkedFile();
+      unlockEditor();
+      return true;
+    }
+    setMountMsg('浏览器需要你点击一次来恢复文件权限。');
+    return false;
+  }catch(e){
+    console.error('恢复文件链接失败',e);
+    fileWritable=false;updateStorStatus(false);
+    prepareMountGate(false);
+    setMountFileText('无法读取上次同步文件记录，请重新选择 diary.json。');
+    setMountMsg('恢复失败，请重新选择文件。',true);
+    return false;
+  }
 }
-function openDB(){return new Promise((res,rej)=>{const req=indexedDB.open('diaryDB',1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('handles'))req.result.createObjectStore('handles')};req.onsuccess=()=>res(req.result);req.onerror=()=>rej(req.error)})}
+function openDB(){
+  return new Promise((res,rej)=>{
+    const req=indexedDB.open('diaryDB',1);
+    const timer=setTimeout(()=>rej(new Error('IndexedDB open timeout')),1800);
+    req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('handles'))req.result.createObjectStore('handles')};
+    req.onsuccess=()=>{clearTimeout(timer);res(req.result)};
+    req.onerror=()=>{clearTimeout(timer);rej(req.error)};
+    req.onblocked=()=>{clearTimeout(timer);rej(new Error('IndexedDB blocked'))};
+  })
+}
 function idbGet(db,key){
   return new Promise((res,rej)=>{
     const tx=db.transaction('handles','readonly');
@@ -1407,9 +1724,12 @@ function idbPut(db,key,value){
 async function saveHandle(){
   if(!fileHandle)return false;
   try{
+    localStorage.setItem(HANDLE_NAME_KEY,fileHandle.name);
+    if(navigator.storage&&navigator.storage.persist){
+      try{await navigator.storage.persist()}catch(e){}
+    }
     const db=await openDB();
     await idbPut(db,'diary',{handle:fileHandle,name:fileHandle.name,savedAt:new Date().toISOString()});
-    localStorage.setItem(HANDLE_NAME_KEY,fileHandle.name);
     return true;
   }catch(e){console.error('保存文件链接失败',e);return false}
 }
@@ -1425,34 +1745,75 @@ async function verifyHandle(askPermission){
 }
 function updateStorStatus(ok){
   const el=document.getElementById('storStatus');
-  if(ok&&fileHandle)el.innerHTML='<span class="dot-ok"></span>已链接: '+escAttr(fileHandle.name);
-  else if(fileHandle)el.innerHTML='<span class="dot-no"></span>已记住: '+escAttr(fileHandle.name)+'（点击链接文件恢复写入）';
-  else if(localStorage.getItem(HANDLE_NAME_KEY))el.innerHTML='<span class="dot-no"></span>链接失效: '+escAttr(localStorage.getItem(HANDLE_NAME_KEY))+'（请重新选择一次）';
-  else el.innerHTML='<span class="dot-no"></span>未链接文件';
+  const pending=hasPendingSync();
+  if(ok&&fileHandle&&pending)el.innerHTML='<span class="dot-no"></span>本地已保存，待同步到: '+escAttr(fileHandle.name);
+  else if(ok&&fileHandle)el.innerHTML='<span class="dot-ok"></span>已链接并自动同步: '+escAttr(fileHandle.name);
+  else if(fileHandle)el.innerHTML='<span class="dot-no"></span>本地已安全保存，点击“链接文件”恢复同步: '+escAttr(fileHandle.name);
+  else if(localStorage.getItem(HANDLE_NAME_KEY))el.innerHTML='<span class="dot-no"></span>本地已安全保存，需重新选择: '+escAttr(localStorage.getItem(HANDLE_NAME_KEY));
+  else el.innerHTML='<span class="dot-no"></span>本地自动保存中，尚未链接文件';
 }
 function newerSnapshot(a,b){
   const at=Date.parse(a&&a.savedAt||'')||0,bt=Date.parse(b&&b.savedAt||'')||0;
   return at>=bt?a:b;
 }
 async function linkFile(){
-  if(!hasFSAP){alert('当前浏览器不支持文件系统API，请使用 Chrome/Edge，或用导出/导入功能');return}
+  await mountStartupFile();
+}
+async function mountStartupFile(){
+  if(!hasFSAP){setMountMsg('当前浏览器不支持文件系统 API，请使用 Chrome 或 Edge。',true);return false}
   try{
+    setMountBusy(true);
+    setMountMsg(fileHandle?'正在恢复上次同步文件...':'请选择同步文件 diary.json。');
     if(fileHandle&&!fileWritable){
       const ok=await verifyHandle(true);
-      if(!ok){alert('需要读写权限');return}
+      if(!ok){setMountMsg('需要授予读写权限才能进入编辑模式。',true);return false}
       const saved=await saveHandle();
-      if(!saved){alert('浏览器未能保存文件链接，请确认使用 Chrome/Edge 并通过 http://localhost 或 https 打开页面');return}
+      if(!saved){setMountMsg('浏览器未能保存文件链接，请确认通过 http://localhost 或 https 打开。',true);return false}
       await syncFromLinkedFile();
-      return;
+      unlockEditor();
+      return true;
     }
+    if(fileHandle&&fileWritable){
+      await syncFromLinkedFile();
+      unlockEditor();
+      return true;
+    }
+    return await chooseAndMountFile();
+  }catch(e){
+    if(e.name!=='AbortError'){
+      console.error(e);
+      setMountMsg('挂载失败，请重试或重新选择文件。',true);
+    }
+    return false;
+  }finally{
+    setMountBusy(false);
+  }
+}
+async function chooseAndMountFile(){
+  if(!hasFSAP){setMountMsg('当前浏览器不支持文件系统 API，请使用 Chrome 或 Edge。',true);return false}
+  try{
+    setMountBusy(true);
+    setMountMsg('请选择云盘同步目录中的 diary.json。');
     const h=await window.showOpenFilePicker({types:[{description:'日记数据',accept:{'application/json':['.json']}}],multiple:false});
     fileHandle=h[0];
+    setMountFileText('同步文件: '+fileHandle.name);
+    prepareMountGate(true);
     const ok=await verifyHandle(true);
-    if(!ok){alert('需要读写权限');return}
+    if(!ok){setMountMsg('需要授予读写权限才能进入编辑模式。',true);return false}
     const saved=await saveHandle();
-    if(!saved){alert('浏览器未能保存文件链接，请确认使用 Chrome/Edge 并通过 http://localhost 或 https 打开页面');return}
+    if(!saved){setMountMsg('浏览器未能保存文件链接，请确认通过 http://localhost 或 https 打开。',true);return false}
     await syncFromLinkedFile();
-  }catch(e){if(e.name!=='AbortError')console.error(e)}
+    unlockEditor();
+    return true;
+  }catch(e){
+    if(e.name!=='AbortError'){
+      console.error(e);
+      setMountMsg('选择或挂载失败，请重试。',true);
+    }
+    return false;
+  }finally{
+    setMountBusy(false);
+  }
 }
 async function readFileSnapshot(){
   if(!fileHandle)return null;
@@ -1474,18 +1835,21 @@ async function syncFromLinkedFile(){
     renderCal();
     updateStorStatus(true);
     if(next===local)queueFileWrite(local);
+    else setPendingSync(false);
   }catch(e){
     console.error('同步链接文件失败',e);
+    setPendingSync(true);
     queueFileWrite(getLocalSnapshot());
   }
 }
 function queueFileWrite(snapshot){
-  if(!fileHandle||!fileWritable)return;
+  if(!fileHandle||!fileWritable){setPendingSync(true);return}
+  setPendingSync(true);
   fileWritePending=true;
   fileWritePromise=fileWritePromise.then(()=>writeToHandle(snapshot)).finally(()=>{fileWritePending=false});
 }
 async function writeToHandle(snapshot){
-  if(!fileHandle)return;
+  if(!fileHandle){setPendingSync(true);return}
   try{
     const ok=fileWritable||await verifyHandle(false);
     if(!ok)return;
@@ -1493,8 +1857,9 @@ async function writeToHandle(snapshot){
     const w=await fileHandle.createWritable();
     await w.write(JSON.stringify(d,null,2));
     await w.close();
+    setPendingSync(false);
     updateStorStatus(true);
-  }catch(e){console.error('写入失败',e);fileWritable=false;updateStorStatus(false)}
+  }catch(e){console.error('写入失败',e);fileWritable=false;setPendingSync(true);updateStorStatus(false)}
 }
 function exportFile(){const d={doc:doc.innerHTML,dates:getDates(),savedAt:new Date().toISOString()};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='diary_'+todayStr()+'.json';a.click();URL.revokeObjectURL(a.href)}
 function importFile(){document.getElementById('importPicker').click()}
