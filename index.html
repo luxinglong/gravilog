@@ -522,7 +522,7 @@ body.dark .doc:hover::-webkit-scrollbar-thumb{background:rgba(148,163,184,.18)}
 <script>
 const STORAGE_KEY='diary_doc',DATES_KEY='diary_edit_dates',STATS_KEY='diary_daily_stats',META_KEY='diary_meta',HANDLE_NAME_KEY='diary_file_name',PENDING_SYNC_KEY='diary_pending_sync';
 let calView='month',calYear=new Date().getFullYear(),calMonth=new Date().getMonth(),calWeekStart=getMon(new Date()),selectedDate=null,saveTimer=null;
-let texDisplay=false,fileHandle=null,selImg=null,fileWritable=false,fileWritePromise=Promise.resolve(),fileWritePending=false;
+let texDisplay=false,fileHandle=null,selImg=null,fileWritable=false,fileWritePromise=Promise.resolve(),fileWritePending=false,syncReady=false;
 
 const DARK_KEY='diary_dark';
 function initDark(){
@@ -1769,6 +1769,7 @@ function prepareMountGate(hasLast){
   if(choose)choose.style.display=hasLast?'inline-flex':'none';
 }
 function unlockEditor(){
+  syncReady=true;
   document.getElementById('mountGate').classList.add('hide');
   document.body.classList.remove('mounting');
   doc.setAttribute('contenteditable','true');
@@ -1824,7 +1825,7 @@ async function restoreHandle(){
     const ok=fileWritable;
     if(ok){
       setMountMsg('正在自动挂载并同步...');
-      await syncFromLinkedFile();
+      if(!await syncFromLinkedFile())return false;
       unlockEditor();
       return true;
     }
@@ -1898,10 +1899,6 @@ function updateStorStatus(ok){
   else if(localStorage.getItem(HANDLE_NAME_KEY))el.innerHTML='<span class="dot-no"></span>本地已安全保存，需重新选择: '+escAttr(localStorage.getItem(HANDLE_NAME_KEY));
   else el.innerHTML='<span class="dot-no"></span>本地自动保存中，尚未链接文件';
 }
-function newerSnapshot(a,b){
-  const at=Date.parse(a&&a.savedAt||'')||0,bt=Date.parse(b&&b.savedAt||'')||0;
-  return at>=bt?a:b;
-}
 async function linkFile(){
   await mountStartupFile();
 }
@@ -1915,12 +1912,12 @@ async function mountStartupFile(){
       if(!ok){setMountMsg('需要授予读写权限才能进入编辑模式。',true);return false}
       const saved=await saveHandle();
       if(!saved){setMountMsg('浏览器未能保存文件链接，请确认通过 http://localhost 或 https 打开。',true);return false}
-      await syncFromLinkedFile();
+      if(!await syncFromLinkedFile())return false;
       unlockEditor();
       return true;
     }
     if(fileHandle&&fileWritable){
-      await syncFromLinkedFile();
+      if(!await syncFromLinkedFile())return false;
       unlockEditor();
       return true;
     }
@@ -1948,7 +1945,7 @@ async function chooseAndMountFile(){
     if(!ok){setMountMsg('需要授予读写权限才能进入编辑模式。',true);return false}
     const saved=await saveHandle();
     if(!saved){setMountMsg('浏览器未能保存文件链接，请确认通过 http://localhost 或 https 打开。',true);return false}
-    await syncFromLinkedFile();
+    if(!await syncFromLinkedFile())return false;
     unlockEditor();
     return true;
   }catch(e){
@@ -1970,26 +1967,30 @@ async function readFileSnapshot(){
   return {doc:d.doc||'',dates:Array.isArray(d.dates)?d.dates:[],stats:normalizeStats(d.stats),savedAt:d.savedAt||''};
 }
 async function syncFromLinkedFile(){
-  if(!fileHandle||!fileWritable)return;
+  syncReady=false;
+  if(!fileHandle||!fileWritable)return false;
   try{
-    const local=getLocalSnapshot();
     const remote=await readFileSnapshot();
-    const next=newerSnapshot(local,remote);
+    const next=remote;
     saveLocalSnapshot(next);
     doc.innerHTML=next.doc||'';
     resetWritingBaseline();
     renderAllContent();
     renderCal();
     updateStorStatus(true);
-    if(next===local)queueFileWrite(local);
-    else setPendingSync(false);
+    setPendingSync(false);
+    return true;
   }catch(e){
     console.error('同步链接文件失败',e);
+    fileWritable=false;
     setPendingSync(true);
-    queueFileWrite(getLocalSnapshot());
+    updateStorStatus(false);
+    setMountMsg('读取同步文件失败。为避免覆盖云盘文件，已暂停进入编辑模式，请确认云盘同步完成后重新挂载。',true);
+    return false;
   }
 }
 function queueFileWrite(snapshot){
+  if(!syncReady)return;
   if(!fileHandle||!fileWritable){setPendingSync(true);return}
   setPendingSync(true);
   fileWritePending=true;
