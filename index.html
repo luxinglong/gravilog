@@ -119,6 +119,33 @@ body.dark .fbar .theme-sun{display:block}
 .img-modal.show{display:flex}
 .img-modal img{max-width:90%;max-height:90%;border-radius:4px}
 
+.presenter{display:none;position:fixed;inset:0;z-index:850;background:#f8fafc;color:#111827;overflow:auto;padding:clamp(32px,7vh,72px) clamp(28px,8vw,120px)}
+.presenter.show{display:block}
+.presenter-close{position:fixed;top:18px;right:18px;width:36px;height:36px;border:1px solid rgba(148,163,184,.34);border-radius:50%;background:rgba(255,255,255,.84);color:#475569;font-size:24px;line-height:1;cursor:pointer;z-index:2;backdrop-filter:blur(10px)}
+.presenter-close:hover{background:#fff;color:#111827}
+.presenter-stage{min-height:100%;display:flex;align-items:center;justify-content:center}
+.presenter-content{width:min(100%,980px);font-size:22px;line-height:1.8;word-break:break-word}
+.presenter-content h1{font-size:44px;line-height:1.18;margin:0 0 22px}
+.presenter-content h2{font-size:34px;line-height:1.25;margin:0 0 18px}
+.presenter-content h3{font-size:28px;line-height:1.32;margin:0 0 14px}
+.presenter-content h4{font-size:23px;line-height:1.4;margin:0 0 12px;font-weight:700}
+.presenter-content p,.presenter-content div,.presenter-content blockquote,.presenter-content ul,.presenter-content ol,.presenter-content pre,.presenter-content table{margin-bottom:18px}
+.presenter-content ul,.presenter-content ol{padding-left:1.5em}
+.presenter-content li{margin:7px 0}
+.presenter-content li>ul,.presenter-content li>ol{margin-top:7px;margin-bottom:7px}
+.presenter-content blockquote{border-left:4px solid #94a3b8;padding:4px 0 4px 18px;color:#475569}
+.presenter-content img{max-width:100%;border-radius:6px}
+.presenter-content pre{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:22px;overflow:auto;font-size:16px}
+.presenter-content code{font-size:.86em;background:rgba(99,102,241,.1);padding:.08em .28em;border-radius:4px}
+.presenter-content pre code{background:none;padding:0;border-radius:0;white-space:pre}
+.presenter-content table{border-collapse:collapse;width:100%}
+.presenter-content td,.presenter-content th{border:1px solid #cbd5e1;padding:8px 12px}
+.presenter-content .todo-item{display:flex;align-items:flex-start;gap:10px}
+.presenter-content .todo-item input[type="checkbox"]{width:18px;height:18px;margin-top:8px;accent-color:#667eea}
+.presenter-content .todo-item.checked .todo-text{text-decoration:line-through;color:#94a3b8}
+.presenter-content .tex-display{display:block;text-align:center}
+.presenter-empty{color:#94a3b8;text-align:center;font-size:18px}
+
 .sidebar{width:var(--sidebar-w);flex-shrink:0;background:#f8f9fb;border-left:1px solid #dfe3ea;display:flex;flex-direction:column;overflow:hidden}
 .cal-hd{padding:12px 14px;border-bottom:1px solid #dfe3ea;flex-shrink:0;background:#fff}
 .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
@@ -139,8 +166,13 @@ body.dark .fbar .theme-sun{display:block}
 .cal-d.td{font-weight:700;color:#667eea}
 .cal-d.sel{background:#667eea;color:#fff}
 .cal-d.sel.td{color:#fff}
-.cal-d .dot{width:3px;height:3px;border-radius:50%;background:#667eea;position:absolute;bottom:2px}
+.cal-d .dot{width:4px;height:4px;border-radius:50%;background:#667eea;position:absolute;bottom:2px;opacity:.45}
+.cal-d .dot.i2{opacity:.62;width:5px;height:5px}
+.cal-d .dot.i3{opacity:.78;width:6px;height:6px}
+.cal-d .dot.i4{opacity:.95;width:7px;height:7px}
+.cal-d .amt{position:absolute;right:3px;bottom:3px;font-size:8px;line-height:1;color:#8b95a5;font-variant-numeric:tabular-nums;font-weight:500}
 .cal-d.sel .dot{background:#fff}
+.cal-d.sel .amt{color:rgba(255,255,255,.78)}
 .cal-year{padding:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .mm{border:1px solid #dfe3ea;background:#fff;border-radius:6px;padding:5px;cursor:pointer;transition:border-color .15s,background .15s}
 .mm:hover{border-color:#667eea}
@@ -149,6 +181,7 @@ body.dark .fbar .theme-sun{display:block}
 .mm .cal-days{font-size:7px;gap:0}
 .mm .cal-d{border-radius:3px;font-size:7px}
 .mm .cal-d .dot{width:2px;height:2px;bottom:0}
+.mm .cal-d .amt{display:none}
 .dv{display:flex;flex-direction:column;height:100%;min-height:0}
 .dv-hd{padding:10px 12px;text-align:center;font-size:14px;font-weight:700;color:#1f2937;border-bottom:1px solid #dfe3ea;background:#fff}
 .dv-tl{flex:1;overflow:hidden;position:relative;display:flex;flex-direction:column;min-height:0}
@@ -296,6 +329,8 @@ body.dark .cal-d.td{color:#9deee4}
 body.dark .cal-d.sel{background:linear-gradient(135deg,var(--dark-accent),var(--dark-accent-2));color:#071018;box-shadow:0 8px 18px rgba(45,212,191,.16)}
 body.dark .cal-d.sel.td{color:#071018}
 body.dark .cal-d .dot{background:var(--dark-accent-2);box-shadow:0 0 8px rgba(45,212,191,.8)}
+body.dark .cal-d .amt{color:#7f8da0}
+body.dark .cal-d.sel .amt{color:rgba(7,16,24,.72)}
 body.dark .cal-year .mm{background:rgba(19,25,34,.45);border-color:var(--dark-line)}
 body.dark .cal-year .mm:hover{border-color:rgba(139,156,255,.55);background:rgba(24,33,45,.9)}
 body.dark .mm-t{color:var(--dark-text)}
@@ -342,6 +377,13 @@ body.dark .td-dlg-in input:focus{border-color:var(--dark-accent);box-shadow:0 0 
 body.dark .td-dlg-b button{background:rgba(13,17,23,.9);border-color:var(--dark-line);color:var(--dark-text)}
 body.dark .td-dlg-b .ok{background:linear-gradient(135deg,var(--dark-accent),var(--dark-accent-2));color:#071018;border-color:transparent}
 
+body.dark .presenter{background:#0b111a;color:#e6edf3}
+body.dark .presenter-close{background:rgba(15,23,42,.82);border-color:rgba(148,163,184,.24);color:#cbd5e1}
+body.dark .presenter-close:hover{background:#111827;color:#fff}
+body.dark .presenter-content blockquote{border-left-color:#2dd4bf;color:#b8c4d2}
+body.dark .presenter-content td,body.dark .presenter-content th{border-color:rgba(148,163,184,.28)}
+body.dark .presenter-empty{color:#64748b}
+
 body.dark ::-webkit-scrollbar-thumb{background:#3b4756}
 body.dark .doc{scrollbar-color:transparent transparent}
 body.dark .doc::-webkit-scrollbar-thumb{background:transparent}
@@ -366,6 +408,7 @@ body.dark .doc:hover::-webkit-scrollbar-thumb{background:rgba(148,163,184,.18)}
   <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol>
   <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 14.2A7.8 7.8 0 0 1 9.8 3.5 8.8 8.8 0 1 0 20.5 14.2Z"/></symbol>
   <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2"/><path d="M12 19.5v2"/><path d="m4.6 4.6 1.4 1.4"/><path d="m18 18 1.4 1.4"/><path d="M2.5 12h2"/><path d="M19.5 12h2"/><path d="m4.6 19.4 1.4-1.4"/><path d="m18 6 1.4-1.4"/></symbol>
+  <symbol id="i-present" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="12" rx="2"/><path d="M12 16v5"/><path d="M8 21h8"/><path d="m9 12 3-3 3 3"/></symbol>
 </svg>
 <div class="main">
   <div class="doc-wrap" id="docWrap">
@@ -428,6 +471,7 @@ body.dark .doc:hover::-webkit-scrollbar-thumb{background:rgba(148,163,184,.18)}
   </span>
   <span class="sep"></span>
   <button onclick="toggleDark()" title="日夜模式" aria-label="日夜模式" id="darkBtn"><svg class="theme-moon"><use href="#i-moon"></use></svg><svg class="theme-sun"><use href="#i-sun"></use></svg></button>
+  <button onclick="presentSelection()" title="全屏展示选中内容" aria-label="全屏展示选中内容" id="presentBtn" disabled><svg><use href="#i-present"></use></svg></button>
   <span class="st" id="st"></span>
 </div>
 
@@ -460,6 +504,10 @@ body.dark .doc:hover::-webkit-scrollbar-thumb{background:rgba(148,163,184,.18)}
 </div>
 
 <div class="img-modal" id="imgModal" onclick="this.classList.remove('show')"><img id="imgModalSrc" src=""></div>
+<div class="presenter" id="presenter" role="dialog" aria-modal="true" aria-label="选中内容展示">
+  <button class="presenter-close" onclick="closePresenter()" aria-label="退出展示">×</button>
+  <div class="presenter-stage"><div class="presenter-content" id="presenterContent"></div></div>
+</div>
 <div class="td-dlg" id="tdDlg"><div class="td-dlg-in"><h3>插入表格</h3><label>行数</label><input type="number" id="tRows" value="3" min="1" max="20"><label>列数</label><input type="number" id="tCols" value="3" min="1" max="10"><div class="td-dlg-b"><button onclick="hideTableDlg()">取消</button><button class="ok" onclick="insertTable()">插入</button></div></div></div>
 <div class="tex-input" id="texInput"><textarea id="texArea" placeholder="输入 LaTeX，如 E=mc^2"></textarea><div class="ti-preview" id="texPreview"></div><div class="ti-btns"><button onclick="hideTexInput()">取消</button><button class="ok" onclick="confirmTex()">插入</button></div></div>
 <div class="color-picker" id="hlPicker">
@@ -472,7 +520,7 @@ body.dark .doc:hover::-webkit-scrollbar-thumb{background:rgba(148,163,184,.18)}
 <input type="file" id="importPicker" accept=".json" style="display:none" onchange="handleImport(event)">
 
 <script>
-const STORAGE_KEY='diary_doc',DATES_KEY='diary_edit_dates',META_KEY='diary_meta',HANDLE_NAME_KEY='diary_file_name',PENDING_SYNC_KEY='diary_pending_sync';
+const STORAGE_KEY='diary_doc',DATES_KEY='diary_edit_dates',STATS_KEY='diary_daily_stats',META_KEY='diary_meta',HANDLE_NAME_KEY='diary_file_name',PENDING_SYNC_KEY='diary_pending_sync';
 let calView='month',calYear=new Date().getFullYear(),calMonth=new Date().getMonth(),calWeekStart=getMon(new Date()),selectedDate=null,saveTimer=null;
 let texDisplay=false,fileHandle=null,selImg=null,fileWritable=false,fileWritePromise=Promise.resolve(),fileWritePending=false;
 
@@ -499,6 +547,7 @@ doc.innerHTML=localStorage.getItem(STORAGE_KEY)||'';
 doc.setAttribute('contenteditable','false');
 document.body.classList.add('mounting');
 const docWrap=document.getElementById('docWrap');
+let lastWritingLen=writingLength();
 let gravityRaf=0,gravityMotion=0,gravityDir=1,gravityLast=0,gravityVelocity=0,gravityScrollRaf=0,gravityScrollLast=0;
 function clamp01(n){return Math.max(0,Math.min(1,n))}
 function setGravityVars(){
@@ -583,6 +632,7 @@ function doUndo(){
   undoPaused=true;
   redoStack.push(undoStack.pop());
   doc.innerHTML=undoStack[undoStack.length-1];
+  resetWritingBaseline();
   renderAllContent();
   undoPaused=false;
   save();updateUndoRedoBtns();
@@ -593,6 +643,7 @@ function doRedo(){
   const snap=redoStack.pop();
   undoStack.push(snap);
   doc.innerHTML=snap;
+  resetWritingBaseline();
   renderAllContent();
   undoPaused=false;
   save();updateUndoRedoBtns();
@@ -757,6 +808,7 @@ function renderAllContent(){
 
 // ===== Auto-save =====
 doc.addEventListener('input',()=>{
+  trackDailyWriting();
   showSt('saving');clearTimeout(saveTimer);
   saveTimer=setTimeout(()=>{save();showSt('saved')},600);
   // Trigger auto-render checks (also handles markdown shortcuts like ```python)
@@ -797,7 +849,7 @@ function restoreCursorInCode(code,offset){
 
 function save(){
   markDate();
-  const snapshot={doc:doc.innerHTML,dates:getDates(),savedAt:new Date().toISOString()};
+  const snapshot={doc:doc.innerHTML,dates:getDates(),stats:getStats(),savedAt:new Date().toISOString()};
   saveLocalSnapshot(snapshot);
   renderCal();
   queueFileWrite(snapshot);
@@ -805,6 +857,7 @@ function save(){
 function saveLocalSnapshot(snapshot){
   localStorage.setItem(STORAGE_KEY,snapshot.doc||'');
   localStorage.setItem(DATES_KEY,JSON.stringify(snapshot.dates||[]));
+  localStorage.setItem(STATS_KEY,JSON.stringify(snapshot.stats||{}));
   localStorage.setItem(META_KEY,JSON.stringify({savedAt:snapshot.savedAt||new Date().toISOString()}));
 }
 function setPendingSync(pending){
@@ -816,11 +869,41 @@ function hasPendingSync(){return localStorage.getItem(PENDING_SYNC_KEY)==='1'}
 function getLocalSnapshot(){
   let meta={};
   try{meta=JSON.parse(localStorage.getItem(META_KEY)||'{}')}catch(e){}
-  return {doc:localStorage.getItem(STORAGE_KEY)||'',dates:getDates(),savedAt:meta.savedAt||''};
+  return {doc:localStorage.getItem(STORAGE_KEY)||'',dates:getDates(),stats:getStats(),savedAt:meta.savedAt||''};
 }
 function showSt(s){const e=document.getElementById('st');e.textContent=s==='saving'?'...':'OK';if(s==='saved')setTimeout(()=>{e.textContent=''},1500)}
 function markDate(){const d=getDates();const t=todayStr();if(!d.includes(t)){d.push(t);localStorage.setItem(DATES_KEY,JSON.stringify(d))}}
 function getDates(){return JSON.parse(localStorage.getItem(DATES_KEY)||'[]')}
+function writingLength(){return (doc.innerText||'').replace(/\s+/g,'').replace(/\u200b/g,'').length}
+function resetWritingBaseline(){lastWritingLen=writingLength()}
+function trackDailyWriting(){
+  const len=writingLength();
+  const delta=len-lastWritingLen;
+  lastWritingLen=len;
+  if(delta>0)addDailyChars(delta);
+}
+function normalizeStats(raw){
+  const out={};
+  Object.keys(raw||{}).forEach(k=>{
+    const v=raw[k];
+    const n=typeof v==='number'?v:+(v&&v.chars||0);
+    if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&n>0)out[k]=Math.round(n);
+  });
+  return out;
+}
+function getStats(){
+  let raw={};
+  try{raw=JSON.parse(localStorage.getItem(STATS_KEY)||'{}')}catch(e){}
+  return normalizeStats(raw);
+}
+function addDailyChars(n){
+  const stats=getStats(),t=todayStr();
+  stats[t]=(stats[t]||0)+n;
+  localStorage.setItem(STATS_KEY,JSON.stringify(stats));
+  markDate();
+}
+function fmtAmt(n){return n>=1000?Math.floor(n/1000)+'k':String(n)}
+function statLevel(n){return n>=1200?4:n>=500?3:n>=120?2:n>0?1:0}
 
 // ===== Toolbar show/hide =====
 doc.addEventListener('focus',()=>document.getElementById('fbar').classList.add('show'));
@@ -1388,6 +1471,69 @@ function hideCtxBars(){document.getElementById('imgBar').classList.remove('show'
 // ===== Editor Commands =====
 function execCmd(c,v){doc.focus();document.execCommand(c,false,v||null)}
 
+// ===== Selection Presenter =====
+document.addEventListener('selectionchange',updatePresentBtn);
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement)closePresenter(false)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('presenter').classList.contains('show'))closePresenter()});
+function getDocSelectionRange(){
+  const sel=window.getSelection();
+  if(!sel||!sel.rangeCount||sel.isCollapsed)return null;
+  const range=sel.getRangeAt(0);
+  const start=range.startContainer.nodeType===1?range.startContainer:range.startContainer.parentNode;
+  const end=range.endContainer.nodeType===1?range.endContainer:range.endContainer.parentNode;
+  if(!doc.contains(start)||!doc.contains(end))return null;
+  return range;
+}
+function updatePresentBtn(){
+  const btn=document.getElementById('presentBtn');
+  if(btn)btn.disabled=!getDocSelectionRange();
+}
+function presentSelection(){
+  const range=getDocSelectionRange();
+  if(!range){alert('请先选中文档里要展示的内容');return}
+  const presenter=document.getElementById('presenter');
+  const content=document.getElementById('presenterContent');
+  const frag=range.cloneContents();
+  content.innerHTML='';
+  if(!frag.textContent.trim()&&!frag.querySelector('img,table,pre,.tex,.tex-display')){
+    content.innerHTML='<div class="presenter-empty">选区没有可展示的内容</div>';
+  }else{
+    content.appendChild(frag);
+    cleanPresenterContent(content);
+    renderPresenterContent(content);
+  }
+  closeColorPickers();hideCtxBars();
+  presenter.classList.add('show');
+  if(presenter.requestFullscreen)presenter.requestFullscreen().catch(()=>{});
+}
+function cleanPresenterContent(root){
+  root.querySelectorAll('.code-lang,.code-dots').forEach(el=>el.remove());
+  root.querySelectorAll('[contenteditable]').forEach(el=>el.removeAttribute('contenteditable'));
+  root.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+  root.querySelectorAll('*').forEach(el=>{
+    Array.from(el.attributes).forEach(attr=>{if(/^on/i.test(attr.name))el.removeAttribute(attr.name)});
+  });
+  root.querySelectorAll('input[type="checkbox"]').forEach(el=>el.disabled=true);
+  root.querySelectorAll('textarea,select,button,input:not([type="checkbox"])').forEach(el=>el.remove());
+}
+function renderPresenterContent(root){
+  root.querySelectorAll('.tex,.tex-display').forEach(el=>{
+    const s=el.getAttribute('data-tex');
+    if(s&&typeof katex!=='undefined'){try{katex.render(s,el,{throwOnError:false,displayMode:el.classList.contains('tex-display')})}catch(e){}}
+  });
+  root.querySelectorAll('pre code').forEach(code=>{
+    if(typeof hljs!=='undefined'){code.removeAttribute('data-highlighted');try{hljs.highlightElement(code)}catch(e){}}
+  });
+}
+function closePresenter(exitFs=true){
+  const presenter=document.getElementById('presenter');
+  const content=document.getElementById('presenterContent');
+  if(!presenter)return;
+  presenter.classList.remove('show');
+  if(content)content.innerHTML='';
+  if(exitFs&&document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});
+}
+
 // ===== Watercolor Highlight =====
 const hlColors=[
   {name:'Yellow',bg:'rgba(255,235,59,0.35)',mark:'#ffeb3b'},
@@ -1819,9 +1965,9 @@ async function readFileSnapshot(){
   if(!fileHandle)return null;
   const f=await fileHandle.getFile();
   const t=await f.text();
-  if(!t.trim())return {doc:'',dates:[],savedAt:''};
+  if(!t.trim())return {doc:'',dates:[],stats:{},savedAt:''};
   const d=JSON.parse(t);
-  return {doc:d.doc||'',dates:Array.isArray(d.dates)?d.dates:[],savedAt:d.savedAt||''};
+  return {doc:d.doc||'',dates:Array.isArray(d.dates)?d.dates:[],stats:normalizeStats(d.stats),savedAt:d.savedAt||''};
 }
 async function syncFromLinkedFile(){
   if(!fileHandle||!fileWritable)return;
@@ -1831,6 +1977,7 @@ async function syncFromLinkedFile(){
     const next=newerSnapshot(local,remote);
     saveLocalSnapshot(next);
     doc.innerHTML=next.doc||'';
+    resetWritingBaseline();
     renderAllContent();
     renderCal();
     updateStorStatus(true);
@@ -1861,9 +2008,9 @@ async function writeToHandle(snapshot){
     updateStorStatus(true);
   }catch(e){console.error('写入失败',e);fileWritable=false;setPendingSync(true);updateStorStatus(false)}
 }
-function exportFile(){const d={doc:doc.innerHTML,dates:getDates(),savedAt:new Date().toISOString()};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='diary_'+todayStr()+'.json';a.click();URL.revokeObjectURL(a.href)}
+function exportFile(){const d={doc:doc.innerHTML,dates:getDates(),stats:getStats(),savedAt:new Date().toISOString()};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='diary_'+todayStr()+'.json';a.click();URL.revokeObjectURL(a.href)}
 function importFile(){document.getElementById('importPicker').click()}
-function handleImport(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);const snapshot={doc:d.doc||'',dates:Array.isArray(d.dates)?d.dates:[],savedAt:d.savedAt||new Date().toISOString()};doc.innerHTML=snapshot.doc;saveLocalSnapshot(snapshot);renderAllContent();renderCal();queueFileWrite(snapshot)}catch(err){alert('文件格式错误')}};r.readAsText(f);e.target.value=''}
+function handleImport(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);const snapshot={doc:d.doc||'',dates:Array.isArray(d.dates)?d.dates:[],stats:normalizeStats(d.stats),savedAt:d.savedAt||new Date().toISOString()};doc.innerHTML=snapshot.doc;resetWritingBaseline();saveLocalSnapshot(snapshot);renderAllContent();renderCal();queueFileWrite(snapshot)}catch(err){alert('文件格式错误')}};r.readAsText(f);e.target.value=''}
 
 // ===== Helpers =====
 function todayStr(){return ds(new Date())}
@@ -1879,7 +2026,7 @@ function switchView(v){calView=v;renderCal()}
 function navPrev(){if(calView==='month'){calMonth--;if(calMonth<0){calMonth=11;calYear--}}else if(calView==='year')calYear--;else if(calView==='day'){const d=new Date(calYear,calMonth,selectedDate?+selectedDate.split('-')[2]:new Date().getDate());d.setDate(d.getDate()-1);calYear=d.getFullYear();calMonth=d.getMonth();selectedDate=ds(d)}else if(calView==='week')calWeekStart=addD(calWeekStart,-7);renderCal()}
 function navNext(){if(calView==='month'){calMonth++;if(calMonth>11){calMonth=0;calYear++}}else if(calView==='year')calYear++;else if(calView==='day'){const d=new Date(calYear,calMonth,selectedDate?+selectedDate.split('-')[2]:new Date().getDate());d.setDate(d.getDate()+1);calYear=d.getFullYear();calMonth=d.getMonth();selectedDate=ds(d)}else if(calView==='week')calWeekStart=addD(calWeekStart,7);renderCal()}
 function renderCal(){const m={day:'vDay',week:'vWeek',month:'vMonth',year:'vYear'};document.querySelectorAll('.cal-views button').forEach(b=>b.classList.remove('active'));document.getElementById(m[calView]).classList.add('active');const title=document.getElementById('calTitle'),body=document.getElementById('calBody');if(calView==='month'){title.textContent=calYear+'年'+(calMonth+1)+'月';body.innerHTML='<div class="cal-month">'+monthGrid(calYear,calMonth)+'</div>'}else if(calView==='year'){title.textContent=calYear+'年';let h='<div class="cal-year">';for(let i=0;i<12;i++)h+='<div class="mm" onclick="calYear='+calYear+';calMonth='+i+';switchView(\'month\')"><div class="mm-t">'+(i+1)+'月</div>'+monthGrid(calYear,i)+'</div>';h+='</div>';body.innerHTML=h}else if(calView==='day'){if(!selectedDate)selectedDate=todayStr();const p=selectedDate.split('-');calYear=+p[0];calMonth=+p[1]-1;title.textContent=fmtD(selectedDate);body.innerHTML=dayView(selectedDate);scrollNow()}else if(calView==='week'){title.textContent=fmtDs(ds(calWeekStart))+' — '+fmtDs(ds(addD(calWeekStart,6)));body.innerHTML=weekView(calWeekStart);scrollNowW()}}
-function monthGrid(y,m){const wd=['一','二','三','四','五','六','日'],f=new Date(y,m,1);let sd=f.getDay();sd=sd===0?6:sd-1;const dim=new Date(y,m+1,0).getDate(),pd=new Date(y,m,0).getDate(),td=todayStr(),ed=new Set(getDates());let h='<div class="cal-wk">';wd.forEach(w=>h+='<span>'+w+'</span>');h+='</div><div class="cal-days">';for(let i=sd-1;i>=0;i--)h+='<span class="cal-d om">'+(pd-i)+'</span>';for(let d=1;d<=dim;d++){const s=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');let c='cal-d';if(s===td)c+=' td';if(s===selectedDate)c+=' sel';h+='<span class="'+c+'" onclick="selDate(\''+s+'\')">'+d+(ed.has(s)?'<span class="dot"></span>':'')+'</span>'}const tc=sd+dim,rm=(7-tc%7)%7;for(let i=1;i<=rm;i++)h+='<span class="cal-d om">'+i+'</span>';h+='</div>';return h}
+function monthGrid(y,m){const wd=['一','二','三','四','五','六','日'],f=new Date(y,m,1);let sd=f.getDay();sd=sd===0?6:sd-1;const dim=new Date(y,m+1,0).getDate(),pd=new Date(y,m,0).getDate(),td=todayStr(),ed=new Set(getDates()),stats=getStats();let h='<div class="cal-wk">';wd.forEach(w=>h+='<span>'+w+'</span>');h+='</div><div class="cal-days">';for(let i=sd-1;i>=0;i--)h+='<span class="cal-d om">'+(pd-i)+'</span>';for(let d=1;d<=dim;d++){const s=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),count=stats[s]||0,level=statLevel(count);let c='cal-d';if(s===td)c+=' td';if(s===selectedDate)c+=' sel';let mark='';if(level)mark='<span class="dot i'+level+'"></span><span class="amt" title="'+count+' 字">'+fmtAmt(count)+'</span>';else if(ed.has(s))mark='<span class="dot"></span>';h+='<span class="'+c+'" onclick="selDate(\''+s+'\')">'+d+mark+'</span>'}const tc=sd+dim,rm=(7-tc%7)%7;for(let i=1;i<=rm;i++)h+='<span class="cal-d om">'+i+'</span>';h+='</div>';return h}
 function dayView(s){let h='<div class="dv"><div class="dv-hd">'+fmtD(s)+'</div><div class="dv-tl" id="dvTl">';for(let i=0;i<24;i++){const l=String(i).padStart(2,'0');h+='<div class="dv-hr"><div class="dv-lb">'+l+':00</div><div class="dv-sl"></div></div>'}if(s===todayStr()){const n=new Date(),t=n.getHours()*60+n.getMinutes(),top=t/(24*60)*100;h+='<div class="dv-now" style="top:'+top+'%"></div>'}h+='</div></div>';return h}
 function scrollNow(){requestAnimationFrame(()=>{const t=document.getElementById('dvTl');if(!t)return;const n=new Date(),top=(n.getHours()*60+n.getMinutes())/(24*60)*t.scrollHeight;t.scrollTop=top-t.clientHeight/3})}
 function weekView(mon){const td=todayStr();let h='<div class="wv"><div class="wv-hd"><div class="wv-gt"></div><div class="wv-dhs">';for(let i=0;i<7;i++){const d=addD(mon,i),s=ds(d);h+='<div class="wv-dh'+(s===td?' td':'')+(s===selectedDate?' sel':'')+'" onclick="selDate(\''+s+'\')">'+WN[i]+'<span class="wn">'+d.getDate()+'</span></div>'}h+='</div></div><div class="wv-bd" id="wvBd"><div class="wv-tc">';for(let i=0;i<24;i++)h+='<div class="wv-tl">'+String(i).padStart(2,'0')+'</div>';h+='</div><div class="wv-cols">';for(let i=0;i<7;i++){h+='<div class="wv-col">';for(let j=0;j<24;j++)h+='<div class="wv-cl"></div>';h+='</div>'}h+='</div>';if(td>=ds(mon)&&td<=ds(addD(mon,6))){const n=new Date(),t=n.getHours()*60+n.getMinutes(),top=t/(24*60)*100;h+='<div class="wv-now" style="top:'+top+'%"></div>'}h+='</div></div>';return h}
