@@ -24,15 +24,20 @@
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/markdown.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/plaintext.min.js"></script>
 <style>
-:root{--sidebar-w:clamp(320px,24vw,420px)}
+:root{--sidebar-w:clamp(320px,24vw,420px);--editor-font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC","Helvetica Neue",Arial,sans-serif;--editor-font-size:15px;--editor-code-font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#fff;color:#1a1a2e;height:100vh;display:flex;flex-direction:column;transition:background .3s,color .3s}
+body{font-family:var(--editor-font-family);background:#fff;color:#1a1a2e;height:100vh;display:flex;flex-direction:column;transition:background .3s,color .3s}
 .main{display:flex;flex:1;overflow:hidden}
 
 .doc-wrap{--gravity-depth:0;--gravity-motion:0;--gravity-shift:0px;--gravity-shadow:0px;--gravity-blur:0px;--gravity-stretch:1;flex:1;display:flex;flex-direction:column;overflow:hidden;padding:0 clamp(28px,5vw,96px);position:relative;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(248,250,252,.82) 48%,rgba(241,245,249,.72))}
 .doc-wrap::before{content:'';position:absolute;inset:-18px 0;pointer-events:none;background:linear-gradient(90deg,transparent 0,transparent calc(50% - 431px),rgba(99,102,241,.055) calc(50% - 430px),transparent calc(50% - 428px),transparent calc(50% + 428px),rgba(45,212,191,.055) calc(50% + 430px),transparent calc(50% + 431px)),repeating-linear-gradient(180deg,rgba(148,163,184,.09) 0 1px,transparent 1px 96px);background-position:0 calc(var(--gravity-depth)*-120px + var(--gravity-shift));opacity:calc(.2 + var(--gravity-motion)*.55);filter:blur(var(--gravity-blur));transform:scaleY(var(--gravity-stretch));transform-origin:center;mask-image:linear-gradient(180deg,transparent 0,#000 18%,#000 78%,transparent 100%);transition:opacity .08s ease-out,filter .08s ease-out,transform .08s ease-out}
 .doc-wrap::after{content:'';position:absolute;left:0;right:0;top:0;height:118px;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,255,255,.72) 54%,transparent),linear-gradient(180deg,rgba(99,102,241,calc(var(--gravity-motion)*.14)),transparent 70%);z-index:2}
-.doc{flex:1;width:min(100%,860px);margin:0 auto;padding:52px 0 96px;overflow-y:auto;font-size:15px;line-height:1.8;outline:none;word-break:break-word;position:relative;z-index:3}
+.doc{flex:1;width:min(100%,860px);margin:0 auto;padding:52px 0 96px;overflow-y:auto;font-family:var(--editor-font-family);font-size:var(--editor-font-size);line-height:1.8;outline:none;word-break:break-word;position:relative;z-index:3}
+.doc :where([style],font){font-family:var(--editor-font-family)!important;font-size:inherit!important;line-height:inherit!important}
+.doc :where(p,div,span,a,li,blockquote,td,th,font){font-family:var(--editor-font-family);font-size:inherit}
+.doc :where(pre,code,pre span){font-family:var(--editor-code-font-family)}
+.doc :where(pre,code,pre span)[style]{font-family:var(--editor-code-font-family)!important;font-size:13px!important}
+.doc :where(.katex,.katex *){font-family:KaTeX_Main,Times New Roman,serif}
 .doc.gravity-flow>*{text-shadow:0 var(--gravity-shadow) calc(var(--gravity-motion)*30px) rgba(15,23,42,.28);transition:text-shadow .08s ease-out}
 .doc.gravity-flow>*.gravity-past{opacity:1;filter:none}
 @media (max-width:980px){
@@ -42,7 +47,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .doc h1,.doc h2,.doc h3,.doc h4{margin:12px 0 4px;line-height:1.4}
 .doc h1{font-size:24px}.doc h2{font-size:20px}.doc h3{font-size:17px}.doc h4{font-size:15px;font-weight:700}
 .doc table{border-collapse:collapse;width:100%;margin:8px 0}
-.doc table td,.doc table th{border:1px solid #d0d0d0;padding:6px 10px;min-width:60px;font-size:14px;outline:none}
+.doc table td,.doc table th{border:1px solid #d0d0d0;padding:6px 10px;min-width:60px;font-size:inherit;outline:none}
 .doc table th{background:#f7f7f7;font-weight:600}
 .doc img{max-width:100%;border-radius:4px;margin:6px 0;cursor:pointer;transition:outline .15s;vertical-align:bottom}
 .doc img.sel-img{outline:2px solid #667eea;outline-offset:2px}
@@ -126,7 +131,10 @@ body.dark .fbar .theme-sun{display:block}
 .presenter-close{position:fixed;top:18px;right:18px;width:36px;height:36px;border:1px solid rgba(148,163,184,.34);border-radius:50%;background:rgba(255,255,255,.84);color:#475569;font-size:24px;line-height:1;cursor:pointer;z-index:2;backdrop-filter:blur(10px)}
 .presenter-close:hover{background:#fff;color:#111827}
 .presenter-stage{min-height:100%;display:flex;align-items:center;justify-content:center}
-.presenter-content{width:min(100%,980px);font-size:22px;line-height:1.8;word-break:break-word}
+.presenter-content{width:min(100%,980px);font-family:var(--editor-font-family);font-size:22px;line-height:1.8;word-break:break-word}
+.presenter-content :where(p,div,span,a,li,blockquote,td,th){font-family:var(--editor-font-family);font-size:inherit}
+.presenter-content :where(pre,code,pre span){font-family:var(--editor-code-font-family)}
+.presenter-content :where(.katex,.katex *){font-family:KaTeX_Main,Times New Roman,serif}
 .presenter-content h1{font-size:44px;line-height:1.18;margin:0 0 22px}
 .presenter-content h2{font-size:34px;line-height:1.25;margin:0 0 18px}
 .presenter-content h3{font-size:28px;line-height:1.32;margin:0 0 14px}
@@ -136,16 +144,21 @@ body.dark .fbar .theme-sun{display:block}
 .presenter-content li{margin:7px 0}
 .presenter-content li>ul,.presenter-content li>ol{margin-top:7px;margin-bottom:7px}
 .presenter-content blockquote{border-left:4px solid #94a3b8;padding:4px 0 4px 18px;color:#475569}
-.presenter-content img{max-width:100%;border-radius:6px}
+.presenter-content img{max-width:100%;border-radius:4px;margin:6px 0;vertical-align:bottom}
+.presenter-content img.align-left{display:block;margin-right:auto;margin-bottom:6px;max-width:50%;float:none}
+.presenter-content img.align-center{display:block;margin-left:auto;margin-right:auto;float:none;max-width:100%}
+.presenter-content img.align-right{display:block;margin-left:auto;margin-bottom:6px;max-width:50%;float:none}
 .presenter-content pre{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:22px;overflow:auto;font-size:16px}
 .presenter-content code{font-size:.86em;background:rgba(99,102,241,.1);padding:.08em .28em;border-radius:4px}
 .presenter-content pre code{background:none;padding:0;border-radius:0;white-space:pre}
-.presenter-content table{border-collapse:collapse;width:100%}
-.presenter-content td,.presenter-content th{border:1px solid #cbd5e1;padding:8px 12px}
+.presenter-content table{border-collapse:collapse;width:100%;margin:8px 0}
+.presenter-content td,.presenter-content th{border:1px solid #d0d0d0;padding:6px 10px;min-width:60px;font-size:inherit;outline:none}
+.presenter-content th{background:#f7f7f7;font-weight:600}
 .presenter-content .todo-item{display:flex;align-items:flex-start;gap:10px}
 .presenter-content .todo-item input[type="checkbox"]{width:18px;height:18px;margin-top:8px;accent-color:#667eea}
 .presenter-content .todo-item.checked .todo-text{text-decoration:line-through;color:#94a3b8}
-.presenter-content .tex-display{display:block;text-align:center}
+.presenter-content .tex{background:#f8f8ff;padding:1px 4px;border-radius:3px;font-family:inherit}
+.presenter-content .tex-display{display:block;text-align:center;margin:8px 0;padding:6px;background:#fafaff;border-radius:4px}
 .presenter-empty{color:#94a3b8;text-align:center;font-size:18px}
 
 .sidebar{width:var(--sidebar-w);flex-shrink:0;background:#f8f9fb;border-left:1px solid #dfe3ea;display:flex;flex-direction:column;overflow:hidden}
@@ -213,9 +226,14 @@ body.dark .fbar .theme-sun{display:block}
 
 .stor{border-top:1px solid #e8e8e8;padding:10px 14px;flex-shrink:0;background:#fafafa}
 .stor-title{font-size:11px;color:#999;margin-bottom:6px;font-weight:600}
-.stor-status{font-size:11px;color:#667eea;margin-bottom:6px;display:flex;align-items:center;gap:4px}
-.stor-status .dot-ok{width:6px;height:6px;border-radius:50%;background:#6c9}
-.stor-status .dot-no{width:6px;height:6px;border-radius:50%;background:#ddd}
+.stor-statuses{display:grid;gap:4px;margin-bottom:6px}
+.stor-status{font-size:11px;color:#667eea;display:grid;grid-template-columns:6px 34px minmax(0,1fr);align-items:center;gap:6px;line-height:1.35}
+.stor-status .dot-ok,.stor-status .dot-no,.stor-status .dot-wait{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.stor-status .dot-ok{background:#6c9}
+.stor-status .dot-no{background:#ddd}
+.stor-status .dot-wait{background:#f59e0b}
+.stor-status .s-label{color:#9ca3af}
+.stor-status .s-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .stor-btns{display:flex;gap:4px;flex-wrap:wrap}
 .stor-btns button{padding:4px 10px;border:1px solid #ddd;border-radius:5px;background:#fff;font-size:11px;cursor:pointer;color:#555;transition:all .15s}
 .stor-btns button:hover{background:#f0f0ff;border-color:#667eea;color:#333}
@@ -226,6 +244,7 @@ body.dark .fbar .theme-sun{display:block}
 .mount-gate{position:fixed;inset:0;z-index:900;background:rgba(248,250,252,.82);backdrop-filter:blur(18px);display:flex;align-items:center;justify-content:center;padding:24px}
 .mount-gate.hide{display:none}
 .mount-panel{width:min(92vw,380px);background:rgba(255,255,255,.92);border:1px solid rgba(226,232,240,.9);border-radius:14px;box-shadow:0 24px 70px rgba(15,23,42,.16);padding:22px}
+.mount-panel.merge-mode{width:min(96vw,1180px);max-height:92vh;overflow:hidden;display:flex;flex-direction:column}
 .mount-title{font-size:18px;font-weight:700;color:#111827;margin-bottom:8px}
 .mount-copy{font-size:13px;line-height:1.7;color:#64748b;margin-bottom:16px}
 .mount-file{font-size:12px;color:#475569;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;margin-bottom:14px;word-break:break-all}
@@ -233,6 +252,25 @@ body.dark .fbar .theme-sun{display:block}
 .mount-actions button{height:34px;padding:0 14px;border-radius:8px;border:1px solid #d7dce5;background:#fff;color:#334155;font-size:13px;cursor:pointer}
 .mount-actions .primary{background:#667eea;border-color:#667eea;color:#fff;flex:1}
 .mount-actions button:disabled{opacity:.55;cursor:default}
+.mount-conflict{display:none;gap:8px;margin-top:8px}
+.mount-conflict.show{display:flex}
+.mount-conflict button{height:34px;padding:0 12px;border-radius:8px;border:1px solid #d7dce5;background:#fff;color:#334155;font-size:13px;cursor:pointer;flex:1}
+.mount-conflict .danger{background:#dc2626;border-color:#dc2626;color:#fff}
+.merge-view{display:none;min-height:0;margin-top:12px}
+.merge-view.show{display:block}
+.merge-toolbar{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-bottom:10px;flex-wrap:wrap}
+.merge-toolbar button{height:32px;padding:0 12px;border-radius:8px;border:1px solid #d7dce5;background:#fff;color:#334155;font-size:12px;cursor:pointer}
+.merge-toolbar .primary{background:#667eea;border-color:#667eea;color:#fff}
+.merge-grid{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:10px;min-height:0;height:min(58vh,560px)}
+.merge-col{min-width:0;min-height:0;display:flex;flex-direction:column;border:1px solid #e2e8f0;border-radius:10px;background:#fff;overflow:hidden}
+.merge-col h3{font-size:12px;color:#475569;padding:8px 10px;border-bottom:1px solid #e2e8f0;background:#f8fafc}
+.merge-pane,.merge-editor{flex:1;min-height:0;overflow:auto;padding:10px;font-size:13px;line-height:1.65;color:#1f2937;word-break:break-word}
+.merge-editor{outline:none;background:#fffdf7}
+.merge-editor:focus{box-shadow:inset 0 0 0 2px rgba(102,126,234,.28)}
+.merge-line{border-left:3px solid transparent;padding:4px 8px;margin:3px 0;border-radius:6px}
+.merge-line.diff-del{border-left-color:#ef4444;background:#fef2f2}
+.merge-line.diff-add{border-left-color:#22c55e;background:#f0fdf4}
+.merge-line.same{opacity:.72}
 .mount-msg{min-height:18px;margin-top:12px;font-size:12px;color:#64748b}
 .mount-msg.err{color:#dc2626}
 body.mounting .doc-wrap,body.mounting .sidebar{filter:blur(1px);pointer-events:none}
@@ -367,6 +405,15 @@ body.dark .mount-copy{color:var(--dark-muted)}
 body.dark .mount-file{background:rgba(13,17,23,.72);border-color:var(--dark-line);color:#c8d3df}
 body.dark .mount-actions button{background:rgba(13,17,23,.86);border-color:var(--dark-line);color:var(--dark-text)}
 body.dark .mount-actions .primary{background:linear-gradient(135deg,var(--dark-accent),var(--dark-accent-2));border-color:transparent;color:#071018}
+body.dark .mount-conflict button{background:rgba(13,17,23,.86);border-color:var(--dark-line);color:var(--dark-text)}
+body.dark .mount-conflict .danger{background:#fb7185;border-color:#fb7185;color:#2a0710}
+body.dark .merge-toolbar button{background:rgba(13,17,23,.86);border-color:var(--dark-line);color:var(--dark-text)}
+body.dark .merge-toolbar .primary{background:linear-gradient(135deg,var(--dark-accent),var(--dark-accent-2));border-color:transparent;color:#071018}
+body.dark .merge-col{background:rgba(13,17,23,.72);border-color:var(--dark-line)}
+body.dark .merge-col h3{background:rgba(19,25,34,.94);border-color:var(--dark-line);color:var(--dark-muted)}
+body.dark .merge-pane,body.dark .merge-editor{background:rgba(13,17,23,.72);color:var(--dark-text)}
+body.dark .merge-line.diff-del{background:rgba(127,29,29,.28)}
+body.dark .merge-line.diff-add{background:rgba(20,83,45,.28)}
 body.dark .mount-msg{color:var(--dark-muted)}
 body.dark .mount-msg.err{color:#fb7185}
 
@@ -426,7 +473,10 @@ body.dark .doc:hover::-webkit-scrollbar-thumb{background:rgba(148,163,184,.18)}
     <div class="cal-body" id="calBody"></div>
     <div class="stor">
       <div class="stor-title">存储与同步</div>
-      <div class="stor-status" id="storStatus"><span class="dot-no"></span>未链接文件</div>
+      <div class="stor-statuses" id="storStatus">
+        <div class="stor-status" id="linkStatus"><span class="dot-no"></span><span class="s-label">链接</span><span class="s-text">未挂载</span></div>
+        <div class="stor-status" id="cloudStatus"><span class="dot-no"></span><span class="s-label">云端</span><span class="s-text">未保存</span></div>
+      </div>
       <div class="stor-btns"><button class="primary" onclick="linkFile()">链接文件</button><button onclick="exportFile()">导出</button><button onclick="importFile()">导入</button></div>
       <div class="stor-hint">链接文件：选择云盘同步目录中的 diary.json<br>导出/导入：手动备份恢复</div>
     </div>
@@ -434,13 +484,38 @@ body.dark .doc:hover::-webkit-scrollbar-thumb{background:rgba(148,163,184,.18)}
 </div>
 
 <div class="mount-gate" id="mountGate">
-  <div class="mount-panel">
+  <div class="mount-panel" id="mountPanel">
     <div class="mount-title">挂载同步文件</div>
     <div class="mount-copy">Gravilog 会先连接你的 diary.json，同步完成后再进入编辑模式，避免忘记挂载造成文件未同步。</div>
     <div class="mount-file" id="mountFile">正在检查上次同步文件...</div>
     <div class="mount-actions">
-      <button class="primary" id="mountPrimary" onclick="mountStartupFile()">继续</button>
-      <button id="mountChoose" onclick="chooseAndMountFile()">选择文件</button>
+      <button class="primary" id="mountPrimary" onclick="mountStartupFile()">加载上次同步文件</button>
+      <button id="mountChoose" onclick="chooseAndMountFile()" style="display:none">选择文件</button>
+    </div>
+    <div class="mount-conflict" id="mountConflict">
+      <button onclick="resolveMountConflict('remote')">使用云盘版本</button>
+      <button class="danger" onclick="resolveMountConflict('local')">使用本地版本</button>
+    </div>
+    <div class="merge-view" id="mergeView">
+      <div class="merge-toolbar">
+        <button onclick="loadMergeFrom('remote')">载入云盘</button>
+        <button onclick="loadMergeFrom('local')">载入本地</button>
+        <button class="primary" onclick="confirmMergedConflict()">保存合并版本</button>
+      </div>
+      <div class="merge-grid">
+        <section class="merge-col">
+          <h3>本地未同步</h3>
+          <div class="merge-pane" id="mergeLocal"></div>
+        </section>
+        <section class="merge-col">
+          <h3>合并版本</h3>
+          <div class="merge-editor" id="mergeEditor" contenteditable="true"></div>
+        </section>
+        <section class="merge-col">
+          <h3>云盘版本</h3>
+          <div class="merge-pane" id="mergeRemote"></div>
+        </section>
+      </div>
     </div>
     <div class="mount-msg" id="mountMsg"></div>
   </div>
@@ -524,9 +599,14 @@ body.dark .doc:hover::-webkit-scrollbar-thumb{background:rgba(148,163,184,.18)}
 <input type="file" id="importPicker" accept=".json" style="display:none" onchange="handleImport(event)">
 
 <script>
-const STORAGE_KEY='diary_doc',DATES_KEY='diary_edit_dates',STATS_KEY='diary_daily_stats',META_KEY='diary_meta',HANDLE_NAME_KEY='diary_file_name',PENDING_SYNC_KEY='diary_pending_sync';
-let calView='month',calYear=new Date().getFullYear(),calMonth=new Date().getMonth(),calWeekStart=getMon(new Date()),selectedDate=null,saveTimer=null;
+const STORAGE_KEY='diary_doc',DATES_KEY='diary_edit_dates',STATS_KEY='diary_daily_stats',META_KEY='diary_meta',HANDLE_NAME_KEY='diary_file_name',PENDING_SYNC_KEY='diary_pending_sync',CONFLICT_BACKUP_KEY='diary_conflict_backup';
+const LOCAL_SAVE_DELAY=450;
+const FILE_WRITE_DELAY=5000;
+let calView='month',calYear=new Date().getFullYear(),calMonth=new Date().getMonth(),calWeekStart=getMon(new Date()),selectedDate=null,saveTimer=null,localSaveTimer=null;
 let texDisplay=false,fileHandle=null,selImg=null,fileWritable=false,fileWritePromise=Promise.resolve(),fileWritePending=false,syncReady=false;
+let latestFileSnapshot=null,fileRetryTimer=null,mountConflict=null,localSaveErrorShown=false;
+let pendingCharDelta=0,pendingDateMark=false;
+let editorSavedRange=null;
 
 const DARK_KEY='diary_dark';
 function initDark(){
@@ -553,6 +633,48 @@ document.body.classList.add('mounting');
 const docWrap=document.getElementById('docWrap');
 let lastWritingLen=writingLength();
 let gravityRaf=0,gravityMotion=0,gravityDir=1,gravityLast=0,gravityVelocity=0,gravityScrollRaf=0,gravityScrollLast=0;
+const TYPOGRAPHY_STYLE_PROPS=['font','font-family','font-size','line-height'];
+function normalizeEditorTypography(root=doc){
+  if(!root)return false;
+  const elements=[];
+  if(root.nodeType===1)elements.push(root);
+  elements.push(...root.querySelectorAll('*'));
+  let changed=false;
+  elements.forEach(el=>{
+    if(el.closest&&el.closest('.katex'))return;
+    if(el.hasAttribute('style')){
+      const before=el.getAttribute('style')||'';
+      TYPOGRAPHY_STYLE_PROPS.forEach(prop=>el.style.removeProperty(prop));
+      const after=(el.getAttribute('style')||'').trim();
+      if(after)el.setAttribute('style',after);
+      else el.removeAttribute('style');
+      if((el.getAttribute('style')||'')!==before)changed=true;
+    }
+    ['face','size'].forEach(attr=>{
+      if(el.hasAttribute(attr)){el.removeAttribute(attr);changed=true}
+    });
+  });
+  return changed;
+}
+function normalizeEditorHTML(html){
+  const tpl=document.createElement('template');
+  tpl.innerHTML=html||'';
+  tpl.content.querySelectorAll('style,link,meta').forEach(el=>el.remove());
+  normalizeEditorTypography(tpl.content);
+  return tpl.innerHTML;
+}
+function plainTextFromHTML(html){
+  const tpl=document.createElement('template');
+  tpl.innerHTML=html||'';
+  tpl.content.querySelectorAll('style,script,link,meta').forEach(el=>el.remove());
+  return tpl.content.textContent||'';
+}
+function insertPlainEditorText(text){
+  doc.focus();
+  document.execCommand('insertText',false,text||'');
+  normalizeEditorTypography(doc);
+}
+normalizeEditorTypography(doc);
 function clamp01(n){return Math.max(0,Math.min(1,n))}
 function setGravityVars(){
   const shift=gravityDir*gravityMotion*150;
@@ -792,6 +914,7 @@ function waitForLibs(){
 waitForLibs();
 
 function renderAllContent(){
+  normalizeEditorTypography(doc);
   // Render LaTeX
   doc.querySelectorAll('.tex,.tex-display').forEach(el=>{
     const s=el.getAttribute('data-tex');
@@ -823,8 +946,9 @@ function renderAllContent(){
 // ===== Auto-save =====
 doc.addEventListener('input',()=>{
   trackDailyWriting();
+  scheduleLocalDraftSave();
   showSt('saving');clearTimeout(saveTimer);
-  saveTimer=setTimeout(()=>{save();showSt('saved')},600);
+  saveTimer=setTimeout(()=>{queueFileWrite(latestFileSnapshot);showSt('saved')},FILE_WRITE_DELAY);
   // Trigger auto-render checks (also handles markdown shortcuts like ```python)
   setTimeout(()=>{autoRenderCheck()},0);
   // Real-time syntax highlighting in code blocks
@@ -863,11 +987,36 @@ function restoreCursorInCode(code,offset){
 }
 
 function save(){
-  markDate();
-  const snapshot={doc:doc.innerHTML,dates:getDates(),stats:getStats(),savedAt:new Date().toISOString()};
-  saveLocalSnapshot(snapshot);
+  clearTimeout(localSaveTimer);
+  const snapshot=saveLocalDraft(true);
   renderCal();
   queueFileWrite(snapshot);
+}
+function scheduleLocalDraftSave(){
+  setPendingSync(true);
+  clearTimeout(localSaveTimer);
+  localSaveTimer=setTimeout(()=>{
+    latestFileSnapshot=saveLocalDraft(true,{normalize:false});
+    renderCal();
+  },LOCAL_SAVE_DELAY);
+}
+function saveLocalDraft(pending,options={}){
+  markDate();
+  flushDailyWriting();
+  if(options.normalize!==false)normalizeEditorTypography(doc);
+  const snapshot={doc:doc.innerHTML,dates:getDates(),stats:getStats(),savedAt:new Date().toISOString()};
+  try{
+    saveLocalSnapshot(snapshot);
+  }catch(e){
+    console.error('本地保存失败',e);
+    if(!localSaveErrorShown){
+      localSaveErrorShown=true;
+      alert('本地缓存空间不足，图片可能太大。Gravilog 会继续尝试写入云文档，请等右侧显示“已保存到云文档”后再刷新。');
+    }
+  }
+  if(pending)setPendingSync(true);
+  latestFileSnapshot=snapshot;
+  return snapshot;
 }
 function saveLocalSnapshot(snapshot){
   localStorage.setItem(STORAGE_KEY,snapshot.doc||'');
@@ -876,8 +1025,11 @@ function saveLocalSnapshot(snapshot){
   localStorage.setItem(META_KEY,JSON.stringify({savedAt:snapshot.savedAt||new Date().toISOString()}));
 }
 function setPendingSync(pending){
-  if(pending)localStorage.setItem(PENDING_SYNC_KEY,'1');
-  else localStorage.removeItem(PENDING_SYNC_KEY);
+  const wasPending=hasPendingSync();
+  if(pending){
+    if(!wasPending)localStorage.setItem(PENDING_SYNC_KEY,'1');
+  }else if(wasPending)localStorage.removeItem(PENDING_SYNC_KEY);
+  if(pending===wasPending)return;
   updateStorStatus(fileWritable);
 }
 function hasPendingSync(){return localStorage.getItem(PENDING_SYNC_KEY)==='1'}
@@ -885,6 +1037,31 @@ function getLocalSnapshot(){
   let meta={};
   try{meta=JSON.parse(localStorage.getItem(META_KEY)||'{}')}catch(e){}
   return {doc:localStorage.getItem(STORAGE_KEY)||'',dates:getDates(),stats:getStats(),savedAt:meta.savedAt||''};
+}
+function snapshotTime(snapshot){
+  const t=Date.parse(snapshot&&snapshot.savedAt||'');
+  return Number.isFinite(t)?t:0;
+}
+function snapshotHasContent(snapshot){
+  return !!(snapshot&&(snapshot.doc||'').trim()||(snapshot&&snapshot.dates&&snapshot.dates.length));
+}
+function snapshotsDiffer(a,b){
+  if(!a&&!b)return false;
+  if(!a||!b)return true;
+  return (a.doc||'')!==(b.doc||'')||JSON.stringify(a.dates||[])!==JSON.stringify(b.dates||[])||JSON.stringify(a.stats||{})!==JSON.stringify(b.stats||{});
+}
+function decideMountSnapshot(local,remote){
+  const lt=snapshotTime(local),rt=snapshotTime(remote);
+  const localHas=snapshotHasContent(local),remoteHas=snapshotHasContent(remote);
+  const pending=hasPendingSync()&&localHas;
+  if(!localHas)return {action:'remote'};
+  if(!remoteHas)return {action:'local'};
+  if(!snapshotsDiffer(local,remote))return {action:'remote'};
+  if(pending&&(!lt||!rt||rt>=lt))return {action:'conflict'};
+  if(!lt||!rt||lt===rt)return {action:'conflict'};
+  if(lt&&rt&&lt>rt)return {action:'local'};
+  if(lt&&!rt)return {action:'local'};
+  return {action:'remote'};
 }
 function showSt(s){const e=document.getElementById('st');e.textContent=s==='saving'?'...':'OK';if(s==='saved')setTimeout(()=>{e.textContent=''},1500)}
 function markDate(){const d=getDates();const t=todayStr();if(!d.includes(t)){d.push(t);localStorage.setItem(DATES_KEY,JSON.stringify(d))}}
@@ -895,7 +1072,17 @@ function trackDailyWriting(){
   const len=writingLength();
   const delta=len-lastWritingLen;
   lastWritingLen=len;
-  if(delta>0)addDailyChars(delta);
+  if(delta>0){
+    pendingCharDelta+=delta;
+    pendingDateMark=true;
+  }
+}
+function flushDailyWriting(){
+  if(pendingDateMark){markDate();pendingDateMark=false}
+  if(pendingCharDelta>0){
+    addDailyChars(pendingCharDelta);
+    pendingCharDelta=0;
+  }
 }
 function normalizeStats(raw){
   const out={};
@@ -1377,7 +1564,7 @@ function handleTab(e){
     e.preventDefault();
     e.shiftKey?outdentCodeSelection(code):indentCodeSelection(code);
     showSt('saving');clearTimeout(saveTimer);
-    saveTimer=setTimeout(()=>{save();showSt('saved')},600);
+    saveTimer=setTimeout(()=>{save();showSt('saved')},FILE_WRITE_DELAY);
     return;
   }
   const blk=getCursorBlock();if(!blk)return;
@@ -1399,7 +1586,7 @@ function handleCodeEnter(e){
   rehighlightCode(code,false);
   selectRangeInCode(code,sel.start+insert.length,sel.start+insert.length,false);
   showSt('saving');clearTimeout(saveTimer);
-  saveTimer=setTimeout(()=>{save();showSt('saved')},600);
+  saveTimer=setTimeout(()=>{save();showSt('saved')},FILE_WRITE_DELAY);
   return true;
 }
 
@@ -1554,12 +1741,35 @@ function tblDelTable(){const td=getCursorTd();if(!td)return;const tbl=td.closest
 function hideCtxBars(){document.getElementById('imgBar').classList.remove('show');document.getElementById('tblBar').classList.remove('show')}
 
 // ===== Editor Commands =====
-function execCmd(c,v){doc.focus();document.execCommand(c,false,v||null)}
+function execCmd(c,v){restoreEditorSelection();document.execCommand(c,false,v||null);rememberEditorSelection();save()}
 
 // ===== Selection Presenter =====
-document.addEventListener('selectionchange',updatePresentBtn);
+document.addEventListener('selectionchange',()=>{rememberEditorSelection();updatePresentBtn()});
 document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement)closePresenter(false)});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('presenter').classList.contains('show'))closePresenter()});
+document.addEventListener('mousedown',e=>{
+  if(e.target.closest&&e.target.closest('.fbar,.td-dlg,.tex-input,.color-picker'))rememberEditorSelection();
+},true);
+document.addEventListener('pointerdown',e=>{
+  if(e.target.closest&&e.target.closest('.fbar button,.td-dlg button,.color-picker .color-dot,.color-picker .color-remove')){
+    e.preventDefault();
+  }
+},true);
+function rememberEditorSelection(){
+  const sel=window.getSelection();
+  if(!sel||!sel.rangeCount)return;
+  const range=sel.getRangeAt(0);
+  const node=range.startContainer.nodeType===1?range.startContainer:range.startContainer.parentNode;
+  if(node&&doc.contains(node))editorSavedRange=range.cloneRange();
+}
+function restoreEditorSelection(){
+  if(editorSavedRange){
+    const sel=window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(editorSavedRange.cloneRange());
+  }
+  doc.focus();
+}
 function getDocSelectionRange(){
   const sel=window.getSelection();
   if(!sel||!sel.rangeCount||sel.isCollapsed)return null;
@@ -1748,18 +1958,18 @@ document.addEventListener('mousedown',e=>{
     closeColorPickers();
   }
 });
-function showTableDlg(){document.getElementById('tdDlg').classList.add('show')}
+function showTableDlg(){rememberEditorSelection();document.getElementById('tdDlg').classList.add('show')}
 function hideTableDlg(){document.getElementById('tdDlg').classList.remove('show')}
 function insertTable(){
   const r=parseInt(document.getElementById('tRows').value)||3,c=parseInt(document.getElementById('tCols').value)||3;
   let h='<table><thead><tr>';for(let i=0;i<c;i++)h+='<th>标题'+(i+1)+'</th>';h+='</tr></thead><tbody>';
   for(let i=0;i<r-1;i++){h+='<tr>';for(let j=0;j<c;j++)h+='<td><br></td>';h+='</tr>'}
-  h+='</tbody></table><p><br></p>';doc.focus();document.execCommand('insertHTML',false,h);hideTableDlg();pushUndo();
+  h+='</tbody></table><p><br></p>';restoreEditorSelection();document.execCommand('insertHTML',false,h);hideTableDlg();pushUndo();rememberEditorSelection();save();
 }
-function pickImg(){document.getElementById('imgPicker').click()}
-function insertTodo(){doc.focus();document.execCommand('insertHTML',false,'<div class="todo-item"><input type="checkbox"><span class="todo-text">待办事项</span></div>');pushUndo()}
+function pickImg(){rememberEditorSelection();document.getElementById('imgPicker').click()}
+function insertTodo(){restoreEditorSelection();document.execCommand('insertHTML',false,'<div class="todo-item"><input type="checkbox"><span class="todo-text">待办事项</span></div>');pushUndo();rememberEditorSelection();save()}
 function insertCodeBlock(){
-  doc.focus();
+  restoreEditorSelection();
   const pre=createCodeBlock('plaintext');
   const code=pre.querySelector('code');
   const sel=window.getSelection();
@@ -1774,17 +1984,82 @@ function insertCodeBlock(){
   p.appendChild(document.createElement('br'));
   pre.parentNode.insertBefore(p,pre.nextSibling);
   placeCursorInCode(code,0);
+  rememberEditorSelection();
   pushUndo();save();
 }
 
-function handleImg(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{doc.focus();document.execCommand('insertHTML',false,'<img src="'+ev.target.result+'">');pushUndo()};r.readAsDataURL(f);e.target.value=''}
+function fileToEditorImage(f){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader();
+    r.onerror=()=>reject(r.error);
+    r.onload=ev=>{
+      const data=ev.target.result;
+      if(!/^data:image\//.test(data)||/^data:image\/gif/i.test(data)||data.length<900000){resolve(data);return}
+      const img=new Image();
+      img.onload=()=>{
+        const max=1600,scale=Math.min(1,max/Math.max(img.width,img.height));
+        const canvas=document.createElement('canvas');
+        canvas.width=Math.max(1,Math.round(img.width*scale));
+        canvas.height=Math.max(1,Math.round(img.height*scale));
+        const ctx=canvas.getContext('2d');
+        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+        resolve(canvas.toDataURL('image/jpeg',0.86));
+      };
+      img.onerror=()=>resolve(data);
+      img.src=data;
+    };
+    r.readAsDataURL(f);
+  });
+}
+async function insertImageFile(f){
+  if(!f)return;
+  try{
+    const src=await fileToEditorImage(f);
+    restoreEditorSelection();
+    document.execCommand('insertHTML',false,'<img src="'+src+'">');
+    pushUndo();rememberEditorSelection();save();
+  }catch(e){
+    console.error('插入图片失败',e);
+    alert('图片插入失败，请重试或换一张较小的图片。');
+  }
+}
+function handleImg(e){const f=e.target.files[0];if(!f)return;insertImageFile(f);e.target.value=''}
+doc.addEventListener('beforeinput',function(e){
+  if(e.inputType!=='insertFromPaste'||!e.dataTransfer)return;
+  const target=e.target;
+  const inCode=target.closest&&target.closest('pre code');
+  const text=e.dataTransfer.getData('text/plain')||plainTextFromHTML(e.dataTransfer.getData('text/html')||'');
+  if(!text)return;
+  e.preventDefault();
+  if(inCode){
+    document.execCommand('insertText',false,text);
+    setTimeout(()=>rehighlightCode(inCode,true),0);
+  }else{
+    insertPlainEditorText(text);
+  }
+  pushUndo();save();
+});
 doc.addEventListener('paste',function(e){
   const items=e.clipboardData.items;
   for(let i=0;i<items.length;i++){
     if(items[i].type.indexOf('image')!==-1){
-      e.preventDefault();const f=items[i].getAsFile();const r=new FileReader();
-      r.onload=ev=>{doc.focus();document.execCommand('insertHTML',false,'<img src="'+ev.target.result+'">')};r.readAsDataURL(f);return;
+      e.preventDefault();insertImageFile(items[i].getAsFile());return;
     }
+  }
+  const inCode=e.target.closest&&e.target.closest('pre code');
+  if(inCode){
+    e.preventDefault();
+    document.execCommand('insertText',false,e.clipboardData.getData('text/plain')||'');
+    setTimeout(()=>rehighlightCode(inCode,true),0);
+    return;
+  }
+  const html=e.clipboardData.getData('text/html')||'';
+  const text=e.clipboardData.getData('text/plain')||plainTextFromHTML(html);
+  if(text){
+    e.preventDefault();
+    insertPlainEditorText(text);
+    pushUndo();save();
+    return;
   }
   // Paste text into code block → highlight handled by input event listener
   const td=e.target.closest&&e.target.closest('td,th');
@@ -1829,7 +2104,8 @@ function editTex(el){
     hideTexInput();confirmTex=orig;save();
   };
 }
-function escAttr(s){return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function escAttr(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function escHTML(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 
 // ===== File Storage =====
 const hasFSAP='showOpenFilePicker' in window;
@@ -1837,6 +2113,15 @@ function setMountBusy(busy){
   const primary=document.getElementById('mountPrimary'),choose=document.getElementById('mountChoose');
   if(primary)primary.disabled=busy;
   if(choose)choose.disabled=busy;
+  document.querySelectorAll('#mountConflict button,#mergeView button').forEach(btn=>btn.disabled=busy);
+}
+function setConflictActions(show){
+  const el=document.getElementById('mountConflict');
+  if(el)el.classList.toggle('show',!!show);
+  const panel=document.getElementById('mountPanel');
+  if(panel)panel.classList.toggle('merge-mode',!!show);
+  const merge=document.getElementById('mergeView');
+  if(merge)merge.classList.toggle('show',!!show);
 }
 function setMountMsg(msg,isErr){
   const el=document.getElementById('mountMsg');
@@ -1850,16 +2135,144 @@ function setMountFileText(text){
 }
 function prepareMountGate(hasLast){
   const primary=document.getElementById('mountPrimary'),choose=document.getElementById('mountChoose');
-  if(primary)primary.textContent=hasLast?'挂载上次同步文件':'选择同步文件';
-  if(choose)choose.style.display=hasLast?'inline-flex':'none';
+  if(primary)primary.textContent=hasLast?'加载上次同步文件':'选择同步文件';
+  if(choose)choose.style.display='none';
+  setConflictActions(false);
 }
 function unlockEditor(){
   syncReady=true;
+  mountConflict=null;
+  setConflictActions(false);
   document.getElementById('mountGate').classList.add('hide');
   document.body.classList.remove('mounting');
   doc.setAttribute('contenteditable','true');
-  updateStorStatus(true);
+  updateStorStatus(fileWritable);
+  if(latestFileSnapshot)queueFileWrite();
   doc.focus();
+}
+function showMountConflict(local,remote){
+  mountConflict={local,remote};
+  try{localStorage.setItem(CONFLICT_BACKUP_KEY,JSON.stringify({local,remote,createdAt:new Date().toISOString()}))}catch(e){}
+  syncReady=false;
+  doc.setAttribute('contenteditable','false');
+  document.getElementById('mountGate').classList.remove('hide');
+  document.body.classList.add('mounting');
+  setConflictActions(true);
+  renderMergeConflict(local,remote);
+  setMountFileText('检测到本地未同步内容和云盘文件都发生过变化');
+  setMountMsg('为避免多设备内容互相覆盖，已暂停自动同步。你可以在中间编辑合并版本，确认后写回云盘。',true);
+}
+function htmlBlocks(html){
+  const tpl=document.createElement('template');
+  tpl.innerHTML=html||'';
+  tpl.content.querySelectorAll('[contenteditable]').forEach(el=>el.removeAttribute('contenteditable'));
+  tpl.content.querySelectorAll('input,select,textarea,button').forEach(el=>el.disabled=true);
+  const nodes=Array.from(tpl.content.childNodes).filter(n=>n.nodeType!==3||n.textContent.trim());
+  if(!nodes.length)return [];
+  return nodes.map(node=>{
+    const wrap=document.createElement('div');
+    wrap.appendChild(node.cloneNode(true));
+    return {html:wrap.innerHTML,text:(wrap.textContent||'').replace(/\s+/g,' ').trim()};
+  });
+}
+function matchedBlockIndexes(base,other){
+  const m=base.length,n=other.length,dp=Array.from({length:m+1},()=>Array(n+1).fill(0));
+  for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--)dp[i][j]=base[i].text&&base[i].text===other[j].text?dp[i+1][j+1]+1:Math.max(dp[i+1][j],dp[i][j+1]);
+  const matched=new Set();
+  let i=0,j=0;
+  while(i<m&&j<n){
+    if(base[i].text&&base[i].text===other[j].text){matched.add(i);i++;j++}
+    else if(dp[i+1][j]>=dp[i][j+1])i++;
+    else j++;
+  }
+  return matched;
+}
+function diffPaneHTML(baseHtml,otherHtml,side){
+  const base=htmlBlocks(baseHtml),other=htmlBlocks(otherHtml),matched=matchedBlockIndexes(base,other);
+  if(!base.length)return '<div class="merge-line diff-'+(side==='local'?'del':'add')+'">空</div>';
+  return base.map((block,i)=>{
+    const cls=matched.has(i)?'same':(side==='local'?'diff-del':'diff-add');
+    return '<div class="merge-line '+cls+'">'+block.html+'</div>';
+  }).join('');
+}
+function mergeDates(a,b){return Array.from(new Set([...(a&&a.dates||[]),...(b&&b.dates||[])])).sort()}
+function mergeStats(a,b){
+  const out={},as=normalizeStats(a&&a.stats),bs=normalizeStats(b&&b.stats);
+  Array.from(new Set([...Object.keys(as),...Object.keys(bs)])).forEach(k=>out[k]=Math.max(as[k]||0,bs[k]||0));
+  return out;
+}
+function renderMergeConflict(local,remote){
+  const localPane=document.getElementById('mergeLocal'),remotePane=document.getElementById('mergeRemote'),editor=document.getElementById('mergeEditor');
+  if(localPane)localPane.innerHTML=diffPaneHTML(local.doc||'',remote.doc||'','local');
+  if(remotePane)remotePane.innerHTML=diffPaneHTML(remote.doc||'',local.doc||'','remote');
+  if(editor){
+    editor.innerHTML=local.doc||'';
+    normalizeEditorTypography(editor);
+  }
+}
+function loadMergeFrom(source){
+  if(!mountConflict)return;
+  const editor=document.getElementById('mergeEditor');
+  if(!editor)return;
+  editor.innerHTML=(source==='remote'?mountConflict.remote:mountConflict.local).doc||'';
+  normalizeEditorTypography(editor);
+  editor.focus();
+}
+async function confirmMergedConflict(){
+  if(!mountConflict)return false;
+  const editor=document.getElementById('mergeEditor');
+  if(!editor)return false;
+  try{
+    setMountBusy(true);
+    normalizeEditorTypography(editor);
+    const snapshot={
+      doc:editor.innerHTML,
+      dates:mergeDates(mountConflict.local,mountConflict.remote),
+      stats:mergeStats(mountConflict.local,mountConflict.remote),
+      savedAt:new Date().toISOString()
+    };
+    await applyMountedSnapshot(snapshot,true);
+    unlockEditor();
+    return true;
+  }catch(e){
+    console.error('保存合并版本失败',e);
+    setMountMsg('保存合并版本失败，请重试。',true);
+    return false;
+  }finally{
+    setMountBusy(false);
+  }
+}
+async function applyMountedSnapshot(snapshot,writeBack){
+  saveLocalSnapshot(snapshot);
+  doc.innerHTML=snapshot.doc||'';
+  resetWritingBaseline();
+  renderAllContent();
+  renderCal();
+  updateStorStatus(fileWritable);
+  if(writeBack){
+    setPendingSync(true);
+    const wrote=await writeToHandle(snapshot);
+    if(!wrote)latestFileSnapshot=snapshot;
+  }else{
+    setPendingSync(false);
+  }
+}
+async function resolveMountConflict(source){
+  if(!mountConflict)return false;
+  try{
+    setMountBusy(true);
+    const useLocal=source==='local';
+    const snapshot=useLocal?mountConflict.local:mountConflict.remote;
+    await applyMountedSnapshot(snapshot,useLocal);
+    unlockEditor();
+    return true;
+  }catch(e){
+    console.error('解决同步冲突失败',e);
+    setMountMsg('处理冲突失败，请重试。',true);
+    return false;
+  }finally{
+    setMountBusy(false);
+  }
 }
 async function initStartupMount(){
   const lastName=localStorage.getItem(HANDLE_NAME_KEY);
@@ -1871,7 +2284,7 @@ async function initStartupMount(){
     if(!fileHandle){
       prepareMountGate(!!lastName);
       setMountFileText(lastName?'上次文件名: '+lastName:'没有上次同步文件记录，请选择 diary.json。');
-      setMountMsg(lastName?'读取上次文件记录超时，请点击“选择文件”重新挂载一次。':'请选择 diary.json 作为同步文件。',!!lastName);
+      setMountMsg(lastName?'读取上次文件记录超时，可点击上方按钮重试；如需更换文件，请进入后使用右侧“链接文件”。':'请选择 diary.json 作为同步文件。',!!lastName);
     }
   },1800);
   try{await restoreHandle()}finally{clearTimeout(timer)}
@@ -1893,7 +2306,7 @@ async function restoreHandle(){
       const lastName=localStorage.getItem(HANDLE_NAME_KEY);
       if(lastName){
         setMountFileText('上次文件名: '+lastName);
-        setMountMsg('浏览器没有可恢复的文件句柄。通常是启动地址变了或站点数据被清理，需要重新选择一次。',true);
+        setMountMsg('浏览器没有可恢复的文件句柄。通常是启动地址变了或站点数据被清理，请点击上方按钮重新选择一次。',true);
       }else{
         setMountFileText('没有上次同步文件记录，请选择 diary.json。');
         setMountMsg('');
@@ -1976,13 +2389,23 @@ async function verifyHandle(askPermission){
   }catch(e){fileWritable=false;updateStorStatus(false);return false}
 }
 function updateStorStatus(ok){
-  const el=document.getElementById('storStatus');
+  const linkEl=document.getElementById('linkStatus'),cloudEl=document.getElementById('cloudStatus');
   const pending=hasPendingSync();
-  if(ok&&fileHandle&&pending)el.innerHTML='<span class="dot-no"></span>本地已保存，待同步到: '+escAttr(fileHandle.name);
-  else if(ok&&fileHandle)el.innerHTML='<span class="dot-ok"></span>已链接并自动同步: '+escAttr(fileHandle.name);
-  else if(fileHandle)el.innerHTML='<span class="dot-no"></span>本地已安全保存，点击“链接文件”恢复同步: '+escAttr(fileHandle.name);
-  else if(localStorage.getItem(HANDLE_NAME_KEY))el.innerHTML='<span class="dot-no"></span>本地已安全保存，需重新选择: '+escAttr(localStorage.getItem(HANDLE_NAME_KEY));
-  else el.innerHTML='<span class="dot-no"></span>本地自动保存中，尚未链接文件';
+  const name=fileHandle&&fileHandle.name||localStorage.getItem(HANDLE_NAME_KEY)||'diary.json';
+  const row=(dot,label,text)=>'<span class="'+dot+'"></span><span class="s-label">'+label+'</span><span class="s-text" title="'+escAttr(text)+'">'+escAttr(text)+'</span>';
+  if(linkEl){
+    if(ok&&fileHandle)linkEl.innerHTML=row('dot-ok','链接',fileHandle.name);
+    else if(fileHandle)linkEl.innerHTML=row('dot-wait','链接','待授权');
+    else if(localStorage.getItem(HANDLE_NAME_KEY))linkEl.innerHTML=row('dot-wait','链接','待挂载');
+    else linkEl.innerHTML=row('dot-no','链接','未挂载');
+  }
+  if(cloudEl){
+    if(fileWritePending)cloudEl.innerHTML=row('dot-wait','云端','保存中');
+    else if(ok&&fileHandle&&pending)cloudEl.innerHTML=row('dot-wait','云端','待同步');
+    else if(ok&&fileHandle)cloudEl.innerHTML=row('dot-ok','云端',name);
+    else if(pending)cloudEl.innerHTML=row('dot-wait','云端','仅本地');
+    else cloudEl.innerHTML=row('dot-no','云端','未保存');
+  }
 }
 async function linkFile(){
   await mountStartupFile();
@@ -2049,21 +2472,21 @@ async function readFileSnapshot(){
   const t=await f.text();
   if(!t.trim())return {doc:'',dates:[],stats:{},savedAt:''};
   const d=JSON.parse(t);
-  return {doc:d.doc||'',dates:Array.isArray(d.dates)?d.dates:[],stats:normalizeStats(d.stats),savedAt:d.savedAt||''};
+  return {doc:normalizeEditorHTML(d.doc||''),dates:Array.isArray(d.dates)?d.dates:[],stats:normalizeStats(d.stats),savedAt:d.savedAt||''};
 }
 async function syncFromLinkedFile(){
   syncReady=false;
   if(!fileHandle||!fileWritable)return false;
   try{
     const remote=await readFileSnapshot();
-    const next=remote;
-    saveLocalSnapshot(next);
-    doc.innerHTML=next.doc||'';
-    resetWritingBaseline();
-    renderAllContent();
-    renderCal();
-    updateStorStatus(true);
-    setPendingSync(false);
+    const local=getLocalSnapshot();
+    const decision=decideMountSnapshot(local,remote);
+    if(decision.action==='conflict'){
+      showMountConflict(local,remote);
+      return false;
+    }
+    const useLocal=decision.action==='local';
+    await applyMountedSnapshot(useLocal?local:remote,useLocal);
     return true;
   }catch(e){
     console.error('同步链接文件失败',e);
@@ -2075,28 +2498,61 @@ async function syncFromLinkedFile(){
   }
 }
 function queueFileWrite(snapshot){
+  if(snapshot)latestFileSnapshot=snapshot;
   if(!syncReady)return;
   if(!fileHandle||!fileWritable){setPendingSync(true);return}
   setPendingSync(true);
+  if(fileWritePending){updateStorStatus(fileWritable);return}
   fileWritePending=true;
-  fileWritePromise=fileWritePromise.then(()=>writeToHandle(snapshot)).finally(()=>{fileWritePending=false});
+  updateStorStatus(fileWritable);
+  fileWritePromise=fileWritePromise.then(drainFileWrites).finally(()=>{
+    fileWritePending=false;
+    updateStorStatus(fileWritable);
+    if(latestFileSnapshot&&syncReady&&fileHandle&&fileWritable)queueFileWrite();
+  });
+}
+async function drainFileWrites(){
+  while(latestFileSnapshot&&fileHandle&&fileWritable){
+    const snapshot=latestFileSnapshot;
+    latestFileSnapshot=null;
+    const ok=await writeToHandle(snapshot);
+    if(!ok){
+      latestFileSnapshot=snapshot;
+      scheduleFileRetry();
+      break;
+    }
+  }
+}
+function scheduleFileRetry(){
+  clearTimeout(fileRetryTimer);
+  if(!syncReady||!fileHandle||!fileWritable)return;
+  fileRetryTimer=setTimeout(()=>queueFileWrite(),2000);
 }
 async function writeToHandle(snapshot){
-  if(!fileHandle){setPendingSync(true);return}
+  if(!fileHandle){setPendingSync(true);return false}
   try{
     const ok=fileWritable||await verifyHandle(false);
-    if(!ok)return;
+    if(!ok){updateStorStatus(false);return false}
     const d=snapshot||getLocalSnapshot();
     const w=await fileHandle.createWritable();
     await w.write(JSON.stringify(d,null,2));
     await w.close();
     setPendingSync(false);
     updateStorStatus(true);
-  }catch(e){console.error('写入失败',e);fileWritable=false;setPendingSync(true);updateStorStatus(false)}
+    clearTimeout(fileRetryTimer);
+    return true;
+  }catch(e){
+    console.error('写入失败',e);
+    if(e&&['NotAllowedError','SecurityError'].includes(e.name))fileWritable=false;
+    setPendingSync(true);
+    updateStorStatus(fileWritable);
+    scheduleFileRetry();
+    return false;
+  }
 }
 function exportFile(){const d={doc:doc.innerHTML,dates:getDates(),stats:getStats(),savedAt:new Date().toISOString()};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='diary_'+todayStr()+'.json';a.click();URL.revokeObjectURL(a.href)}
 function importFile(){document.getElementById('importPicker').click()}
-function handleImport(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);const snapshot={doc:d.doc||'',dates:Array.isArray(d.dates)?d.dates:[],stats:normalizeStats(d.stats),savedAt:d.savedAt||new Date().toISOString()};doc.innerHTML=snapshot.doc;resetWritingBaseline();saveLocalSnapshot(snapshot);renderAllContent();renderCal();queueFileWrite(snapshot)}catch(err){alert('文件格式错误')}};r.readAsText(f);e.target.value=''}
+function handleImport(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);const snapshot={doc:normalizeEditorHTML(d.doc||''),dates:Array.isArray(d.dates)?d.dates:[],stats:normalizeStats(d.stats),savedAt:d.savedAt||new Date().toISOString()};doc.innerHTML=snapshot.doc;resetWritingBaseline();saveLocalSnapshot(snapshot);renderAllContent();renderCal();queueFileWrite(snapshot)}catch(err){alert('文件格式错误')}};r.readAsText(f);e.target.value=''}
 
 // ===== Helpers =====
 function todayStr(){return ds(new Date())}
