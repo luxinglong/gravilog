@@ -1,0 +1,4 @@
+:root{--sidebar-w:clamp(280px,20vw,340px);--time-grid-line:rgba(148,163,184,.38);--todo-grid-line:var(--time-grid-line);--editor-font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC","Helvetica Neue",Arial,sans-serif;--editor-font-size:15px;--editor-code-font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--editor-font-family);background:#fff;color:#1a1a2e;height:100vh;display:flex;flex-direction:column;transition:background .3s,color .3s}
+.main{display:flex;flex:1;overflow:hidden}

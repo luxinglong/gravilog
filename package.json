@@ -1,0 +1,20 @@
+{
+  "name": "gravilog",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A single-file-first personal journal and notes editor.",
+  "scripts": {
+    "serve": "python -m http.server 8765 --bind 127.0.0.1",
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "lint": "node scripts/check-js-syntax.cjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0",
+    "prettier": "^3.3.0",
+    "vitest": "^1.6.0"
+  }
+}

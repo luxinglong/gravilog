@@ -7,9 +7,9 @@ where python >nul 2>nul
 if %errorlevel%==0 (
   set "PYTHON_CMD=python"
 ) else (
-  where python >nul 2>nul
+  where py >nul 2>nul
   if %errorlevel%==0 (
-    set "PYTHON_CMD=python"
+    set "PYTHON_CMD=py -3"
   ) else (
     echo Python was not found.
     echo Please install Python 3 from https://www.python.org/downloads/

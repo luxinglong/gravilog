@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="120" viewBox="0 0 480 120">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;1,400&amp;display=swap');
+    </style>
+  </defs>
+  <!-- symbol -->
+  <line x1="32" y1="34" x2="78" y2="34" stroke="#1a1814" stroke-opacity="1"    stroke-width="2" stroke-linecap="round"/>
+  <line x1="32" y1="47" x2="64" y2="47" stroke="#1a1814" stroke-opacity="0.55" stroke-width="2" stroke-linecap="round"/>
+  <line x1="32" y1="63" x2="78" y2="63" stroke="#1a1814" stroke-opacity="0.22" stroke-width="2" stroke-linecap="round"/>
+  <line x1="32" y1="85" x2="56" y2="85" stroke="#1a1814" stroke-opacity="0.08" stroke-width="2" stroke-linecap="round"/>
+  <!-- wordmark -->
+  <text x="98" y="72" font-family="'Lora', Georgia, serif" font-size="44" font-weight="400"       fill="#1a1814">Gravity </text>
+  <text x="266" y="72" font-family="'Lora', Georgia, serif" font-size="44" font-weight="400" font-style="italic" fill="#1a1814">Diary</text>
+</svg>
