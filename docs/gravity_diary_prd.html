@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gravity Diary · 产品文档</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1814;
+    --ink-2: #3d3a35;
+    --ink-3: #6b6760;
+    --ink-4: #a09c97;
+    --paper: #faf9f7;
+    --paper-2: #f2f0ec;
+    --paper-3: #e8e5e0;
+    --accent: #2d5a3d;
+    --accent-light: #d6e8dc;
+    --accent-2: #7a3f1e;
+    --accent-2-light: #f0e0d6;
+    --warn: #5a4a2d;
+    --warn-light: #f5ead6;
+    --border: rgba(26,24,20,0.10);
+    --border-2: rgba(26,24,20,0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.75;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    padding: 5rem 0 4rem;
+    border-bottom: 1px solid var(--border-2);
+    margin-bottom: 4rem;
+  }
+  .cover-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--ink-4);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+  .cover-title {
+    font-family: 'Lora', serif;
+    font-size: 52px;
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--ink);
+    margin-bottom: 0.25rem;
+  }
+  .cover-title em {
+    color: var(--accent);
+    font-style: italic;
+  }
+  .cover-sub {
+    font-family: 'Lora', serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--ink-3);
+    font-style: italic;
+    margin-bottom: 2.5rem;
+  }
+  .cover-meta {
+    display: flex;
+    gap: 2rem;
+  }
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .meta-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--ink-4);
+    text-transform: uppercase;
+  }
+  .meta-value {
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+
+  /* ── NAVIGATION ── */
+  .toc {
+    background: var(--paper-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 4rem;
+  }
+  .toc-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--ink-4);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .toc-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 2rem;
+  }
+  .toc-list li a {
+    font-size: 13px;
+    color: var(--ink-2);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toc-list li a:hover { color: var(--accent); }
+  .toc-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-4);
+    min-width: 18px;
+  }
+
+  /* ── SECTION ── */
+  .section {
+    margin-bottom: 4rem;
+  }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--ink-4);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  h2 {
+    font-family: 'Lora', serif;
+    font-size: 28px;
+    font-weight: 400;
+    color: var(--ink);
+    margin-bottom: 1.25rem;
+    line-height: 1.3;
+  }
+  h3 {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+    margin: 2rem 0 0.6rem;
+  }
+  p {
+    color: var(--ink-2);
+    margin-bottom: 1rem;
+  }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── CALLOUTS ── */
+  .callout {
+    border-radius: 4px;
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    border-left: 3px solid;
+  }
+  .callout-insight {
+    background: var(--accent-light);
+    border-color: var(--accent);
+  }
+  .callout-insight .callout-label {
+    color: var(--accent);
+  }
+  .callout-challenge {
+    background: var(--accent-2-light);
+    border-color: var(--accent-2);
+  }
+  .callout-challenge .callout-label {
+    color: var(--accent-2);
+  }
+  .callout-note {
+    background: var(--warn-light);
+    border-color: var(--warn);
+  }
+  .callout-note .callout-label {
+    color: var(--warn);
+  }
+  .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+  .callout p {
+    font-size: 14px;
+    margin: 0;
+    color: var(--ink-2);
+  }
+
+  /* ── FEATURE BLOCKS ── */
+  .feature-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .feature-block {
+    background: var(--paper-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.25rem;
+  }
+  .feature-block-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ink-3);
+    margin-bottom: 0.5rem;
+  }
+  .feature-block p {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--ink-3);
+  }
+
+  /* ── AI FEATURE CARDS ── */
+  .ai-card {
+    border: 1px solid var(--border-2);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+  }
+  .ai-card-header {
+    padding: 1rem 1.25rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .ai-card-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 0.2rem;
+  }
+  .ai-card-sub {
+    font-size: 12px;
+    color: var(--ink-4);
+  }
+  .ai-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .badge-green {
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+  .badge-amber {
+    background: var(--warn-light);
+    color: var(--warn);
+  }
+  .badge-rust {
+    background: var(--accent-2-light);
+    color: var(--accent-2);
+  }
+  .ai-card-body {
+    padding: 1.25rem;
+  }
+  .ai-card-body p {
+    font-size: 14px;
+    margin-bottom: 1rem;
+  }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+  }
+  .flow-step {
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+    padding: 0.75rem 0.5rem;
+    background: var(--paper-2);
+    border: 1px solid var(--border);
+  }
+  .flow-step:first-child { border-radius: 6px 0 0 6px; }
+  .flow-step:last-child { border-radius: 0 6px 6px 0; }
+  .flow-step-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-4);
+    margin-bottom: 3px;
+  }
+  .flow-step-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-2);
+    line-height: 1.3;
+  }
+  .flow-arrow {
+    font-size: 14px;
+    color: var(--ink-4);
+    padding: 0 2px;
+    flex-shrink: 0;
+  }
+
+  /* ── OUTPUT EXAMPLE ── */
+  .output-example {
+    background: var(--paper-2);
+    border: 1px solid var(--border-2);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    font-size: 13px;
+  }
+  .output-header {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--paper-3);
+  }
+  .output-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border-2);
+  }
+  .output-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-4);
+  }
+  .output-body {
+    padding: 1rem 1.25rem;
+  }
+  .output-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .output-row:last-child { border-bottom: none; }
+  .output-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .output-text {
+    font-size: 13px;
+    color: var(--ink-2);
+    line-height: 1.5;
+  }
+  .output-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.4rem 0;
+  }
+  .output-bar-label {
+    font-size: 12px;
+    color: var(--ink-3);
+    min-width: 80px;
+  }
+  .output-bar-track {
+    flex: 1;
+    height: 6px;
+    background: var(--paper-3);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .output-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--accent);
+  }
+  .output-bar-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-4);
+    min-width: 30px;
+    text-align: right;
+  }
+
+  /* ── JSON BLOCK ── */
+  .json-block {
+    background: #1a1814;
+    border-radius: 6px;
+    padding: 1.25rem;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+  }
+  .json-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    color: #c8c4be;
+    white-space: pre;
+  }
+  .j-key { color: #8db5a0; }
+  .j-str { color: #c9a97a; }
+  .j-num { color: #89b4d4; }
+  .j-bool { color: #d48989; }
+  .j-comment { color: #5a5650; font-style: italic; }
+
+  /* ── PRINCIPLE LIST ── */
+  .principle-list {
+    list-style: none;
+    margin: 1rem 0;
+  }
+  .principle-list li {
+    display: flex;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    color: var(--ink-2);
+    line-height: 1.6;
+  }
+  .principle-list li:last-child { border-bottom: none; }
+  .pl-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-4);
+    margin-top: 3px;
+    flex-shrink: 0;
+    min-width: 24px;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 3rem 0;
+  }
+
+  /* ── FOOTER ── */
+  .doc-footer {
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .doc-footer p {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-4);
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <p class="cover-eyebrow">Product Requirements Document · v0.2</p>
+  <h1 class="cover-title">Gravity <em>Diary</em></h1>
+  <p class="cover-sub">思绪自由降落，智识浮出水面</p>
+  <div class="cover-meta">
+    <div class="meta-item">
+      <span class="meta-label">状态</span>
+      <span class="meta-value">草稿 · 内部评审</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">版本</span>
+      <span class="meta-value">0.2 — 增加 LLM 智能层</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">更新</span>
+      <span class="meta-value">2025年</span>
+    </div>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <p class="toc-title">目录</p>
+  <ul class="toc-list">
+    <li><a href="#vision"><span class="toc-num">01</span> 产品愿景</a></li>
+    <li><a href="#core"><span class="toc-num">02</span> 核心功能</a></li>
+    <li><a href="#llm"><span class="toc-num">03</span> LLM 智能层</a></li>
+    <li><a href="#theme"><span class="toc-num">04</span> 主题分析</a></li>
+    <li><a href="#challenge"><span class="toc-num">05</span> 困难识别</a></li>
+    <li><a href="#advice"><span class="toc-num">06</span> 建议系统</a></li>
+    <li><a href="#data"><span class="toc-num">07</span> 数据模型</a></li>
+    <li><a href="#privacy"><span class="toc-num">08</span> 隐私设计</a></li>
+  </ul>
+</div>
+
+<!-- 01 VISION -->
+<div class="section" id="vision">
+  <p class="section-label"><span>01</span> 产品愿景</p>
+  <h2>一本真正属于你的日记</h2>
+  <p>大多数笔记工具把你变成数据的管理者——分类、标签、链接、数据库。Gravity Diary 的出发点恰恰相反：<strong>写，就是写</strong>。没有层级，没有仪式感，没有打开就要先想"这条记录该放哪"的焦虑。</p>
+  <p>但自由书写产生的大量非结构化内容，长期来看极难自我回顾。Gravity Diary 的第二层野心是：让 LLM 做那个耐心的读者，代替你从数年的流水中提炼出真正有价值的洞察。</p>
+
+  <div class="callout callout-insight">
+    <p class="callout-label">核心主张</p>
+    <p>写作是输入，洞察是输出。前者要求自由，后者要求智识。两者本质上是矛盾的——我们用"写作界面极简、分析层异步"的架构化解这一矛盾。</p>
+  </div>
+
+  <h3>设计原则</h3>
+  <ul class="principle-list">
+    <li><span class="pl-num">P1</span> <span>写作时零干扰。AI 的存在对用户不可见，分析永远在后台、在用户主动触发后运行。</span></li>
+    <li><span class="pl-num">P2</span> <span>数据完全属于用户。日记内容和分析结果均存储为本地 JSON 文件，不强制依赖任何云服务。</span></li>
+    <li><span class="pl-num">P3</span> <span>渐进增强。不使用 LLM 功能时，应用与普通 Markdown 日记无异，没有任何功能降级。</span></li>
+    <li><span class="pl-num">P4</span> <span>诚实的不确定性。LLM 的输出明确标注为"建议参考"而非"客观事实"，避免人工智能权威错觉。</span></li>
+  </ul>
+</div>
+
+<!-- 02 CORE FEATURES -->
+<div class="section" id="core">
+  <p class="section-label"><span>02</span> 核心功能</p>
+  <h2>写作层</h2>
+  <p>写作层是用户每天接触的界面，设计目标是让思维和手指之间的摩擦降至最低。</p>
+
+  <div class="feature-row">
+    <div class="feature-block">
+      <p class="feature-block-label">重力时间线</p>
+      <p>最新内容始终置顶，历史记录向下沉落。时间是重力，不是分隔符。无需翻页，当天内容就在视口顶端等你。</p>
+    </div>
+    <div class="feature-block">
+      <p class="feature-block-label">无边界白板</p>
+      <p>无分页、无字数上限、无章节。内容连续延伸，不受任何格式容器约束。一块完整的画布。</p>
+    </div>
+    <div class="feature-block">
+      <p class="feature-block-label">内嵌编辑 + 浮动工具栏</p>
+      <p>直接在页面上书写，工具栏随选中文本出现，不选中时自动隐藏。支持 Markdown 快捷语法。</p>
+    </div>
+    <div class="feature-block">
+      <p class="feature-block-label">双栏布局</p>
+      <p>左侧是全屏写作区，右侧日历视图支持日、周、月、年粒度切换，点击任意日期定位对应记录。</p>
+    </div>
+  </div>
+
+  <h3>支持的内容类型</h3>
+  <p>以下内容格式均通过 Markdown 语法触发，无需额外操作：文本段落、有序与无序列表、引用块、表格、图片嵌入、LaTeX 数学公式、待办事项（含完成状态追踪）。</p>
+</div>
+
+<!-- 03 LLM LAYER -->
+<div class="section" id="llm">
+  <p class="section-label"><span>03</span> LLM 智能层</p>
+  <h2>把日记变成镜子</h2>
+  <p>智能层是一个异步分析管道，完全独立于写作界面。用户可以随时触发分析，也可以设置定期自动运行（如每周一次）。分析结果汇总在右侧边栏的独立「洞察」视图中，与日历视图并列。</p>
+
+  <div class="flow">
+    <div class="flow-step"><div class="flow-step-num">01</div><div class="flow-step-name">日记内容<br>JSON 快照</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="flow-step-num">02</div><div class="flow-step-name">分段 + 时间<br>窗口切割</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="flow-step-num">03</div><div class="flow-step-name">LLM 并行<br>分析调用</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="flow-step-num">04</div><div class="flow-step-name">结构化结果<br>聚合合并</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="flow-step-num">05</div><div class="flow-step-name">写回本地<br>JSON 文件</div></div>
+  </div>
+
+  <p>分析分为三个独立模块，每个模块对应一类洞察需求，可单独启用或禁用。</p>
+
+  <div class="callout callout-note">
+    <p class="callout-label">技术说明</p>
+    <p>LLM 调用默认使用用户自己配置的 API Key（OpenAI / Claude / 本地 Ollama 均支持）。内容在发送前经过本地分段，每次调用不超过 8,000 字，避免暴露完整日记上下文。</p>
+  </div>
+</div>
+
+<!-- 04 THEME -->
+<div class="section" id="theme">
+  <p class="section-label"><span>04</span> 主题分析</p>
+  <h2>你把时间花在哪里</h2>
+  <p>主题分析模块从日记内容中归纳出反复出现的议题，并量化每个主题的出现频率与时间跨度，帮助用户看清自己真实的注意力分配。</p>
+
+  <div class="ai-card">
+    <div class="ai-card-header">
+      <div>
+        <div class="ai-card-title">主题提取 + 时间占比</div>
+        <div class="ai-card-sub">按月或季度聚合，支持自定义时间范围</div>
+      </div>
+      <span class="ai-badge badge-green">模块 A</span>
+    </div>
+    <div class="ai-card-body">
+      <p>LLM 对每一条日记条目进行语义分类，归入若干主题桶（桶由首次分析时自动生成，后续可手动调整）。分析完成后，系统计算每个主题在指定时间窗口内的出现次数、覆盖天数，以及在总体内容中的权重占比。</p>
+
+      <p style="font-size:12px; color:var(--ink-4); margin-bottom:0.75rem;">示例输出 · 过去 90 天</p>
+      <div class="output-bar-row"><div class="output-bar-label">工作 / 项目</div><div class="output-bar-track"><div class="output-bar-fill" style="width:72%"></div></div><div class="output-bar-val">72%</div></div>
+      <div class="output-bar-row"><div class="output-bar-label">学习 / 阅读</div><div class="output-bar-track"><div class="output-bar-fill" style="width:48%; background:var(--accent-2)"></div></div><div class="output-bar-val">48%</div></div>
+      <div class="output-bar-row"><div class="output-bar-label">身体 / 运动</div><div class="output-bar-track"><div class="output-bar-fill" style="width:31%; background:#7a6e3d"></div></div><div class="output-bar-val">31%</div></div>
+      <div class="output-bar-row"><div class="output-bar-label">人际 / 关系</div><div class="output-bar-track"><div class="output-bar-fill" style="width:18%; background:var(--ink-4)"></div></div><div class="output-bar-val">18%</div></div>
+      <div class="output-bar-row"><div class="output-bar-label">财务 / 投资</div><div class="output-bar-track"><div class="output-bar-fill" style="width:12%; background:var(--ink-4)"></div></div><div class="output-bar-val">12%</div></div>
+    </div>
+  </div>
+
+  <h3>主题时间线视图</h3>
+  <p>每个主题可展开查看其活跃时间分布——哪些周特别密集、哪些月几乎销声匿迹。用于回答"我上个季度到底在忙什么"这类问题。</p>
+
+  <div class="callout callout-insight">
+    <p class="callout-label">典型洞察</p>
+    <p>「你在过去六个月里有 71% 的日记涉及工作项目，但关于身体状态的记录仅在三月和四月出现过共 8 次。」这类发现往往让用户意识到自己从未意识到的注意力偏斜。</p>
+  </div>
+</div>
+
+<!-- 05 CHALLENGE -->
+<div class="section" id="challenge">
+  <p class="section-label"><span>05</span> 困难识别</p>
+  <h2>长期遇到的阻力在哪里</h2>
+  <p>这是三个模块中最需要细心设计的部分。目标不是简单的情绪分析（正/负面），而是从流水般的叙述中识别出<em>有结构的困难</em>——反复出现的卡点、长期未解的矛盾、被反复提及的压力源。</p>
+
+  <div class="ai-card">
+    <div class="ai-card-header">
+      <div>
+        <div class="ai-card-title">反复出现的困难模式</div>
+        <div class="ai-card-sub">跨时间维度聚类，区分偶发事件与系统性阻力</div>
+      </div>
+      <span class="ai-badge badge-rust">模块 B</span>
+    </div>
+    <div class="ai-card-body">
+      <p>LLM 被要求以"困难的观察者"身份阅读日记：识别描述挫败、卡顿、压力、冲突或自我怀疑的段落，提取其背后的<em>结构性原因</em>（而非表层情绪），并跨时间段比对是否反复出现同类问题。</p>
+      <p style="font-size:12px; color:var(--ink-4); margin-bottom:0.75rem;">示例输出 · 识别到的困难模式</p>
+      <div class="output-example">
+        <div class="output-header">
+          <div class="output-dot"></div>
+          <span class="output-title">困难报告 · 最近 6 个月</span>
+        </div>
+        <div class="output-body">
+          <div class="output-row">
+            <span class="output-tag" style="background:var(--accent-2-light); color:var(--accent-2);">高频</span>
+            <span class="output-text">深度工作被频繁打断。共出现 14 次，集中在周三至周五。描述包括「又没进入状态」「开了三小时会什么都没做」。</span>
+          </div>
+          <div class="output-row">
+            <span class="output-tag" style="background:var(--warn-light); color:var(--warn);">中频</span>
+            <span class="output-text">对自身进展评价偏低。出现 9 次，通常在月末集中爆发，伴随与他人比较的叙述。</span>
+          </div>
+          <div class="output-row">
+            <span class="output-tag" style="background:var(--paper-3); color:var(--ink-3);">低频</span>
+            <span class="output-text">技术选型焦虑。出现 4 次，每次均在新项目启动前后，持续时间约 1-2 周。</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>分析的边界</h3>
+  <p>困难识别模块有意避免以下行为：情绪诊断（不输出"你有焦虑倾向"此类标签）、因果归因（不判断"这是因为……"）、价值判断（不评价困难"是否合理"）。输出只呈现观察到的<em>模式</em>，解读留给用户自己。</p>
+</div>
+
+<!-- 06 ADVICE -->
+<div class="section" id="advice">
+  <p class="section-label"><span>06</span> 建议系统</p>
+  <h2>有上下文的建议，不是通用鸡汤</h2>
+  <p>建议是最后一层，只在用户主动请求时生成，不自动推送。其质量取决于主题分析和困难识别的积累深度——使用时间越长，建议越有针对性。</p>
+
+  <div class="ai-card">
+    <div class="ai-card-header">
+      <div>
+        <div class="ai-card-title">情境化建议生成</div>
+        <div class="ai-card-sub">基于历史分析结果，聚焦可操作的具体行动</div>
+      </div>
+      <span class="ai-badge badge-amber">模块 C</span>
+    </div>
+    <div class="ai-card-body">
+      <p>建议生成时，系统将主题分析结果和困难报告一并送入 LLM 上下文，要求其生成分层建议：立即可执行（本周内）、中期调整（1-3 个月）、结构性反思（长期习惯与策略）。</p>
+      <div class="output-example">
+        <div class="output-header">
+          <div class="output-dot"></div>
+          <span class="output-title">建议示例 · 基于过去 6 个月数据</span>
+        </div>
+        <div class="output-body">
+          <div class="output-row">
+            <span class="output-tag" style="background:var(--accent-light); color:var(--accent);">立即</span>
+            <span class="output-text">你的深度工作集中在周一至周二，建议将周三上午也划入保护时段，在日历中设为不可约区。</span>
+          </div>
+          <div class="output-row">
+            <span class="output-tag" style="background:var(--warn-light); color:var(--warn);">中期</span>
+            <span class="output-text">月末自我评价偏低的模式已持续 4 个月。建议尝试在每月最后一周提前做「已完成清单」而非「未完成清单」，从记录开始重构评价视角。</span>
+          </div>
+          <div class="output-row">
+            <span class="output-tag" style="background:var(--paper-3); color:var(--ink-3);">长期</span>
+            <span class="output-text">身体相关记录明显稀少，且与工作强度呈负相关。这可能是一个值得单独关注的系统性取舍，而非时间问题。</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-challenge">
+    <p class="callout-label">设计约束</p>
+    <p>建议模块的提示词中明确要求 LLM：不使用「你应该」「你必须」等指令性语气，每条建议说明其背后的观察依据，不生成心理健康领域的专业建议，对不确定的推断显式标注置信度。</p>
+  </div>
+</div>
+
+<!-- 07 DATA MODEL -->
+<div class="section" id="data">
+  <p class="section-label"><span>07</span> 数据模型</p>
+  <h2>JSON 文件结构</h2>
+  <p>所有数据存储在单个 JSON 文件中，包含日记内容和 LLM 分析结果两个顶层字段。文件可直接放入 Google Drive 或 OneDrive 目录实现跨设备同步。</p>
+
+  <div class="json-block"><pre><span class="j-comment">// gravity-diary.json</span>
+{
+  <span class="j-key">"meta"</span>: {
+    <span class="j-key">"version"</span>: <span class="j-str">"0.2"</span>,
+    <span class="j-key">"created"</span>: <span class="j-str">"2024-01-01"</span>,
+    <span class="j-key">"last_synced"</span>: <span class="j-str">"2025-05-14T08:32:00Z"</span>
+  },
+
+  <span class="j-key">"entries"</span>: [           <span class="j-comment">// 日记条目，按创建时间降序</span>
+    {
+      <span class="j-key">"id"</span>: <span class="j-str">"e_20250514_001"</span>,
+      <span class="j-key">"created_at"</span>: <span class="j-str">"2025-05-14T09:15:00Z"</span>,
+      <span class="j-key">"content"</span>: <span class="j-str">"今天终于把 GRPO rollout 跑通了..."</span>,
+      <span class="j-key">"content_type"</span>: <span class="j-str">"markdown"</span>,
+      <span class="j-key">"tags"</span>: []            <span class="j-comment">// 用户手动标签（可选）</span>
+    }
+  ],
+
+  <span class="j-key">"intelligence"</span>: {      <span class="j-comment">// LLM 分析结果（异步写入）</span>
+
+    <span class="j-key">"themes"</span>: [
+      {
+        <span class="j-key">"id"</span>: <span class="j-str">"theme_work"</span>,
+        <span class="j-key">"label"</span>: <span class="j-str">"工作 / 项目"</span>,
+        <span class="j-key">"weight"</span>: <span class="j-num">0.72</span>,        <span class="j-comment">// 近 90 天权重</span>
+        <span class="j-key">"entry_ids"</span>: [<span class="j-str">"e_..."</span>],
+        <span class="j-key">"trend"</span>: <span class="j-str">"stable"</span>    <span class="j-comment">// rising / falling / stable</span>
+      }
+    ],
+
+    <span class="j-key">"challenges"</span>: [
+      {
+        <span class="j-key">"id"</span>: <span class="j-str">"ch_001"</span>,
+        <span class="j-key">"summary"</span>: <span class="j-str">"深度工作被频繁打断"</span>,
+        <span class="j-key">"frequency"</span>: <span class="j-num">14</span>,
+        <span class="j-key">"severity"</span>: <span class="j-str">"high"</span>,
+        <span class="j-key">"first_seen"</span>: <span class="j-str">"2024-11-03"</span>,
+        <span class="j-key">"entry_ids"</span>: [<span class="j-str">"e_..."</span>]
+      }
+    ],
+
+    <span class="j-key">"advice"</span>: [
+      {
+        <span class="j-key">"id"</span>: <span class="j-str">"adv_001"</span>,
+        <span class="j-key">"horizon"</span>: <span class="j-str">"immediate"</span>,  <span class="j-comment">// immediate / mid / long</span>
+        <span class="j-key">"text"</span>: <span class="j-str">"将周三上午划为保护时段..."</span>,
+        <span class="j-key">"based_on"</span>: [<span class="j-str">"ch_001"</span>],
+        <span class="j-key">"generated_at"</span>: <span class="j-str">"2025-05-14"</span>,
+        <span class="j-key">"dismissed"</span>: <span class="j-bool">false</span>
+      }
+    ],
+
+    <span class="j-key">"last_analyzed"</span>: <span class="j-str">"2025-05-14T07:00:00Z"</span>,
+    <span class="j-key">"analyzed_range"</span>: {
+      <span class="j-key">"from"</span>: <span class="j-str">"2024-11-01"</span>,
+      <span class="j-key">"to"</span>: <span class="j-str">"2025-05-14"</span>
+    }
+  }
+}</pre></div>
+</div>
+
+<!-- 08 PRIVACY -->
+<div class="section" id="privacy">
+  <p class="section-label"><span>08</span> 隐私设计</p>
+  <h2>数据主权在用户手里</h2>
+  <p>日记是极度私密的内容。隐私设计不是一个附加功能，而是整个系统架构的前提。</p>
+
+  <ul class="principle-list">
+    <li><span class="pl-num">—</span><span><strong>不存在任何服务端。</strong>应用是纯 HTML 文件，不依赖任何后端。所有数据仅在用户本地浏览器与用户自选的存储位置之间流动。</span></li>
+    <li><span class="pl-num">—</span><span><strong>LLM 调用由用户控制。</strong>用户配置自己的 API Key，系统显示每次调用将发送的内容摘要，用户确认后才发起请求。支持本地模型（Ollama）以实现完全离线分析。</span></li>
+    <li><span class="pl-num">—</span><span><strong>分段发送，不暴露全文。</strong>每次 API 调用仅包含一个时间窗口的内容片段（约 2,000-8,000 字），系统不会将完整日记一次性发送到任何外部服务。</span></li>
+    <li><span class="pl-num">—</span><span><strong>云同步是可选的，且基于通用协议。</strong>JSON 文件放到任何支持文件同步的服务（Google Drive、OneDrive、Dropbox、本地 NAS）即可跨设备使用。应用本身不与这些服务有任何集成依赖。</span></li>
+    <li><span class="pl-num">—</span><span><strong>分析结果可单独清除。</strong>用户可以随时清除 intelligence 字段的全部内容，不影响日记正文，也不触发任何外部通知。</span></li>
+  </ul>
+</div>
+
+<hr class="divider">
+
+<div class="doc-footer">
+  <p>Gravity Diary · Product Requirements Document · v0.2</p>
+  <p>内部文档，勿公开发布</p>
+</div>
+
+</body>
+</html>
