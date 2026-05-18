@@ -86,6 +86,10 @@ doc.innerHTML=localStorage.getItem(STORAGE_KEY)||'';
 doc.setAttribute('contenteditable','false');
 document.body.classList.add('mounting');
 const docWrap=document.getElementById('docWrap');
+const dateRail=document.createElement('div');
+dateRail.className='date-rail';
+dateRail.setAttribute('aria-hidden','true');
+docWrap.appendChild(dateRail);
 let lastWritingLen=0;
 let gravityRaf=0,gravityMotion=0,gravityDir=1,gravityLast=0,gravityVelocity=0,gravityScrollRaf=0,gravityScrollLast=0;
 const TYPOGRAPHY_STYLE_PROPS=['font','font-family','font-size','line-height'];
@@ -134,20 +138,92 @@ function insertPlainEditorText(text){
 normalizeEditorTypography(doc);
 function clamp01(n){return Math.max(0,Math.min(1,n))}
 function setGravityVars(){
-  const shift=gravityDir*gravityMotion*150;
-  const shadow=gravityDir*gravityMotion*20;
+  const pulse=gravityMotion;
   docWrap.style.setProperty('--gravity-motion',gravityMotion.toFixed(3));
-  docWrap.style.setProperty('--gravity-shift',shift.toFixed(2)+'px');
-  docWrap.style.setProperty('--gravity-shadow',shadow.toFixed(2)+'px');
-  docWrap.style.setProperty('--gravity-blur',(gravityMotion*2.4).toFixed(2)+'px');
-  docWrap.style.setProperty('--gravity-stretch',(1+gravityMotion*.032).toFixed(4));
+  docWrap.style.setProperty('--gravity-flow',(gravityDir*pulse).toFixed(3));
+  docWrap.style.setProperty('--gravity-pulse',pulse.toFixed(3));
+}
+function validBlockDate(value){
+  const s=String(value||'').slice(0,10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(s)?s:'';
+}
+function editorDateBlocks(){
+  return Array.from(doc.children).filter(el=>{
+    if(!el||el.nodeType!==1)return false;
+    if(el.matches('script,style'))return false;
+    return (el.textContent||'').trim()||el.matches('img,pre,table,.todo-item,.folded-block');
+  });
+}
+function dateBlockWeight(el){
+  return Math.max(1,(el.innerText||el.textContent||'').replace(/\s+/g,'').length);
+}
+function fallbackBlockDate(index,blocks){
+  if(typeof getDates!=='function')return typeof todayStr==='function'?todayStr():'';
+  const dates=getDates().slice().sort();
+  if(!dates.length)return typeof todayStr==='function'?todayStr():'';
+  if(dates.length===1)return dates[0];
+  const stats=typeof getStats==='function'?getStats():{};
+  const statsTotal=dates.reduce((sum,date)=>sum+(stats[date]||0),0);
+  if(statsTotal>0){
+    const weights=blocks.map(dateBlockWeight);
+    const total=weights.reduce((sum,n)=>sum+n,0)||1;
+    const midpoint=(weights.slice(0,index).reduce((sum,n)=>sum+n,0)+weights[index]/2)/total*statsTotal;
+    let cursor=0;
+    for(let i=0;i<dates.length;i++){
+      cursor+=stats[dates[i]]||0;
+      if(midpoint<=cursor)return dates[i];
+    }
+  }
+  return dates[Math.min(dates.length-1,Math.floor(index*dates.length/Math.max(1,blocks.length)))];
+}
+function blockDate(el,index,blocks){
+  return validBlockDate(el.dataset.date)||validBlockDate(el.dataset.createdAt)||validBlockDate(el.dataset.updatedAt)||fallbackBlockDate(index,blocks);
+}
+function formatRailDate(date){
+  const parts=date.split('-');
+  return parts.length===3?parts[1]+'.'+parts[2]:date;
+}
+function renderDateRail(){
+  if(!dateRail)return;
+  dateRail.innerHTML='';
+  const blocks=editorDateBlocks();
+  if(!blocks.length)return;
+  const wrapRect=docWrap.getBoundingClientRect();
+  const docRect=doc.getBoundingClientRect();
+  const left=Math.max(10,docRect.left-wrapRect.left-92);
+  const seen=new Set();
+  blocks.forEach((block,index)=>{
+    const date=blockDate(block,index,blocks);
+    if(!date||seen.has(date))return;
+    seen.add(date);
+    const rect=block.getBoundingClientRect();
+    const top=rect.top-wrapRect.top;
+    if(top<-54||top>wrapRect.height+32)return;
+    const label=document.createElement('div');
+    label.className='date-rail-label';
+    label.style.left=left+'px';
+    label.style.top=top+'px';
+    label.title=date;
+    label.textContent=formatRailDate(date);
+    dateRail.appendChild(label);
+  });
+}
+function markActiveBlockDate(){
+  const sel=window.getSelection&&window.getSelection();
+  if(!sel||!sel.rangeCount||!doc.contains(sel.anchorNode))return;
+  let el=sel.anchorNode.nodeType===1?sel.anchorNode:sel.anchorNode.parentElement;
+  while(el&&el.parentElement&&el.parentElement!==doc)el=el.parentElement;
+  if(!el||el.parentElement!==doc||validBlockDate(el.dataset.date))return;
+  if(typeof todayStr==='function')el.dataset.date=todayStr();
 }
 function updateGravityUI(){
   gravityRaf=0;
   const max=Math.max(1,doc.scrollHeight-doc.clientHeight);
   const depth=clamp01(doc.scrollTop/max);
   docWrap.style.setProperty('--gravity-depth',depth.toFixed(4));
+  docWrap.style.setProperty('--gravity-depth-y',(depth*100).toFixed(2)+'%');
   setGravityVars();
+  renderDateRail();
 }
 function queueGravityUI(){
   if(!gravityRaf)gravityRaf=requestAnimationFrame(updateGravityUI);

@@ -19,9 +19,10 @@ body.dark{
 }
 body.dark .doc{color:var(--dark-text)}
 body.dark .doc-wrap{background:var(--dark-bg)}
-body.dark .doc-wrap::before{background:linear-gradient(90deg,transparent 0,transparent calc(50% - 431px),rgba(139,156,255,.07) calc(50% - 430px),transparent calc(50% - 428px),transparent calc(50% + 428px),rgba(45,212,191,.06) calc(50% + 430px),transparent calc(50% + 431px)),repeating-linear-gradient(180deg,rgba(148,163,184,.05) 0 1px,transparent 1px 104px);opacity:calc(.16 + var(--gravity-motion)*.32)}
-body.dark .doc-wrap::after{background:linear-gradient(180deg,rgba(18,18,18,.98),rgba(18,18,18,.72) 54%,transparent)}
-body.dark .doc.gravity-flow>*{text-shadow:0 var(--gravity-shadow) calc(var(--gravity-motion)*32px) rgba(0,0,0,.48)}
+body.dark .doc-wrap::before{display:none}
+body.dark .doc-wrap::after{background:linear-gradient(180deg,rgba(18,18,18,.98),rgba(18,18,18,.74) 58%,transparent 132px),linear-gradient(0deg,rgba(18,18,18,.94),rgba(18,18,18,.56) 56%,transparent 128px)}
+body.dark .doc.gravity-flow>*{text-shadow:none}
+body.dark .date-rail-label{color:rgba(154,168,182,.3)}
 body.dark .doc:empty::before{color:var(--dark-faint)}
 body.dark .doc table td,body.dark .doc table th{border-color:var(--dark-line-strong)}
 body.dark .doc table th{background:rgba(18,18,18,.86)}
