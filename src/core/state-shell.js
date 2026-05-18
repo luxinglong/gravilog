@@ -1,4 +1,4 @@
-const STORAGE_KEY='diary_doc',DATES_KEY='diary_edit_dates',STATS_KEY='diary_daily_stats',TODOS_KEY='diary_calendar_todos',META_KEY='diary_meta',HANDLE_NAME_KEY='diary_file_name',PENDING_SYNC_KEY='diary_pending_sync',CONFLICT_BACKUP_KEY='diary_conflict_backup';
+const STORAGE_KEY='diary_doc',DATES_KEY='diary_edit_dates',STATS_KEY='diary_daily_stats',TODOS_KEY='diary_calendar_todos',META_KEY='diary_meta',HANDLE_NAME_KEY='diary_file_name',PENDING_SYNC_KEY='diary_pending_sync',LAST_SYNC_KEY='diary_last_synced_snapshot',CONFLICT_BACKUP_KEY='diary_conflict_backup';
 const LOCAL_SAVE_DELAY=450;
 const FILE_WRITE_DELAY=5000;
 let calView='month',calYear=new Date().getFullYear(),calMonth=new Date().getMonth(),calWeekStart=getMon(new Date()),selectedDate=null,saveTimer=null,localSaveTimer=null;
@@ -89,6 +89,7 @@ const docWrap=document.getElementById('docWrap');
 let lastWritingLen=0;
 let gravityRaf=0,gravityMotion=0,gravityDir=1,gravityLast=0,gravityVelocity=0,gravityScrollRaf=0,gravityScrollLast=0;
 const TYPOGRAPHY_STYLE_PROPS=['font','font-family','font-size','line-height'];
+const INDENT_STYLE_PROPS=['margin-left','padding-left','text-indent'];
 function normalizeEditorTypography(root=doc){
   if(!root)return false;
   const elements=[];
@@ -100,6 +101,7 @@ function normalizeEditorTypography(root=doc){
     if(el.hasAttribute('style')){
       const before=el.getAttribute('style')||'';
       TYPOGRAPHY_STYLE_PROPS.forEach(prop=>el.style.removeProperty(prop));
+      if(!el.closest('ul,ol,pre,code'))INDENT_STYLE_PROPS.forEach(prop=>el.style.removeProperty(prop));
       const after=(el.getAttribute('style')||'').trim();
       if(after)el.setAttribute('style',after);
       else el.removeAttribute('style');

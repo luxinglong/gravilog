@@ -32,6 +32,8 @@ body.dark .doc pre code{background:none;color:inherit}
 body.dark .code-lang{background:rgba(18,18,18,.92);border-color:var(--dark-line);color:var(--dark-muted)}
 body.dark .code-lang:focus{border-color:var(--dark-accent)}
 body.dark .code-dots{color:var(--dark-faint)}
+body.dark .code-delete{background:rgba(18,18,18,.92);border-color:var(--dark-line);color:var(--dark-muted)}
+body.dark .code-delete:hover{background:rgba(127,29,29,.22);border-color:rgba(251,113,133,.48);color:#fb7185}
 body.dark .todo-item.checked .todo-text{color:var(--dark-faint)}
 body.dark .tex{background:rgba(139,156,255,.12);color:#e8ecff}
 body.dark .tex:hover{background:rgba(139,156,255,.2)}

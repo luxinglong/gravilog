@@ -24,12 +24,23 @@ function setMountFileText(text){
   const el=document.getElementById('mountFile');
   if(el)el.textContent=text;
 }
+function ensureCalendarRestoreButton(){
+  const buttons=document.querySelector('.stor-btns');
+  if(!buttons||buttons.querySelector('[data-action="restore-calendar-from-cloud"]'))return;
+  const btn=document.createElement('button');
+  btn.type='button';
+  btn.dataset.action='restore-calendar-from-cloud';
+  btn.textContent='Restore Cal';
+  btn.title='Restore calendar todos from the linked cloud file';
+  buttons.insertBefore(btn,buttons.children[1]||null);
+}
 function prepareMountGate(hasLast){
   const primary=document.getElementById('mountPrimary'),choose=document.getElementById('mountChoose');
   if(primary)primary.textContent=hasLast?'加载上次同步文件':'选择同步文件';
   if(choose)choose.style.display='none';
   setConflictActions(false);
 }
+ensureCalendarRestoreButton();
 function unlockEditor(){
   syncReady=true;
   mountConflict=null;
@@ -41,9 +52,16 @@ function unlockEditor(){
   if(latestFileSnapshot)queueFileWrite();
   doc.focus();
 }
+function rememberConflictBackup(local,remote){
+  try{
+    const payload=JSON.stringify({local,remote,createdAt:new Date().toISOString()});
+    if(payload.length<500000)localStorage.setItem(CONFLICT_BACKUP_KEY,payload);
+    else localStorage.removeItem(CONFLICT_BACKUP_KEY);
+  }catch(e){}
+}
 function showMountConflict(local,remote){
   mountConflict={local,remote};
-  try{localStorage.setItem(CONFLICT_BACKUP_KEY,JSON.stringify({local,remote,createdAt:new Date().toISOString()}))}catch(e){}
+  rememberConflictBackup(local,remote);
   syncReady=false;
   doc.setAttribute('contenteditable','false');
   document.getElementById('mountGate').classList.remove('hide');
@@ -144,7 +162,8 @@ async function confirmMergedConflict(){
   }
 }
 async function applyMountedSnapshot(snapshot,writeBack){
-  saveLocalSnapshot(snapshot);
+  try{localStorage.removeItem(CONFLICT_BACKUP_KEY)}catch(e){}
+  snapshot=trySaveLocalSnapshot(snapshot);
   doc.innerHTML=snapshot.doc||'';
   resetWritingBaseline();
   renderAllContent();
@@ -155,6 +174,7 @@ async function applyMountedSnapshot(snapshot,writeBack){
     const wrote=await writeToHandle(snapshot);
     if(!wrote)latestFileSnapshot=snapshot;
   }else{
+    rememberSyncedSnapshot(snapshot);
     setPendingSync(false);
   }
 }
@@ -341,6 +361,46 @@ async function chooseAndMountFile(){
 async function readFileSnapshot(){
   return readSnapshotFromHandle(fileHandle);
 }
+async function restoreCalendarFromCloud(){
+  if(!fileHandle){
+    setMountMsg('No linked cloud file. Please link diary.json first.',true);
+    return false;
+  }
+  try{
+    setMountBusy(true);
+    const ok=fileWritable||await verifyHandle(true);
+    if(!ok){
+      setMountMsg('Need file permission before restoring calendar todos.',true);
+      return false;
+    }
+    const remote=await readFileSnapshot();
+    const remoteTodos=normalizeTodos(remote&&remote.todos);
+    const count=Object.values(remoteTodos).reduce((sum,items)=>sum+items.length,0);
+    if(!count){
+      setMountMsg('No calendar todos found in the linked cloud file.',true);
+      return false;
+    }
+    const snapshot={
+      doc:doc.innerHTML,
+      dates:mergeDates(getLocalSnapshot(),remote),
+      stats:getStats(),
+      todos:remoteTodos,
+      savedAt:new Date().toISOString()
+    };
+    trySaveLocalSnapshot(snapshot);
+    latestFileSnapshot=snapshot;
+    renderCal({animate:false});
+    queueFileWrite(snapshot);
+    setMountMsg('Calendar todos restored from the linked cloud file.');
+    return true;
+  }catch(e){
+    console.error('Restore calendar from cloud failed',e);
+    setMountMsg('Failed to restore calendar todos from the linked cloud file.',true);
+    return false;
+  }finally{
+    setMountBusy(false);
+  }
+}
 async function syncFromLinkedFile(){
   syncReady=false;
   if(!fileHandle||!fileWritable)return false;
@@ -400,7 +460,9 @@ async function writeToHandle(snapshot){
   try{
     const ok=fileWritable||await verifyHandle(false);
     if(!ok){updateStorStatus(false);return false}
-    await writeSnapshotToHandle(fileHandle,snapshot||getLocalSnapshot());
+    const target=snapshot||getLocalSnapshot();
+    await writeSnapshotToHandle(fileHandle,target);
+    rememberSyncedSnapshot(target);
     setPendingSync(false);
     updateStorStatus(true);
     clearTimeout(fileRetryTimer);
@@ -416,4 +478,4 @@ async function writeToHandle(snapshot){
 }
 function exportFile(){const d=snapshotToV2({doc:doc.innerHTML,dates:getDates(),stats:getStats(),todos:getTodos(),savedAt:new Date().toISOString()});const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='diary_'+todayStr()+'.json';a.click();URL.revokeObjectURL(a.href)}
 function importFile(){document.getElementById('importPicker').click()}
-function handleImport(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const snapshot=migrateSnapshot(JSON.parse(ev.target.result),{sanitizeHTML:normalizeEditorHTML});if(!snapshot.savedAt)snapshot.savedAt=new Date().toISOString();doc.innerHTML=snapshot.doc;resetWritingBaseline();saveLocalSnapshot(snapshot);renderAllContent();renderCal();queueFileWrite(snapshot)}catch(err){alert('文件格式错误')}};r.readAsText(f);e.target.value=''}
+function handleImport(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const snapshot=migrateSnapshot(JSON.parse(ev.target.result),{sanitizeHTML:normalizeEditorHTML});if(!snapshot.savedAt)snapshot.savedAt=new Date().toISOString();doc.innerHTML=snapshot.doc;resetWritingBaseline();trySaveLocalSnapshot(snapshot);renderAllContent();renderCal();queueFileWrite(snapshot)}catch(err){alert('文件格式错误')}};r.readAsText(f);e.target.value=''}

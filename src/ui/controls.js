@@ -202,7 +202,6 @@ doc.addEventListener('beforeinput',function(e){
   e.preventDefault();
   if(inCode){
     document.execCommand('insertText',false,text);
-    setTimeout(()=>rehighlightCode(inCode,true),0);
   }else{
     insertPlainEditorText(text);
   }
@@ -219,7 +218,6 @@ doc.addEventListener('paste',function(e){
   if(inCode){
     e.preventDefault();
     document.execCommand('insertText',false,e.clipboardData.getData('text/plain')||'');
-    setTimeout(()=>rehighlightCode(inCode,true),0);
     return;
   }
   const html=e.clipboardData.getData('text/html')||'';
@@ -232,7 +230,7 @@ doc.addEventListener('paste',function(e){
   }
   // Paste text into code block → highlight handled by input event listener
   const td=e.target.closest&&e.target.closest('td,th');
-  if(!td)setTimeout(()=>{doc.querySelectorAll('pre').forEach(pre=>{ensureCodeBlock(pre);rehighlightCode(pre.querySelector('code'),false)})},100);
+  if(!td&&!e.target.closest('pre code'))setTimeout(()=>{doc.querySelectorAll('pre').forEach(pre=>{ensureCodeBlock(pre);const code=pre.querySelector('code');if(document.activeElement!==code)rehighlightCode(code,false)})},100);
 });
 
 // ===== LaTeX Popup =====

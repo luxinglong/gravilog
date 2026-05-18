@@ -13,8 +13,14 @@
   .doc{padding-top:48px}
 }
 .doc:empty::before{content:'开始写点什么...';color:#d0d0d0;pointer-events:none}
+.doc>:where(p,div,h1,h2,h3,h4,h5,h6,blockquote,pre,table,.todo-item,.folded-block){margin-left:0!important;text-indent:0!important}
+.doc>:where(p,div,h1,h2,h3,h4,h5,h6,pre,table,.todo-item,.folded-block){padding-left:0!important}
 .doc h1,.doc h2,.doc h3,.doc h4{margin:12px 0 4px;line-height:1.4}
 .doc h1{font-size:24px}.doc h2{font-size:20px}.doc h3{font-size:17px}.doc h4{font-size:15px;font-weight:700}
+.doc .folded-block{position:relative;min-height:30px;margin:6px 0;padding:0 10px;border:1px dashed rgba(102,126,234,.38);border-radius:7px;background:rgba(102,126,234,.06);cursor:pointer;user-select:none}
+.doc .folded-block>.fold-content{display:none}
+.doc .folded-block::before{content:'已折叠，点击展开';position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#667eea;font-size:12px;font-weight:600;letter-spacing:0;pointer-events:none}
+.doc .folded-block::after{content:'';position:absolute;right:10px;top:50%;width:7px;height:7px;border-right:2px solid #667eea;border-bottom:2px solid #667eea;transform:translateY(-62%) rotate(45deg);pointer-events:none}
 .doc table{border-collapse:collapse;width:100%;margin:8px 0}
 .doc table td,.doc table th{border:1px solid #d0d0d0;padding:6px 10px;min-width:60px;font-size:inherit;outline:none}
 .doc table th{background:#f7f7f7;font-weight:600}
@@ -29,13 +35,16 @@
 .doc ul,.doc ol{margin-left:24px;margin-top:4px;margin-bottom:4px;padding-left:0}
 .doc ul ul,.doc ol ol,.doc ul ol,.doc ol ul{margin-left:20px}
 .doc pre{background:#f6f8fa;padding:28px 14px 14px;border-radius:6px;overflow-x:auto;font-size:13px;margin:8px 0;position:relative;border:1px solid #e1e4e8}
-.doc pre:hover .code-lang{opacity:1}
-.doc pre:hover .code-dots{opacity:1}
+.doc pre:hover .code-lang,.doc pre:focus-within .code-lang{opacity:1}
+.doc pre:hover .code-dots,.doc pre:focus-within .code-dots{opacity:1}
+.doc pre:hover .code-delete,.doc pre:focus-within .code-delete{opacity:1}
 .doc code{background:#f0f0ff;padding:2px 5px;border-radius:3px;font-size:13px}
 .doc pre code{background:none;padding:0;font-size:13px;display:block;min-height:18px;outline:none;white-space:pre}
-.code-lang{position:absolute;top:6px;right:8px;font-size:10px;color:#666;opacity:.72;transition:opacity .2s;cursor:pointer;background:#fff;padding:2px 18px 2px 6px;border-radius:4px;border:1px solid #e1e4e8;outline:none}
+.code-lang{position:absolute;top:6px;right:36px;font-size:10px;color:#666;opacity:.72;transition:opacity .2s;cursor:pointer;background:#fff;padding:2px 18px 2px 6px;border-radius:4px;border:1px solid #e1e4e8;outline:none}
 .code-lang:focus{opacity:1;border-color:#667eea}
 .code-dots{position:absolute;top:6px;left:10px;font-size:10px;color:#999;opacity:0;letter-spacing:2px}
+.code-delete{position:absolute;top:6px;right:8px;width:22px;height:22px;border:1px solid #e1e4e8;border-radius:5px;background:#fff;color:#94a3b8;opacity:.72;cursor:pointer;font-size:15px;line-height:18px;padding:0;transition:opacity .15s,color .15s,border-color .15s,background .15s}
+.code-delete:hover{opacity:1;color:#dc2626;border-color:#fecaca;background:#fff5f5}
 .todo-item{display:flex;align-items:flex-start;gap:8px;margin:4px 0;line-height:1.8}
 .todo-item input[type="checkbox"]{margin-top:5px;width:16px;height:16px;accent-color:#667eea;cursor:pointer;flex-shrink:0}
 .todo-item.checked .todo-text{text-decoration:line-through;color:#aaa}

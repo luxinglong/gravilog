@@ -65,6 +65,28 @@ test('snapshotToV2 writes the single-file v2 container with one legacy html bloc
   expect(file.meta.schemaVersion).toBe(2);
 });
 
+test('calendar todos round-trip through the cloud file format', () => {
+  const file = context.snapshotToV2({
+    doc: '<p>Today</p>',
+    dates: ['2026-05-18'],
+    stats: { '2026-05-18': 18 },
+    todos: {
+      '2026-05-18': [
+        { id: 'todo_1', start: 615, duration: 45, category: 'work', text: 'Review sync' },
+        { id: 'todo_2', start: 1260, duration: 30, category: 'Personal', text: 'Plan tomorrow' },
+      ],
+    },
+    savedAt: '2026-05-18T02:00:00.000Z',
+  });
+
+  expect(file.calendar.todos['2026-05-18']).toHaveLength(2);
+  expect(file.calendar.todos['2026-05-18'][0].text).toBe('Review sync');
+
+  const snapshot = context.migrateSnapshot(file);
+  expect(snapshot.todos['2026-05-18']).toHaveLength(2);
+  expect(snapshot.todos['2026-05-18'][1].category).toBe('Personal');
+});
+
 test('snapshotToV2 is idempotent for an existing v2 container', () => {
   const file = context.snapshotToV2({
     version: 2,

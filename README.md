@@ -1,5 +1,17 @@
 # Gravilog
 
+## Recent updates
+
+- Cloud sync now keeps a lightweight last-synced fingerprint so startup mount can detect local/remote conflicts before writing back to the linked JSON file.
+- Conflict resolution is resilient when browser local storage is full: choosing the cloud version does not fail just because `localStorage` cannot cache a full snapshot.
+- Calendar todos are stored in the v2 cloud file under `calendar.todos`; the editor can restore calendar todos from the linked cloud file and keeps an in-memory fallback when local cache is unavailable.
+- The editor toolbar includes a body-text control for converting headings back to normal text; headings are still created with Markdown `#` levels and return to body text on Enter.
+- Non-list content is normalized to left alignment. Ordered and unordered lists keep their intended indentation.
+- Empty list items exit cleanly to a body paragraph without pulling following content into the list.
+- Code blocks edit as plain text while focused, re-highlight on blur/language change, and include a delete button.
+- Selected editor blocks can be folded into a compact placeholder and expanded again.
+- Added unit coverage for storage conflict decisions, local cache fallback, and calendar todo round-tripping through the cloud file format.
+
 Gravilog 是一个离线优先的个人日志 / 笔记编辑器。它的产品理念是：内容最终可以保存为一个可携带、可备份、可放进云盘同步目录的 JSON 文件。
 
 当前版本已经完成外层拆分、事件整理、存储层第一轮抽象、v2 单文件结构引入和编辑器性能优化基础：页面骨架、样式和应用脚本已经拆分，运行方式保持兼容，外部 JSON 文件已升级为结构化容器。

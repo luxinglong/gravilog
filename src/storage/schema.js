@@ -77,6 +77,23 @@ function normalizeSnapshot(raw,options={}){
   };
 }
 
+function snapshotSyncPayload(snapshot){
+  const normalized=normalizeSnapshot(snapshot);
+  return JSON.stringify({
+    doc:normalized.doc,
+    dates:normalized.dates,
+    stats:normalized.stats,
+    todos:normalized.todos
+  });
+}
+
+function snapshotSyncFingerprint(snapshot){
+  const text=snapshotSyncPayload(snapshot);
+  let hash=5381;
+  for(let i=0;i<text.length;i++)hash=((hash<<5)+hash)^text.charCodeAt(i);
+  return text.length+':'+(hash>>>0).toString(36);
+}
+
 function assetHash(data){
   let hash=5381;
   const text=String(data||'');
