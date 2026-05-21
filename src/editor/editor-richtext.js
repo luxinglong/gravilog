@@ -421,7 +421,6 @@ function trackDailyWriting(){
   const delta=len-lastWritingLen;
   lastWritingLen=len;
   if(delta>0){
-    markActiveBlockDate();
     pendingCharDelta+=delta;
     pendingDateMark=true;
   }

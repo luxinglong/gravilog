@@ -1,7 +1,7 @@
-@import url("./base.css");
-@import url("./editor.css");
-@import url("./toolbar.css");
-@import url("./presenter.css");
-@import url("./calendar.css");
-@import url("./storage.css");
-@import url("./dark.css");
+@import url("./base.css?v=20260519-clean");
+@import url("./editor.css?v=20260519-clean");
+@import url("./toolbar.css?v=20260519-clean");
+@import url("./presenter.css?v=20260519-clean");
+@import url("./calendar.css?v=20260519-clean");
+@import url("./storage.css?v=20260519-clean");
+@import url("./dark.css?v=20260519-clean");

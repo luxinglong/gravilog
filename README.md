@@ -2,9 +2,8 @@
 
 ## Recent updates
 
-- The editor now shows subtle date labels in the left margin. Each day appears once and roughly anchors the group of blocks written on that date, without affecting the writing surface.
-- Removed the previous scroll trail treatment, including text shadows, background blur, side rails, horizontal ticks, and the active-position glow band.
-- New or edited top-level blocks receive a lightweight `data-date`; v2 block export preserves this as `date` for code, image, table, and HTML blocks.
+- Removed the previous editor motion treatments, including text shadows, background blur, side rails, horizontal ticks, date labels, and top/bottom translucent masks.
+- Local CSS and JavaScript asset URLs now include a cache-busting version suffix so refreshes pick up the cleaned editor surface.
 - Cloud sync now keeps a lightweight last-synced fingerprint so startup mount can detect local/remote conflicts before writing back to the linked JSON file.
 - Conflict resolution is resilient when browser local storage is full: choosing the cloud version does not fail just because `localStorage` cannot cache a full snapshot.
 - Calendar todos are stored in the v2 cloud file under `calendar.todos`; the editor can restore calendar todos from the linked cloud file and keeps an in-memory fallback when local cache is unavailable.
@@ -156,8 +155,7 @@ gravilog/
     {
       "id": "legacy_001",
       "type": "legacy-html",
-      "html": "<html>editor content</html>",
-      "date": "2026-05-17"
+      "html": "<html>editor content</html>"
     }
   ],
   "assets": {},
