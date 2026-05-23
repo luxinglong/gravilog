@@ -250,6 +250,14 @@ function updateUndoRedoBtns(){
   document.getElementById('undoBtn').disabled=undoStack.length<=1;
   document.getElementById('redoBtn').disabled=redoStack.length===0;
 }
+function resetUndoHistory(){
+  clearTimeout(undoTimer);
+  undoPaused=true;
+  undoStack=[];
+  redoStack=[];
+  undoPaused=false;
+  pushUndo();
+}
 // Capture initial state
 pushUndo();
 // Push snapshot on input and after save-triggering actions

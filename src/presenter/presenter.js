@@ -60,6 +60,16 @@ function getDocSelectionRange(){
   if(!doc.contains(start)||!doc.contains(end))return null;
   return range;
 }
+function rangeElement(node){
+  return node&&node.nodeType===1?node:node&&node.parentElement;
+}
+function selectedSingleCodeBlock(range){
+  const start=rangeElement(range.startContainer);
+  const end=rangeElement(range.endContainer);
+  const startPre=start&&start.closest&&start.closest('pre');
+  const endPre=end&&end.closest&&end.closest('pre');
+  return startPre&&startPre===endPre&&doc.contains(startPre)?startPre:null;
+}
 function updatePresentBtn(){
   const btn=document.getElementById('presentBtn');
   if(btn)btn.disabled=!getDocSelectionRange();
@@ -69,7 +79,9 @@ function presentSelection(){
   if(!range){alert('请先选中文档里要展示的内容');return}
   const presenter=document.getElementById('presenter');
   const content=document.getElementById('presenterContent');
-  const frag=range.cloneContents();
+  const selectedPre=selectedSingleCodeBlock(range);
+  const frag=document.createDocumentFragment();
+  frag.appendChild(selectedPre?selectedPre.cloneNode(true):range.cloneContents());
   content.innerHTML='';
   if(!frag.textContent.trim()&&!frag.querySelector('img,table,pre,.tex,.tex-display')){
     content.innerHTML='<div class="presenter-empty">选区没有可展示的内容</div>';
@@ -296,7 +308,7 @@ function endPresenterDraw(e){
   activePresenterStroke=null;
 }
 function cleanPresenterContent(root){
-  root.querySelectorAll('.code-lang,.code-dots').forEach(el=>el.remove());
+  root.querySelectorAll('.code-lang,.code-dots,.code-highlight-layer').forEach(el=>el.remove());
   root.querySelectorAll('[contenteditable]').forEach(el=>el.removeAttribute('contenteditable'));
   root.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
   root.querySelectorAll('*').forEach(el=>{
@@ -310,7 +322,14 @@ function renderPresenterContent(root){
     const s=el.getAttribute('data-tex');
     if(s&&typeof katex!=='undefined'){try{katex.render(s,el,{throwOnError:false,displayMode:el.classList.contains('tex-display')})}catch(e){}}
   });
-  root.querySelectorAll('pre code').forEach(code=>{
+  root.querySelectorAll('pre code:not(.code-highlight-layer)').forEach(code=>{
+    const text=code.textContent||'';
+    if(typeof highlightedCodeHTML==='function'){
+      code.innerHTML=highlightedCodeHTML(code,text);
+      code.classList.add('hljs');
+      code.setAttribute('data-highlighted','yes');
+      return;
+    }
     if(typeof hljs!=='undefined'){code.removeAttribute('data-highlighted');try{hljs.highlightElement(code)}catch(e){}}
   });
 }

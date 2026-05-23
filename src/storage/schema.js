@@ -143,7 +143,7 @@ function imageBlockFromElement(img,assets,savedAt){
 }
 
 function codeBlockFromElement(pre,savedAt){
-  const code=pre.querySelector&&pre.querySelector('code');
+  const code=pre.querySelector&&pre.querySelector(':scope > code:not(.code-highlight-layer)');
   const lang=code?String(code.className||'').replace(/^.*language-/,'').split(/\s+/)[0]:'plaintext';
   return {
     id:'blk_'+Math.random().toString(36).slice(2,10),

@@ -49,11 +49,12 @@ function syncCodeSelect(select,lang){
   });
 }
 function ensureCodeBlock(pre){
-  const code=pre.querySelector('code');
+  const code=pre.querySelector(':scope > code:not(.code-highlight-layer)');
   if(!code)return;
   code.setAttribute('contenteditable','true');
   code.setAttribute('spellcheck','false');
   const active=getCodeLang(code);
+  ensureCodeHighlightLayer(pre);
   let select=pre.querySelector('select.code-lang');
   const oldLabel=pre.querySelector('span.code-lang');
   if(!select){
@@ -74,7 +75,22 @@ function ensureCodeBlock(pre){
   }
   appendCodeDeleteButton(pre);
 }
+function ensureCodeHighlightLayer(pre){
+  let layer=pre.querySelector(':scope > .code-highlight-layer');
+  if(!layer){
+    layer=document.createElement('div');
+    layer.className='code-highlight-layer hljs';
+    layer.setAttribute('contenteditable','false');
+    layer.setAttribute('aria-hidden','true');
+    pre.appendChild(layer);
+  }
+  const code=pre.querySelector(':scope > code:not(.code-highlight-layer)');
+  if(code&&layer.previousElementSibling!==code)code.after(layer);
+  return layer;
+}
 function appendCodeDeleteButton(pre){
+  pre.querySelectorAll('.code-delete').forEach(btn=>btn.remove());
+  return;
   if(pre.querySelector('.code-delete'))return;
   const btn=document.createElement('button');
   btn.type='button';
@@ -109,11 +125,7 @@ function placeCursorInCode(code,offset){
   sel.removeAllRanges();sel.addRange(range);
 }
 function rehighlightCode(code,keepCursor){
-  if(!code||typeof hljs==='undefined')return;
-  const offset=keepCursor?getCursorOffsetInCode(code):null;
-  code.removeAttribute('data-highlighted');
-  try{hljs.highlightElement(code)}catch(e){}
-  if(keepCursor&&offset!==null)placeCursorInCode(code,offset);
+  renderCodeHighlight(code,keepCursor);
 }
 function getCursorOffsetInCode(code){
   const s=window.getSelection();if(!s.rangeCount)return null;
@@ -123,6 +135,125 @@ function getCursorOffsetInCode(code){
   preRange.selectNodeContents(code);
   preRange.setEnd(range.startContainer,range.startOffset);
   return preRange.toString().length;
+}
+let codeHighlightTimer=null,codeComposing=false;
+function plainTextFromCode(code){
+  return code?code.textContent||'':'';
+}
+function highlightedCodeHTML(code,text){
+  const lang=getCodeLang(code);
+  if(lang==='plaintext')return escHTML(text);
+  if(lang==='python')return highlightPythonCode(text);
+  if(typeof hljs==='undefined')return escHTML(text);
+  try{
+    if(hljs.getLanguage&&hljs.getLanguage(lang)){
+      return hljs.highlight(text,{language:lang,ignoreIllegals:true}).value;
+    }
+    return hljs.highlightAuto(text).value;
+  }catch(e){
+    return escHTML(text);
+  }
+}
+function highlightPythonCode(text){
+  const src=String(text||'');
+  const keywords=new Set('False None True and as assert async await break class continue def del elif else except finally for from global if import in is lambda nonlocal not or pass raise return try while with yield match case'.split(' '));
+  const builtins=new Set('abs all any bool bytes callable chr classmethod dict dir enumerate filter float format frozenset getattr hasattr hash help id input int isinstance issubclass iter len list map max min next object open ord pow print property range repr reversed round set setattr slice sorted staticmethod str sum super tuple type vars zip'.split(' '));
+  let out='',i=0;
+  const add=(s,cls)=>{out+=cls?'<span class="'+cls+'">'+escHTML(s)+'</span>':escHTML(s)};
+  while(i<src.length){
+    const rest=src.slice(i);
+    const triple=rest.match(/^(?:[rRuUbBfF]{0,2})("""|''')/);
+    if(triple){
+      const quote=triple[1],start=i,endIdx=src.indexOf(quote,i+triple[0].length);
+      i=endIdx>=0?endIdx+quote.length:src.length;
+      add(src.slice(start,i),'hljs-string');
+      continue;
+    }
+    const str=rest.match(/^(?:[rRuUbBfF]{0,2})("|')/);
+    if(str){
+      const quote=str[1],start=i;
+      i+=str[0].length;
+      while(i<src.length){
+        if(src[i]==='\\'){i+=2;continue}
+        const ch=src[i++];
+        if(ch===quote)break;
+        if(ch==='\n')break;
+      }
+      add(src.slice(start,i),'hljs-string');
+      continue;
+    }
+    const comment=rest.match(/^#[^\n]*/);
+    if(comment){add(comment[0],'hljs-comment');i+=comment[0].length;continue}
+    const deco=rest.match(/^@[A-Za-z_][\w.]*/);
+    if(deco){add(deco[0],'hljs-meta');i+=deco[0].length;continue}
+    const num=rest.match(/^(?:0[xX][\da-fA-F_]+|0[bB][01_]+|0[oO][0-7_]+|\d[\d_]*(?:\.\d[\d_]*)?(?:[eE][+-]?\d[\d_]*)?j?)/);
+    if(num){add(num[0],'hljs-number');i+=num[0].length;continue}
+    const word=rest.match(/^[A-Za-z_]\w*/);
+    if(word){
+      const value=word[0];
+      if(keywords.has(value))add(value,'hljs-keyword');
+      else if(builtins.has(value))add(value,'hljs-built_in');
+      else add(value);
+      i+=value.length;
+      continue;
+    }
+    add(src[i]);
+    i++;
+  }
+  return out;
+}
+function updateCodeHighlightLayer(code,text){
+  const pre=code&&code.closest&&code.closest('pre');
+  if(!pre)return;
+  const layer=ensureCodeHighlightLayer(pre);
+  layer.innerHTML=highlightedCodeHTML(code,text)||' ';
+}
+function renderCodeHighlight(code,keepCursor){
+  if(!code)return;
+  const offset=keepCursor?getCursorOffsetInCode(code):null;
+  const text=plainTextFromCode(code);
+  if(document.activeElement===code){
+    renderCodePlainText(code,text,keepCursor?offset:null);
+    return;
+  }
+  const pre=code.closest&&code.closest('pre');
+  if(pre)pre.classList.remove('code-editing');
+  code.innerHTML=highlightedCodeHTML(code,text);
+  code.classList.add('hljs');
+  code.setAttribute('data-highlighted','yes');
+  if(!text)code.appendChild(document.createElement('br'));
+  if(keepCursor&&offset!==null)placeCursorInCode(code,offset);
+}
+function renderCodePlainText(code,text,offset){
+  if(!code)return;
+  clearTimeout(codeHighlightTimer);
+  code.textContent=text;
+  code.classList.remove('hljs');
+  code.removeAttribute('data-highlighted');
+  const pre=code.closest&&code.closest('pre');
+  if(pre)pre.classList.add('code-editing');
+  updateCodeHighlightLayer(code,text);
+  if(!text)code.appendChild(document.createElement('br'));
+  if(offset!==null&&offset!==undefined)placeCursorInCode(code,offset);
+}
+function setCodeTextPlain(code,text,start,end,backward){
+  if(!code)return;
+  clearTimeout(codeHighlightTimer);
+  code.textContent=text;
+  code.classList.remove('hljs');
+  code.removeAttribute('data-highlighted');
+  const pre=code.closest&&code.closest('pre');
+  if(pre)pre.classList.add('code-editing');
+  updateCodeHighlightLayer(code,text);
+  if(!text)code.appendChild(document.createElement('br'));
+  selectRangeInCode(code,start,end,backward);
+}
+function scheduleCodeHighlight(code,delay=120){
+  if(!code||codeComposing)return;
+  clearTimeout(codeHighlightTimer);
+  codeHighlightTimer=setTimeout(()=>{
+    if(doc.contains(code)&&document.activeElement!==code)renderCodeHighlight(code,false);
+  },delay);
 }
 
 // ===== Render on load =====
@@ -188,6 +319,7 @@ function activeEditorBlockRoot(){
 function renderEditorBlock(root){
   if(!root)return;
   normalizeEditorTypography(root);
+  syncTodoCheckboxState(root);
   root.querySelectorAll('.tex,.tex-display').forEach(el=>{
     const s=el.getAttribute('data-tex');
     if(s&&typeof katex!=='undefined'){try{katex.render(s,el,{throwOnError:false,displayMode:el.classList.contains('tex-display')})}catch(e){}}
@@ -195,7 +327,7 @@ function renderEditorBlock(root){
   const pres=root.matches&&root.matches('pre')?[root]:Array.from(root.querySelectorAll('pre'));
   pres.forEach(pre=>{
     ensureCodeBlock(pre);
-    const code=pre.querySelector('code');
+    const code=pre.querySelector(':scope > code:not(.code-highlight-layer)');
     if(code&&!code.classList.contains('hljs'))rehighlightCode(code,false);
   });
   root.querySelectorAll('span[style*="background-color"]').forEach(s=>{
@@ -321,13 +453,25 @@ function unfoldBlock(block){
 }
 
 // ===== Auto-save =====
-doc.addEventListener('input',()=>{
+doc.addEventListener('input',e=>{
   const activeCode=getCursorCode();
   trackDailyWriting();
   scheduleLocalDraftSave();
   showSt('saving');clearTimeout(saveTimer);
   saveTimer=setTimeout(()=>{queueFileWrite(latestFileSnapshot);showSt('saved')},FILE_WRITE_DELAY);
   if(activeCode){
+    if(isDeleteInput(e)&&plainTextFromCode(activeCode)===''){
+      restoreFenceFromCodeBlock(activeCode);
+      queueGravityUI();
+      return;
+    }
+    updateCodeHighlightLayer(activeCode,plainTextFromCode(activeCode));
+    queueGravityUI();
+    return;
+  }
+  const activeBlock=activeEditorBlockRoot();
+  if(isDeleteInput(e)&&isHeadingBlock(activeBlock)&&!(activeBlock.textContent||'').trim()){
+    restoreHeadingMarkdown(activeBlock);
     queueGravityUI();
     return;
   }
@@ -348,6 +492,8 @@ doc.addEventListener('click',e=>{
 doc.addEventListener('blur',()=>{clearTimeout(saveTimer);save()});
 doc.addEventListener('keydown',function(e){
   if(e.key==='Enter'&&handleCodeEnter(e))return;
+  if((e.key==='Backspace'||e.key==='Delete')&&handleEmptyCodeBlockExit(e))return;
+  if((e.key==='#'||e.key==='Backspace'||e.key==='Delete')&&handleHeadingMarkerKey(e))return;
   if(e.key==='Enter'&&!e.shiftKey&&handleHeadingEnter(e))return;
   if((e.key==='Backspace'||e.key==='Delete')&&handleEmptyListExit(e))return;
   if((e.key===' '||e.key==='Enter')&&renderPendingMarkdownLink(e))return;
@@ -368,15 +514,27 @@ function highlightCodeBlock(){
     if(!codeEl)return;
     const pre=codeEl.closest('pre');
     if(!pre)return;
-    const code=pre.querySelector('code');
+    const code=pre.querySelector(':scope > code:not(.code-highlight-layer)');
     if(!code||typeof hljs==='undefined')return;
-    code.classList.remove('hljs');
-    code.removeAttribute('data-highlighted');
+    scheduleCodeHighlight(code,0);
   },300);
 }
 
 function restoreCursorInCode(code,offset){
   placeCursorInCode(code,offset);
+}
+
+function syncTodoCheckboxState(root=doc){
+  if(!root||!root.querySelectorAll)return;
+  root.querySelectorAll('.todo-item').forEach(item=>{
+    const cb=item.querySelector('input[type="checkbox"]');
+    if(!cb)return;
+    const checked=!!(cb.checked||cb.hasAttribute('checked')||item.classList.contains('checked'));
+    cb.checked=checked;
+    if(checked)cb.setAttribute('checked','');
+    else cb.removeAttribute('checked');
+    item.classList.toggle('checked',checked);
+  });
 }
 
 function save(){
@@ -397,6 +555,7 @@ function saveLocalDraft(pending,options={}){
   markDate();
   flushDailyWriting();
   if(options.normalize!==false)normalizeEditorTypography(doc);
+  syncTodoCheckboxState(doc);
   const snapshot={doc:doc.innerHTML,dates:getDates(),stats:getStats(),todos:getTodos(),savedAt:new Date().toISOString()};
   try{
     trySaveLocalSnapshot(snapshot);
@@ -733,6 +892,63 @@ function handleHeadingEnter(e){
   pushUndo();save();
   return true;
 }
+function headingLevel(block){
+  return isHeadingBlock(block)?parseInt(block.nodeName.slice(1),10):0;
+}
+function replaceHeadingLevel(heading,level){
+  const next=document.createElement('h'+Math.max(1,Math.min(6,level)));
+  while(heading.firstChild)next.appendChild(heading.firstChild);
+  heading.replaceWith(next);
+  return next;
+}
+function cursorOffsetInBlock(block){
+  const sel=window.getSelection();
+  if(!sel||!sel.rangeCount||!block.contains(sel.anchorNode))return 0;
+  return textOffsetInElement(block,sel.anchorNode,sel.anchorOffset);
+}
+function restoreHeadingMarkdown(heading){
+  if(!isHeadingBlock(heading)||!heading.parentNode)return false;
+  const level=headingLevel(heading)||1;
+  const content=(heading.textContent||'').replace(/\u200b/g,'');
+  const text='#'.repeat(level)+(content?' '+content:' ');
+  const p=document.createElement('p');
+  p.textContent=text;
+  heading.replaceWith(p);
+  setCursorInText(p,text.length);
+  pushUndo();save();
+  return true;
+}
+function handleHeadingMarkerKey(e){
+  const heading=getCursorBlock();
+  if(!isHeadingBlock(heading))return false;
+  const offset=cursorOffsetInBlock(heading);
+  const text=(heading.textContent||'').replace(/\u200b/g,'');
+  if((e.key==='Backspace'||e.key==='Delete')&&!text.trim()){
+    e.preventDefault();
+    return restoreHeadingMarkdown(heading);
+  }
+  if(offset!==0)return false;
+  const level=headingLevel(heading);
+  if(e.key==='#'){
+    if(level>=6)return false;
+    e.preventDefault();
+    const next=replaceHeadingLevel(heading,level+1);
+    setCursorInText(next,0);
+    pushUndo();save();
+    return true;
+  }
+  if(e.key==='Backspace'){
+    e.preventDefault();
+    if(level>1){
+      const next=replaceHeadingLevel(heading,level-1);
+      setCursorInText(next,0);
+      pushUndo();save();
+      return true;
+    }
+    return restoreHeadingMarkdown(heading);
+  }
+  return false;
+}
 
 function setCursorInText(el,offset){
   const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null);
@@ -924,6 +1140,50 @@ function selectRangeInCode(code,start,end,backward){
     sel.addRange(range);
   }
 }
+function normalizeCodePasteText(text){
+  return String(text||'').replace(/\r\n?/g,'\n');
+}
+function insertTextInCode(code,text){
+  const sel=getSelectionOffsetsInCode(code);if(!sel)return false;
+  const insert=normalizeCodePasteText(text);
+  const current=code.textContent||'';
+  const next=current.slice(0,sel.start)+insert+current.slice(sel.end);
+  const pos=sel.start+insert.length;
+  setCodeTextPlain(code,next,pos,pos,false);
+  return true;
+}
+function isDeleteInput(e){
+  return !!(e&&typeof e.inputType==='string'&&e.inputType.startsWith('delete'));
+}
+function codeFenceTextFor(code){
+  const lang=getCodeLang(code);
+  return lang&&lang!=='plaintext'?'```'+lang:'```';
+}
+function isEmptyParagraph(el){
+  return !!(el&&el.nodeName==='P'&&!(el.textContent||'').trim()&&!el.querySelector('img,table,pre,.tex,.tex-display'));
+}
+function restoreFenceFromCodeBlock(code){
+  if(!code)return false;
+  const pre=code.closest&&code.closest('pre');
+  if(!pre||!pre.parentNode)return false;
+  const text=codeFenceTextFor(code);
+  const p=document.createElement('p');
+  p.textContent=text;
+  const next=pre.nextElementSibling;
+  pre.replaceWith(p);
+  if(isEmptyParagraph(next))next.remove();
+  placeCursorInBlock(p);
+  setCursorInText(p,text.length);
+  pushUndo();save();
+  return true;
+}
+function handleEmptyCodeBlockExit(e){
+  const code=getCursorCode();
+  if(!code)return false;
+  if(plainTextFromCode(code)!=='')return false;
+  e.preventDefault();
+  return restoreFenceFromCodeBlock(code);
+}
 
 function handleMdEnter(e){
   // Code block: ``` or ```python — triggered by Enter
@@ -938,7 +1198,7 @@ function handleMdEnter(e){
         const block=getCursorBlock();
         const lang=clm?clm[1]:'plaintext';
         const pre=createCodeBlock(lang);
-        const code=pre.querySelector('code');
+        const code=pre.querySelector(':scope > code:not(.code-highlight-layer)');
         if(block){block.replaceWith(pre);}else{n.textContent='';doc.insertBefore(pre,null);}
         const p=document.createElement('p');p.appendChild(document.createElement('br'));
         pre.after(p);
@@ -1003,8 +1263,9 @@ function handleCodeEnter(e){
   const linePrefix=text.slice(lineStart,sel.start);
   const indent=(linePrefix.match(/^[\t ]*/)||[''])[0];
   const insert='\n'+indent;
-  code.textContent=text.slice(0,sel.start)+insert+text.slice(sel.end);
-  selectRangeInCode(code,sel.start+insert.length,sel.start+insert.length,false);
+  const next=text.slice(0,sel.start)+insert+text.slice(sel.end);
+  const nextOffset=sel.start+insert.length;
+  setCodeTextPlain(code,next,nextOffset,nextOffset,false);
   showSt('saving');clearTimeout(saveTimer);
   saveTimer=setTimeout(()=>{save();showSt('saved')},FILE_WRITE_DELAY);
   return true;
@@ -1016,8 +1277,8 @@ function indentCodeSelection(code){
   const text=code.textContent||'';
   if(sel.start===sel.end){
     const next=text.slice(0,sel.start)+tab+text.slice(sel.end);
-    code.textContent=next;
-    selectRangeInCode(code,sel.start+tab.length,sel.start+tab.length,false);
+    const nextOffset=sel.start+tab.length;
+    setCodeTextPlain(code,next,nextOffset,nextOffset,false);
     return;
   }
   const lineStart=text.lastIndexOf('\n',Math.max(0,sel.start-1))+1;
@@ -1027,8 +1288,7 @@ function indentCodeSelection(code){
   const after=text.slice(lineEnd);
   const lineCount=target.split('\n').length;
   const next=before+target.replace(/^/gm,tab)+after;
-  code.textContent=next;
-  selectRangeInCode(code,sel.start+tab.length,sel.end+lineCount*tab.length,sel.backward);
+  setCodeTextPlain(code,next,sel.start+tab.length,sel.end+lineCount*tab.length,sel.backward);
 }
 
 function outdentCodeSelection(code){
@@ -1051,10 +1311,10 @@ function outdentCodeSelection(code){
     pos+=line.length+1;
     return line.slice(rm);
   }).join('\n');
-  code.textContent=before+nextTarget+after;
+  const next=before+nextTarget+after;
   const nextStart=Math.max(lineStart,sel.start-removedBeforeStart);
   const nextEnd=Math.max(nextStart,sel.end-removedTotal);
-  selectRangeInCode(code,nextStart,nextEnd,sel.backward);
+  setCodeTextPlain(code,next,nextStart,nextEnd,sel.backward);
 }
 
 // ===== Click handlers =====
@@ -1103,7 +1363,7 @@ doc.addEventListener('click',function(e){
 
   // Todo toggle
   const cb=e.target.closest('.todo-item input[type="checkbox"]');
-  if(cb){const item=cb.closest('.todo-item');if(cb.checked)item.classList.add('checked');else item.classList.remove('checked');save();return}
+  if(cb){const item=cb.closest('.todo-item');cb.toggleAttribute('checked',cb.checked);if(cb.checked)item.classList.add('checked');else item.classList.remove('checked');save();return}
 
   // Image double-click → modal
   if(e.target.tagName==='IMG'&&e.detail===2){document.getElementById('imgModalSrc').src=e.target.src;document.getElementById('imgModal').classList.add('show');return}
@@ -1116,7 +1376,7 @@ doc.addEventListener('click',function(e){
 doc.addEventListener('change',function(e){
   if(!e.target.classList.contains('code-lang'))return;
   const pre=e.target.closest('pre');
-  const code=pre&&pre.querySelector('code');
+  const code=pre&&pre.querySelector(':scope > code:not(.code-highlight-layer)');
   if(!code)return;
   const lang=normalizeCodeLang(e.target.value);
   code.className='language-'+lang;
@@ -1124,11 +1384,24 @@ doc.addEventListener('change',function(e){
   if(document.activeElement!==code)rehighlightCode(code,false);
   save();
 });
+doc.addEventListener('focusin',function(e){
+  const code=e.target&&e.target.closest&&e.target.closest('pre code');
+  if(!code||!doc.contains(code))return;
+  renderCodePlainText(code,plainTextFromCode(code),getCursorOffsetInCode(code));
+});
 doc.addEventListener('focusout',function(e){
   const code=e.target&&e.target.closest&&e.target.closest('pre code');
   if(code&&doc.contains(code))setTimeout(()=>{
     if(document.activeElement!==code)rehighlightCode(code,false);
   },0);
+});
+doc.addEventListener('compositionstart',e=>{
+  if(e.target&&e.target.closest&&e.target.closest('pre code'))codeComposing=true;
+});
+doc.addEventListener('compositionend',e=>{
+  const code=e.target&&e.target.closest&&e.target.closest('pre code');
+  codeComposing=false;
+  if(code&&doc.contains(code)&&document.activeElement!==code)scheduleCodeHighlight(code,0);
 });
 
 // ===== Image toolbar =====

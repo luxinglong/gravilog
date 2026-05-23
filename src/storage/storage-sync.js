@@ -167,6 +167,7 @@ async function applyMountedSnapshot(snapshot,writeBack){
   doc.innerHTML=snapshot.doc||'';
   resetWritingBaseline();
   renderAllContent();
+  resetUndoHistory();
   renderCal();
   updateStorStatus(fileWritable);
   if(writeBack){
@@ -478,4 +479,4 @@ async function writeToHandle(snapshot){
 }
 function exportFile(){const d=snapshotToV2({doc:doc.innerHTML,dates:getDates(),stats:getStats(),todos:getTodos(),savedAt:new Date().toISOString()});const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='diary_'+todayStr()+'.json';a.click();URL.revokeObjectURL(a.href)}
 function importFile(){document.getElementById('importPicker').click()}
-function handleImport(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const snapshot=migrateSnapshot(JSON.parse(ev.target.result),{sanitizeHTML:normalizeEditorHTML});if(!snapshot.savedAt)snapshot.savedAt=new Date().toISOString();doc.innerHTML=snapshot.doc;resetWritingBaseline();trySaveLocalSnapshot(snapshot);renderAllContent();renderCal();queueFileWrite(snapshot)}catch(err){alert('文件格式错误')}};r.readAsText(f);e.target.value=''}
+function handleImport(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const snapshot=migrateSnapshot(JSON.parse(ev.target.result),{sanitizeHTML:normalizeEditorHTML});if(!snapshot.savedAt)snapshot.savedAt=new Date().toISOString();doc.innerHTML=snapshot.doc;resetWritingBaseline();trySaveLocalSnapshot(snapshot);renderAllContent();resetUndoHistory();renderCal();queueFileWrite(snapshot)}catch(err){alert('文件格式错误')}};r.readAsText(f);e.target.value=''}

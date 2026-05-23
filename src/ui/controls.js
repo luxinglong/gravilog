@@ -140,7 +140,7 @@ function insertTodo(){restoreEditorSelection();document.execCommand('insertHTML'
 function insertCodeBlock(){
   restoreEditorSelection();
   const pre=createCodeBlock('plaintext');
-  const code=pre.querySelector('code');
+  const code=pre.querySelector(':scope > code:not(.code-highlight-layer)');
   const sel=window.getSelection();
   if(sel.rangeCount&&doc.contains(sel.anchorNode)){
     const range=sel.getRangeAt(0);
@@ -193,19 +193,31 @@ async function insertImageFile(f){
   }
 }
 function handleImg(e){const f=e.target.files[0];if(!f)return;insertImageFile(f);e.target.value=''}
+let lastCodePasteAt=0,lastCodePasteText='';
+function handleCodePaste(inCode,text){
+  const normalized=normalizeCodePasteText(text);
+  if(!normalized)return false;
+  const now=Date.now();
+  if(lastCodePasteText===normalized&&now-lastCodePasteAt<180)return true;
+  lastCodePasteAt=now;
+  lastCodePasteText=normalized;
+  insertTextInCode(inCode,normalized);
+  pushUndo();save();
+  return true;
+}
 doc.addEventListener('beforeinput',function(e){
   if(e.inputType!=='insertFromPaste'||!e.dataTransfer)return;
   const target=e.target;
-  const inCode=target.closest&&target.closest('pre code');
+  const inCode=target.closest&&target.closest('pre code:not(.code-highlight-layer)');
   const text=e.dataTransfer.getData('text/plain')||plainTextFromHTML(e.dataTransfer.getData('text/html')||'');
   if(!text)return;
   e.preventDefault();
   if(inCode){
-    document.execCommand('insertText',false,text);
+    handleCodePaste(inCode,text);
   }else{
     insertPlainEditorText(text);
+    pushUndo();save();
   }
-  pushUndo();save();
 });
 doc.addEventListener('paste',function(e){
   const items=e.clipboardData.items;
@@ -214,10 +226,10 @@ doc.addEventListener('paste',function(e){
       e.preventDefault();insertImageFile(items[i].getAsFile());return;
     }
   }
-  const inCode=e.target.closest&&e.target.closest('pre code');
+  const inCode=e.target.closest&&e.target.closest('pre code:not(.code-highlight-layer)');
   if(inCode){
     e.preventDefault();
-    document.execCommand('insertText',false,e.clipboardData.getData('text/plain')||'');
+    handleCodePaste(inCode,e.clipboardData.getData('text/plain')||plainTextFromHTML(e.clipboardData.getData('text/html')||''));
     return;
   }
   const html=e.clipboardData.getData('text/html')||'';
@@ -230,7 +242,7 @@ doc.addEventListener('paste',function(e){
   }
   // Paste text into code block → highlight handled by input event listener
   const td=e.target.closest&&e.target.closest('td,th');
-  if(!td&&!e.target.closest('pre code'))setTimeout(()=>{doc.querySelectorAll('pre').forEach(pre=>{ensureCodeBlock(pre);const code=pre.querySelector('code');if(document.activeElement!==code)rehighlightCode(code,false)})},100);
+  if(!td&&!e.target.closest('pre code'))setTimeout(()=>{doc.querySelectorAll('pre').forEach(pre=>{ensureCodeBlock(pre);const code=pre.querySelector(':scope > code:not(.code-highlight-layer)');if(document.activeElement!==code)rehighlightCode(code,false)})},100);
 });
 
 // ===== LaTeX Popup =====

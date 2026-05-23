@@ -38,9 +38,18 @@
 .presenter-content img.align-left{display:block;margin-right:auto;margin-bottom:6px;max-width:50%;float:none}
 .presenter-content img.align-center{display:block;margin-left:auto;margin-right:auto;float:none;max-width:100%}
 .presenter-content img.align-right{display:block;margin-left:auto;margin-bottom:6px;max-width:50%;float:none}
-.presenter-content pre{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:22px;overflow:auto;font-size:16px}
+.presenter-content pre{background:#ffffff;color:#111827;border:2px solid rgba(15,23,42,.18);border-radius:8px;padding:26px;overflow:auto;font-size:17px;box-shadow:0 18px 48px rgba(15,23,42,.18)}
 .presenter-content code{font-size:.86em;background:rgba(99,102,241,.1);padding:.08em .28em;border-radius:4px}
-.presenter-content pre code{background:none;padding:0;border-radius:0;white-space:pre}
+.presenter-content pre code,.presenter-content pre code.hljs,.presenter-content pre .hljs,.presenter-content pre *{background:transparent!important;padding:0;border-radius:0;white-space:pre;color:#111827!important;opacity:1!important;text-shadow:none!important;filter:none!important}
+.presenter-content pre .hljs-keyword{color:#b91c1c!important;font-weight:800}
+.presenter-content pre .hljs-string{color:#047857!important;font-weight:650}
+.presenter-content pre .hljs-comment{color:#4b5563!important;font-style:italic;font-weight:650}
+.presenter-content pre .hljs-number{color:#b45309!important;font-weight:700}
+.presenter-content pre .hljs-built_in,.presenter-content pre .hljs-title,.presenter-content pre .hljs-title.function_,.presenter-content pre .hljs-title.class_,.presenter-content pre .hljs-function{color:#7c3aed!important;font-weight:800}
+.presenter-content pre .hljs-params,.presenter-content pre .hljs-variable,.presenter-content pre .hljs-property,.presenter-content pre .hljs-name{color:#1e3a8a!important;font-weight:650}
+.presenter-content pre .hljs-operator,.presenter-content pre .hljs-punctuation{color:#111827!important;font-weight:700}
+.presenter-content pre .hljs-meta,.presenter-content pre .hljs-attr,.presenter-content pre .hljs-attribute{color:#92400e!important;font-weight:700}
+.presenter-content pre .hljs-literal,.presenter-content pre .hljs-symbol{color:#be123c!important;font-weight:700}
 .presenter-content table{border-collapse:collapse;width:100%;margin:8px 0}
 .presenter-content td,.presenter-content th{border:1px solid #d0d0d0;padding:6px 10px;min-width:60px;font-size:inherit;outline:none}
 .presenter-content th{background:#f7f7f7;font-weight:600}
