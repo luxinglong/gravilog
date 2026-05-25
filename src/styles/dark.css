@@ -80,8 +80,6 @@ body.dark .cal-sub.fest{color:#fb7185}
 body.dark .cal-d.sel .cal-sub{color:rgba(7,16,24,.68)}
 body.dark .cal-d.sel .cal-sub.fest{color:#071018}
 body.dark .cal-d .dot{background:var(--dark-accent-2);box-shadow:0 0 8px rgba(45,212,191,.8)}
-body.dark .cal-d .amt{color:#7f8da0}
-body.dark .cal-d.sel .amt{color:rgba(7,16,24,.72)}
 body.dark .cal-week-no{background:rgba(139,156,255,.12);color:#b8c4ff}
 body.dark .cal-week-no:hover{background:rgba(139,156,255,.24)}
 body.dark .cal-year .mm{background:rgba(18,18,18,.72);border-color:var(--dark-line)}

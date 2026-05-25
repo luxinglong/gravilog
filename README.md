@@ -6,6 +6,8 @@ Gravilog 是一个离线优先的个人日记 / 笔记编辑器。它的核心�
 
 ## Recent updates
 
+- Windows 启动脚本统一改为 npm/Node 启动，不再依赖 Python 或 Anaconda；本地服务器会自动寻找 `8765-8779` 之间的可用端口并打开浏览器。
+- 日历月视图去掉日期格内的字数统计文本，保留内容量圆点提示，并加高日期格，缓解农历、节日和标记挤在一起的问题。
 - 代码块编辑体验重做：输入和粘贴 Python 等代码时保持稳定的多行语法高亮，不再只高亮第一行或受回车影响。
 - 代码块增加更舒适的内边距，改善文字贴边的问题；代码块删除按钮已移除，避免误删。
 - 代码块支持更自然的 Markdown 交互：输入 ```python 后回车创建代码块，清空代码内容后会回到对应代码围栏，便于继续修改或退出。
@@ -24,10 +26,10 @@ Windows 上推荐双击：
 start-gravilog.bat
 ```
 
-脚本会在当前目录启动本地 HTTP 服务，并打开类似下面的地址：
+脚本会调用 `npm run serve`，在当前目录启动本地 HTTP 服务，并打开类似下面的地址：
 
 ```text
-http://localhost:8765/index.html
+http://127.0.0.1:8765/index.html
 ```
 
 也可以使用 npm：
@@ -39,8 +41,10 @@ npm run serve
 然后在浏览器中打开：
 
 ```text
-http://localhost:8765/index.html
+http://127.0.0.1:8765/index.html
 ```
+
+如果 `8765` 已被占用，服务会自动尝试 `8766` 到 `8779`。Windows 机器需要先安装 Node.js LTS（自带 npm），不再要求安装 Python。
 
 直接用浏览器打开 `index.html` 也可以写作，但如果需要稳定使用“链接文件”能力，建议通过本地 HTTP 服务访问。
 
@@ -155,6 +159,9 @@ gravilog/
     ui/
       controls.js
       events.js
+  scripts/
+    check-js-syntax.cjs
+    serve-static.cjs
   docs/
     BACKUP_AND_RECOVERY.md
     REFACTOR_DESIGN.md
@@ -176,6 +183,7 @@ gravilog/
 - `src/ui/*`：颜色选择器、弹窗、工具控件和静态 DOM 事件委托。
 - `src/storage/*`：schema/migration、本地缓存、文件链接、IndexedDB、同步和冲突处理。
 - `src/calendar/*`：日历、日程、农历和写作统计渲染。
+- `scripts/serve-static.cjs`：开发和 Windows 双击启动使用的 Node 静态文件服务器。
 - `tests/*`：存储单元测试和编辑器端到端回归测试。
 
 ## 开发命令

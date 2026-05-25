@@ -4,7 +4,7 @@
   "private": true,
   "description": "A single-file-first personal journal and notes editor.",
   "scripts": {
-    "serve": "python -m http.server 8765 --bind 127.0.0.1",
+    "serve": "node scripts/serve-static.cjs",
     "test": "vitest run",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
