@@ -1,5 +1,11 @@
 // ===== File Storage =====
-const hasFSAP='showOpenFilePicker' in window;
+const hasFSAP='showOpenFilePicker' in window||'showDirectoryPicker' in window;
+function usingDirectoryStorage(){return storageMode==='directory'&&!!directoryHandle}
+async function ensureDirectoryDiaryHandle(create){
+  if(!directoryHandle)return null;
+  fileHandle=await directoryHandle.getFileHandle('diary.json',{create:!!create});
+  return fileHandle;
+}
 function setMountBusy(busy){
   const primary=document.getElementById('mountPrimary'),choose=document.getElementById('mountChoose');
   if(primary)primary.disabled=busy;
@@ -36,7 +42,7 @@ function ensureCalendarRestoreButton(){
 }
 function prepareMountGate(hasLast){
   const primary=document.getElementById('mountPrimary'),choose=document.getElementById('mountChoose');
-  if(primary)primary.textContent=hasLast?'加载上次同步文件':'选择同步文件';
+  if(primary)primary.textContent=hasLast?'加载上次同步位置':'选择同步目录';
   if(choose)choose.style.display='none';
   setConflictActions(false);
 }
@@ -235,12 +241,21 @@ async function restoreHandle(){
       }
       return false;
     }
-    fileHandle=item.handle;
-    setMountFileText('上次同步文件: '+fileHandle.name);
+    storageMode=item.kind==='directory'||item.handle.kind==='directory'?'directory':'file';
+    if(storageMode==='directory'){
+      directoryHandle=item.handle;
+      fileHandle=null;
+      setMountFileText('上次同步目录: '+(item.name||directoryHandle.name));
+    }else{
+      directoryHandle=null;
+      fileHandle=item.handle;
+      setMountFileText('上次同步文件: '+fileHandle.name);
+    }
     prepareMountGate(true);
     let p='prompt';
-    try{p=await fileHandle.queryPermission({mode:'readwrite'})}catch(e){}
+    try{p=await (usingDirectoryStorage()?directoryHandle:fileHandle).queryPermission({mode:'readwrite'})}catch(e){}
     fileWritable=p==='granted';
+    if(fileWritable&&usingDirectoryStorage())await ensureDirectoryDiaryHandle(true);
     updateStorStatus(fileWritable);
     const ok=fileWritable;
     if(ok){
@@ -261,23 +276,26 @@ async function restoreHandle(){
   }
 }
 async function saveHandle(){
-  if(!fileHandle)return false;
+  if(!fileHandle&&!directoryHandle)return false;
   try{
-    localStorage.setItem(HANDLE_NAME_KEY,fileHandle.name);
+    const handle=usingDirectoryStorage()?directoryHandle:fileHandle;
+    localStorage.setItem(HANDLE_NAME_KEY,(usingDirectoryStorage()?'目录: ':'文件: ')+handle.name);
     if(navigator.storage&&navigator.storage.persist){
       try{await navigator.storage.persist()}catch(e){}
     }
     const db=await openHandleDB();
-    await putHandleRecord(db,'diary',{handle:fileHandle,name:fileHandle.name,savedAt:new Date().toISOString()});
+    await putHandleRecord(db,'diary',{handle,kind:usingDirectoryStorage()?'directory':'file',name:handle.name,savedAt:new Date().toISOString()});
     return true;
   }catch(e){console.error('保存文件链接失败',e);return false}
 }
 async function verifyHandle(askPermission){
-  if(!fileHandle)return false;
+  const handle=usingDirectoryStorage()?directoryHandle:fileHandle;
+  if(!handle)return false;
   try{
-    let p=await fileHandle.queryPermission({mode:'readwrite'});
-    if(p==='prompt'&&askPermission)p=await fileHandle.requestPermission({mode:'readwrite'});
+    let p=await handle.queryPermission({mode:'readwrite'});
+    if(p==='prompt'&&askPermission)p=await handle.requestPermission({mode:'readwrite'});
     fileWritable=p==='granted';
+    if(fileWritable&&usingDirectoryStorage())await ensureDirectoryDiaryHandle(true);
     updateStorStatus(fileWritable);
     return fileWritable;
   }catch(e){fileWritable=false;updateStorStatus(false);return false}
@@ -286,16 +304,17 @@ function updateStorStatus(ok){
   const linkEl=document.getElementById('linkStatus'),cloudEl=document.getElementById('cloudStatus');
   const pending=hasPendingSync();
   const row=(dot,label,text)=>'<span class="'+dot+'"></span><span class="s-label">'+label+'</span><span class="s-text" title="'+escAttr(text)+'">'+escAttr(text)+'</span>';
+  const hasHandle=!!(fileHandle||directoryHandle);
   if(linkEl){
-    if(ok&&fileHandle)linkEl.innerHTML=row('dot-ok','链接','已链接');
-    else if(fileHandle)linkEl.innerHTML=row('dot-wait','链接','待授权');
+    if(ok&&hasHandle)linkEl.innerHTML=row('dot-ok','链接',usingDirectoryStorage()?'目录':'文件');
+    else if(hasHandle)linkEl.innerHTML=row('dot-wait','链接','待授权');
     else if(localStorage.getItem(HANDLE_NAME_KEY))linkEl.innerHTML=row('dot-wait','链接','待挂载');
     else linkEl.innerHTML=row('dot-no','链接','未挂载');
   }
   if(cloudEl){
     if(fileWritePending)cloudEl.innerHTML=row('dot-wait','云端','保存中');
-    else if(ok&&fileHandle&&pending)cloudEl.innerHTML=row('dot-wait','云端','待同步');
-    else if(ok&&fileHandle)cloudEl.innerHTML=row('dot-ok','云端','已同步');
+    else if(ok&&hasHandle&&pending)cloudEl.innerHTML=row('dot-wait','云端','待同步');
+    else if(ok&&hasHandle)cloudEl.innerHTML=row('dot-ok','云端','已同步');
     else if(pending)cloudEl.innerHTML=row('dot-wait','云端','仅本地');
     else cloudEl.innerHTML=row('dot-no','云端','未保存');
   }
@@ -307,8 +326,8 @@ async function mountStartupFile(){
   if(!hasFSAP){setMountMsg('当前浏览器不支持文件系统 API，请使用 Chrome 或 Edge。',true);return false}
   try{
     setMountBusy(true);
-    setMountMsg(fileHandle?'正在恢复上次同步文件...':'请选择同步文件 diary.json。');
-    if(fileHandle&&!fileWritable){
+    setMountMsg((fileHandle||directoryHandle)?'正在恢复上次同步位置...':'请选择包含 diary.json 的同步目录。');
+    if((fileHandle||directoryHandle)&&!fileWritable){
       const ok=await verifyHandle(true);
       if(!ok){setMountMsg('需要授予读写权限才能进入编辑模式。',true);return false}
       const saved=await saveHandle();
@@ -317,7 +336,8 @@ async function mountStartupFile(){
       unlockEditor();
       return true;
     }
-    if(fileHandle&&fileWritable){
+    if((fileHandle||directoryHandle)&&fileWritable){
+      if(usingDirectoryStorage())await ensureDirectoryDiaryHandle(true);
       if(!await syncFromLinkedFile())return false;
       unlockEditor();
       return true;
@@ -337,10 +357,20 @@ async function chooseAndMountFile(){
   if(!hasFSAP){setMountMsg('当前浏览器不支持文件系统 API，请使用 Chrome 或 Edge。',true);return false}
   try{
     setMountBusy(true);
-    setMountMsg('请选择云盘同步目录中的 diary.json。');
-    const h=await window.showOpenFilePicker({types:[{description:'日记数据',accept:{'application/json':['.json']}}],multiple:false});
-    fileHandle=h[0];
-    setMountFileText('同步文件: '+fileHandle.name);
+    if('showDirectoryPicker' in window){
+      setMountMsg('请选择云盘同步目录。Gravilog 会在其中读写 diary.json 和 resources/。');
+      directoryHandle=await window.showDirectoryPicker();
+      storageMode='directory';
+      fileHandle=null;
+      setMountFileText('同步目录: '+directoryHandle.name);
+    }else{
+      setMountMsg('请选择云盘同步目录中的 diary.json。');
+      const h=await window.showOpenFilePicker({types:[{description:'日记数据',accept:{'application/json':['.json']}}],multiple:false});
+      fileHandle=h[0];
+      directoryHandle=null;
+      storageMode='file';
+      setMountFileText('同步文件: '+fileHandle.name);
+    }
     prepareMountGate(true);
     const ok=await verifyHandle(true);
     if(!ok){setMountMsg('需要授予读写权限才能进入编辑模式。',true);return false}
@@ -360,10 +390,10 @@ async function chooseAndMountFile(){
   }
 }
 async function readFileSnapshot(){
-  return readSnapshotFromHandle(fileHandle);
+  return usingDirectoryStorage()?readSnapshotFromDirectoryHandle(directoryHandle):readSnapshotFromHandle(fileHandle);
 }
 async function restoreCalendarFromCloud(){
-  if(!fileHandle){
+  if(!fileHandle&&!directoryHandle){
     setMountMsg('No linked cloud file. Please link diary.json first.',true);
     return false;
   }
@@ -404,7 +434,7 @@ async function restoreCalendarFromCloud(){
 }
 async function syncFromLinkedFile(){
   syncReady=false;
-  if(!fileHandle||!fileWritable)return false;
+  if((!fileHandle&&!directoryHandle)||!fileWritable)return false;
   try{
     const remote=await readFileSnapshot();
     const local=getLocalSnapshot();
@@ -428,7 +458,7 @@ async function syncFromLinkedFile(){
 function queueFileWrite(snapshot){
   if(snapshot)latestFileSnapshot=snapshot;
   if(!syncReady)return;
-  if(!fileHandle||!fileWritable){setPendingSync(true);return}
+  if((!fileHandle&&!directoryHandle)||!fileWritable){setPendingSync(true);return}
   setPendingSync(true);
   if(fileWritePending){updateStorStatus(fileWritable);return}
   fileWritePending=true;
@@ -436,11 +466,11 @@ function queueFileWrite(snapshot){
   fileWritePromise=fileWritePromise.then(drainFileWrites).finally(()=>{
     fileWritePending=false;
     updateStorStatus(fileWritable);
-    if(latestFileSnapshot&&syncReady&&fileHandle&&fileWritable)queueFileWrite();
+    if(latestFileSnapshot&&syncReady&&(fileHandle||directoryHandle)&&fileWritable)queueFileWrite();
   });
 }
 async function drainFileWrites(){
-  while(latestFileSnapshot&&fileHandle&&fileWritable){
+  while(latestFileSnapshot&&(fileHandle||directoryHandle)&&fileWritable){
     const snapshot=latestFileSnapshot;
     latestFileSnapshot=null;
     const ok=await writeToHandle(snapshot);
@@ -453,16 +483,17 @@ async function drainFileWrites(){
 }
 function scheduleFileRetry(){
   clearTimeout(fileRetryTimer);
-  if(!syncReady||!fileHandle||!fileWritable)return;
+  if(!syncReady||(!fileHandle&&!directoryHandle)||!fileWritable)return;
   fileRetryTimer=setTimeout(()=>queueFileWrite(),2000);
 }
 async function writeToHandle(snapshot){
-  if(!fileHandle){setPendingSync(true);return false}
+  if(!fileHandle&&!directoryHandle){setPendingSync(true);return false}
   try{
     const ok=fileWritable||await verifyHandle(false);
     if(!ok){updateStorStatus(false);return false}
     const target=snapshot||getLocalSnapshot();
-    await writeSnapshotToHandle(fileHandle,target);
+    if(usingDirectoryStorage())await writeSnapshotToDirectoryHandle(directoryHandle,target);
+    else await writeSnapshotToHandle(fileHandle,target);
     rememberSyncedSnapshot(target);
     setPendingSync(false);
     updateStorStatus(true);
@@ -479,4 +510,28 @@ async function writeToHandle(snapshot){
 }
 function exportFile(){const d=snapshotToV2({doc:doc.innerHTML,dates:getDates(),stats:getStats(),todos:getTodos(),savedAt:new Date().toISOString()});const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='diary_'+todayStr()+'.json';a.click();URL.revokeObjectURL(a.href)}
 function importFile(){document.getElementById('importPicker').click()}
-function handleImport(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const snapshot=migrateSnapshot(JSON.parse(ev.target.result),{sanitizeHTML:normalizeEditorHTML});if(!snapshot.savedAt)snapshot.savedAt=new Date().toISOString();doc.innerHTML=snapshot.doc;resetWritingBaseline();trySaveLocalSnapshot(snapshot);renderAllContent();resetUndoHistory();renderCal();queueFileWrite(snapshot)}catch(err){alert('文件格式错误')}};r.readAsText(f);e.target.value=''}
+function handleImport(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=async ev=>{
+    try{
+      let raw=JSON.parse(ev.target.result);
+      if(raw&&raw.version===SNAPSHOT_VERSION_V2&&usingDirectoryStorage()){
+        raw=await hydrateDirectorySnapshotAssets(raw,directoryHandle);
+      }
+      const snapshot=migrateSnapshot(raw,{sanitizeHTML:normalizeEditorHTML});
+      if(!snapshot.savedAt)snapshot.savedAt=new Date().toISOString();
+      doc.innerHTML=snapshot.doc;
+      resetWritingBaseline();
+      trySaveLocalSnapshot(snapshot);
+      renderAllContent();
+      resetUndoHistory();
+      renderCal();
+      queueFileWrite(snapshot);
+    }catch(err){
+      console.error('Import failed',err);
+      alert('导入失败：文件格式错误或资源读取失败');
+    }
+  };
+  r.readAsText(f);e.target.value='';
+}

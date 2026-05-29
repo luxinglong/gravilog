@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gravilog 存储机制一页读懂</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #5f6b7a;
+      --line: #d9e1ec;
+      --paper: #f7f9fc;
+      --card: #ffffff;
+      --blue: #2563eb;
+      --green: #0f8f64;
+      --amber: #b45309;
+      --red: #c2410c;
+      --code: #101828;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      line-height: 1.58;
+    }
+    main {
+      width: min(1120px, calc(100vw - 40px));
+      margin: 0 auto;
+      padding: 36px 0 56px;
+    }
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 28px;
+      align-items: end;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: 34px;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 34px 0 14px;
+      font-size: 22px;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
+      letter-spacing: 0;
+    }
+    p { margin: 0 0 12px; }
+    .lead {
+      color: var(--muted);
+      font-size: 17px;
+      max-width: 760px;
+    }
+    .truth {
+      border: 1px solid var(--line);
+      background: var(--card);
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 14px;
+    }
+    .truth strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--green);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .mini {
+      border: 1px solid var(--line);
+      background: var(--card);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 128px;
+    }
+    .mini b {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--blue);
+    }
+    .mini span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .diagram {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      overflow-x: auto;
+    }
+    svg text {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      fill: var(--ink);
+    }
+    .snippet {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(260px, .75fr);
+      gap: 16px;
+      align-items: stretch;
+      margin: 16px 0;
+    }
+    pre {
+      margin: 0;
+      background: var(--code);
+      color: #ecf2ff;
+      border-radius: 8px;
+      padding: 16px;
+      overflow: auto;
+      font-size: 13px;
+      line-height: 1.48;
+      tab-size: 2;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+    }
+    .note {
+      border: 1px solid var(--line);
+      background: var(--card);
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 14px;
+    }
+    .note ul, .gotchas ul {
+      margin: 10px 0 0;
+      padding-left: 20px;
+    }
+    .note li, .gotchas li { margin: 8px 0; }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #e8f1ff;
+      color: #1d4ed8;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .source {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .hl { color: #fcd34d; }
+    .ok { color: #86efac; }
+    .warn { color: #fdba74; }
+    .bad { color: #fca5a5; }
+    .decision {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .rule {
+      border-left: 4px solid var(--blue);
+      background: var(--card);
+      border-radius: 6px;
+      padding: 12px;
+    }
+    .rule.conflict { border-left-color: var(--red); }
+    .rule.local { border-left-color: var(--amber); }
+    .rule.remote { border-left-color: var(--green); }
+    .gotchas {
+      border: 1px solid #f2c6a8;
+      background: #fff8f1;
+      border-radius: 8px;
+      padding: 18px;
+      margin-top: 16px;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    @media (max-width: 860px) {
+      main { width: min(100vw - 24px, 720px); padding-top: 24px; }
+      header, .snippet, .decision { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr 1fr; }
+      h1 { font-size: 28px; }
+    }
+    @media (max-width: 560px) {
+      .grid { grid-template-columns: 1fr; }
+      pre { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>Gravilog 存储机制一页读懂</h1>
+      <p class="lead">这套机制可以用一句话记住：编辑器先把最新内容落到浏览器本地，再用一个“容量为 1 的写入桶”串行写入链接的 JSON 文件；挂载时用上次同步指纹判断该用本地、云端，还是停下来让人合并。</p>
+    </div>
+    <aside class="truth">
+      <strong>核心心智模型</strong>
+      <p>本地缓存是快速草稿区，链接文件是可同步的正本。`pending sync` 表示“本地可能比云端新”。`last synced fingerprint` 表示“上一次确认两边一致的内容”。</p>
+    </aside>
+  </header>
+
+  <section>
+    <h2>四个存储角色</h2>
+    <div class="grid">
+      <div class="mini"><b>编辑器 DOM</b><span>`doc.innerHTML` 是当前屏幕内容源，日历、统计、todo 一起组成 snapshot。</span></div>
+      <div class="mini"><b>localStorage</b><span>保存正文、日期、统计、todo、meta，以及 `diary_pending_sync` 和同步指纹。</span></div>
+      <div class="mini"><b>IndexedDB</b><span>只负责记住 File System Access API 的文件句柄，让下次启动能尝试恢复链接。</span></div>
+      <div class="mini"><b>链接 JSON 文件</b><span>通过文件句柄读写，导出为 v2 格式，是云盘同步软件实际同步的单文件。</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Token-bucket 写入流</h2>
+    <div class="diagram" aria-label="Token bucket flow diagram">
+      <svg width="1040" height="365" viewBox="0 0 1040 365" role="img">
+        <defs>
+          <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L9,3 L0,6 Z" fill="#64748b"></path>
+          </marker>
+          <style>
+            .box{fill:#fff;stroke:#cbd5e1;stroke-width:1.5}
+            .bucket{fill:#eff6ff;stroke:#2563eb;stroke-width:2}
+            .token{fill:#dcfce7;stroke:#0f8f64;stroke-width:1.5}
+            .fail{fill:#fff7ed;stroke:#c2410c;stroke-width:1.5}
+            .label{font-size:14px;font-weight:650}
+            .small{font-size:12px;fill:#5f6b7a}
+            .path{stroke:#64748b;stroke-width:1.8;fill:none;marker-end:url(#arrow)}
+          </style>
+        </defs>
+
+        <rect class="box" x="18" y="42" width="150" height="70" rx="8"></rect>
+        <text class="label" x="38" y="73">input / blur</text>
+        <text class="small" x="38" y="94">编辑动作触发 save</text>
+
+        <path class="path" d="M168 77 H228"></path>
+        <rect class="box" x="228" y="42" width="160" height="70" rx="8"></rect>
+        <text class="label" x="248" y="73">saveLocalDraft</text>
+        <text class="small" x="248" y="94">立刻更新本地草稿</text>
+
+        <path class="path" d="M388 77 H452"></path>
+        <rect class="bucket" x="452" y="28" width="176" height="98" rx="8"></rect>
+        <text class="label" x="474" y="62">latestFileSnapshot</text>
+        <text class="small" x="474" y="84">容量为 1</text>
+        <text class="small" x="474" y="103">新快照覆盖旧快照</text>
+
+        <path class="path" d="M628 77 H686"></path>
+        <rect class="token" x="686" y="42" width="156" height="70" rx="8"></rect>
+        <text class="label" x="710" y="73">fileWritePending</text>
+        <text class="small" x="710" y="94">令牌: 同时只写一次</text>
+
+        <path class="path" d="M842 77 H900"></path>
+        <rect class="box" x="900" y="42" width="122" height="70" rx="8"></rect>
+        <text class="label" x="922" y="73">JSON 文件</text>
+        <text class="small" x="922" y="94">snapshotToV2</text>
+
+        <path class="path" d="M764 112 V170 H540 V128"></path>
+        <text class="small" x="575" y="162">写完后如果桶里又有新快照，再拿一次令牌</text>
+
+        <rect class="box" x="228" y="212" width="160" height="84" rx="8"></rect>
+        <text class="label" x="248" y="243">pending sync = 1</text>
+        <text class="small" x="248" y="265">有本地改动未确认</text>
+        <path class="path" d="M308 112 V212"></path>
+
+        <rect class="box" x="452" y="212" width="176" height="84" rx="8"></rect>
+        <text class="label" x="474" y="243">rememberSynced</text>
+        <text class="small" x="474" y="265">写成功后记指纹</text>
+        <text class="small" x="474" y="284">pending sync = 0</text>
+        <path class="path" d="M961 112 V254 H628"></path>
+
+        <rect class="fail" x="686" y="212" width="156" height="84" rx="8"></rect>
+        <text class="label" x="710" y="243">失败重试</text>
+        <text class="small" x="710" y="265">权限/写入失败</text>
+        <text class="small" x="710" y="284">2 秒后再排队</text>
+        <path class="path" d="M842 254 H900 V125"></path>
+      </svg>
+    </div>
+    <p style="margin-top:12px;color:var(--muted)">这个桶的关键不是限速，而是合并抖动：用户连续输入时，文件层只需要追上最后一个 snapshot，中间状态不用逐个写入。</p>
+  </section>
+
+  <section>
+    <h2>关键代码片段</h2>
+
+    <article class="snippet">
+      <div>
+        <div class="source">src/editor/editor-richtext.js:382, 388, 396</div>
+        <pre><code>function save(){
+  clearTimeout(localSaveTimer);
+  const snapshot=saveLocalDraft(true);
+  renderCal({animate:false});
+  queueFileWrite(snapshot);
+}
+
+function scheduleLocalDraftSave(){
+  setPendingSync(true);
+  clearTimeout(localSaveTimer);
+  localSaveTimer=setTimeout(()=&gt;{
+    latestFileSnapshot=saveLocalDraft(true,{normalize:false});
+    renderCal({animate:false});
+  },LOCAL_SAVE_DELAY);
+}
+
+function saveLocalDraft(pending,options={}){
+  markDate();
+  flushDailyWriting();
+  if(options.normalize!==false)normalizeEditorTypography(doc);
+  const snapshot={
+    doc:doc.innerHTML,
+    dates:getDates(),
+    stats:getStats(),
+    todos:getTodos(),
+    savedAt:new Date().toISOString()
+  };
+  trySaveLocalSnapshot(snapshot);
+  if(pending)setPendingSync(true);
+  latestFileSnapshot=snapshot;
+  return snapshot;
+}</code></pre>
+      </div>
+      <aside class="note">
+        <span class="tag">本地优先</span>
+        <h3>每次编辑先生成 snapshot</h3>
+        <ul>
+          <li>`save()` 是强保存：本地落盘后立刻排队写文件。</li>
+          <li>`scheduleLocalDraftSave()` 是输入时的延迟本地保存，减少每个键击的工作量。</li>
+          <li>`pending=true` 会把状态改成“本地有未同步内容”。</li>
+          <li>`latestFileSnapshot` 总是指向最后一次要写到文件的版本。</li>
+        </ul>
+      </aside>
+    </article>
+
+    <article class="snippet">
+      <div>
+        <div class="source">src/storage/storage-sync.js:427, 441, 458</div>
+        <pre><code>function queueFileWrite(snapshot){
+  if(snapshot)latestFileSnapshot=snapshot;
+  if(!syncReady)return;
+  if(!fileHandle||!fileWritable){
+    setPendingSync(true);
+    return;
+  }
+  setPendingSync(true);
+  if(fileWritePending){
+    updateStorStatus(fileWritable);
+    return;
+  }
+  fileWritePending=true;
+  fileWritePromise=fileWritePromise
+    .then(drainFileWrites)
+    .finally(()=&gt;{
+      fileWritePending=false;
+      updateStorStatus(fileWritable);
+      if(latestFileSnapshot&&syncReady&&fileHandle&&fileWritable)
+        queueFileWrite();
+    });
+}
+
+async function drainFileWrites(){
+  while(latestFileSnapshot&&fileHandle&&fileWritable){
+    const snapshot=latestFileSnapshot;
+    latestFileSnapshot=null;
+    const ok=await writeToHandle(snapshot);
+    if(!ok){
+      latestFileSnapshot=snapshot;
+      scheduleFileRetry();
+      break;
+    }
+  }
+}
+
+async function writeToHandle(snapshot){
+  const ok=fileWritable||await verifyHandle(false);
+  if(!ok)return false;
+  const target=snapshot||getLocalSnapshot();
+  await writeSnapshotToHandle(fileHandle,target);
+  rememberSyncedSnapshot(target);
+  setPendingSync(false);
+  return true;
+}</code></pre>
+      </div>
+      <aside class="note">
+        <span class="tag">写入桶</span>
+        <h3>同一时间只有一个文件写任务</h3>
+        <ul>
+          <li>`fileWritePending` 就是令牌。令牌被占用时，新保存只替换桶里的 `latestFileSnapshot`。</li>
+          <li>`drainFileWrites()` 每次取走当前快照并清空桶；如果写入期间又来了新快照，循环会继续写最新的。</li>
+          <li>写成功后才调用 `rememberSyncedSnapshot()` 和 `setPendingSync(false)`。</li>
+          <li>写失败会把快照塞回桶里，2 秒后重试。</li>
+        </ul>
+      </aside>
+    </article>
+
+    <article class="snippet">
+      <div>
+        <div class="source">src/storage/conflict.js:23</div>
+        <pre><code>function decideMountSnapshot(local,remote){
+  const lt=snapshotTime(local),rt=snapshotTime(remote);
+  const localHas=snapshotHasContent(local);
+  const remoteHas=snapshotHasContent(remote);
+  const pending=hasPendingSync()&&localHas;
+  const lastSynced=getLastSyncedSnapshot();
+
+  if(!localHas)return {action:'remote'};
+  if(!remoteHas)return {action:'local'};
+  if(!snapshotsDiffer(local,remote))return {action:'remote'};
+
+  if(lastSynced){
+    const localChanged=snapshotChangedSinceBaseline(local,lastSynced);
+    const remoteChanged=snapshotChangedSinceBaseline(remote,lastSynced);
+    if(localChanged&&remoteChanged)return {action:'conflict'};
+    if(localChanged&&!remoteChanged)return {action:'local'};
+    if(!localChanged&&remoteChanged)return {action:'remote'};
+  }
+
+  if(pending)return {action:'conflict'};
+  if(!lt||!rt||lt===rt)return {action:'conflict'};
+  if(lt&&rt&&lt&gt;rt)return {action:'local'};
+  if(lt&&!rt)return {action:'local'};
+  return {action:'remote'};
+}</code></pre>
+      </div>
+      <aside class="note">
+        <span class="tag">挂载判定</span>
+        <h3>冲突处理不是看谁更新这么简单</h3>
+        <ul>
+          <li>最可靠的判断来自 `lastSynced`：分别问“本地是否偏离上次同步点”“远端是否偏离上次同步点”。</li>
+          <li>两边都变了，进入 conflict，禁止自动覆盖。</li>
+          <li>只有一边变了，就用变了的那一边。</li>
+          <li>没有同步基线时，如果本地有 pending 且两边不同，保守进入 conflict。</li>
+        </ul>
+      </aside>
+    </article>
+
+    <article class="snippet">
+      <div>
+        <div class="source">src/storage/local-store.js:29, 63; src/storage/schema.js:90</div>
+        <pre><code>function trySaveLocalSnapshot(snapshot){
+  try{
+    return saveLocalSnapshot(snapshot);
+  }catch(firstError){
+    try{
+      clearLocalSnapshot();
+      return saveLocalSnapshot(snapshot);
+    }catch(secondError){
+      clearLocalSnapshot();
+      console.warn(
+        'Local snapshot cache write failed; using linked file as source of truth',
+        secondError
+      );
+      return rememberLocalSnapshotCache(snapshot);
+    }
+  }
+}
+
+function rememberSyncedSnapshot(snapshot){
+  const normalized=normalizeSnapshot(snapshot);
+  localStorage.setItem(LAST_SYNC_KEY,JSON.stringify({
+    schemaVersion:SNAPSHOT_VERSION_V1,
+    fingerprint:snapshotSyncFingerprint(normalized),
+    savedAt:normalized.savedAt||new Date().toISOString()
+  }));
+  return normalized;
+}
+
+function snapshotSyncFingerprint(snapshot){
+  const text=snapshotSyncPayload(snapshot);
+  let hash=5381;
+  for(let i=0;i&lt;text.length;i++)
+    hash=((hash&lt;&lt;5)+hash)^text.charCodeAt(i);
+  return text.length+':'+(hash&gt;&gt;&gt;0).toString(36);
+}</code></pre>
+      </div>
+      <aside class="note">
+        <span class="tag">缓存与基线</span>
+        <h3>本地缓存失败时也尽量不断流</h3>
+        <ul>
+          <li>`trySaveLocalSnapshot()` 先写 localStorage，失败后清空旧缓存再试。</li>
+          <li>如果浏览器存储还是满了，就把 snapshot 放进内存缓存，并把链接文件当作主要真实来源。</li>
+          <li>同步基线只存轻量 fingerprint，不存完整正文，降低 localStorage 占用。</li>
+          <li>fingerprint 不包含 `savedAt`，所以只判断内容是否变了。</li>
+        </ul>
+      </aside>
+    </article>
+  </section>
+
+  <section>
+    <h2>挂载时怎么选版本</h2>
+    <p>启动或点击“链接文件”后，`syncFromLinkedFile()` 读取远端 JSON，再拿本地 snapshot 交给 `decideMountSnapshot()`。结果只有四种。</p>
+    <div class="decision">
+      <div class="rule remote"><b>`remote`</b><br>本地为空、远端有内容，或者只有远端偏离上次同步点。读取云端并更新本地缓存。</div>
+      <div class="rule local"><b>`local`</b><br>远端为空，或者只有本地偏离上次同步点。使用本地，并写回链接文件。</div>
+      <div class="rule conflict"><b>`conflict`</b><br>两边都偏离上次同步点，或没有可靠基线但本地有 pending。暂停编辑，显示合并 UI。</div>
+      <div class="rule"><b>`same` 的等价路径</b><br>代码里相同内容返回 `remote`，效果是两边一致时按远端刷新本地并清掉 pending。</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>链接、导入、导出分别是什么</h2>
+    <p><b>链接文件</b>使用 File System Access API 选择一个 `.json`，把文件句柄放进 IndexedDB，把文件名放进 localStorage。浏览器下次启动会尝试恢复句柄；权限没恢复时会显示待授权。</p>
+    <p><b>云同步</b>不是直接调用云服务 API。Gravilog 只是写本机链接的 JSON 文件，真正的跨设备同步由 iCloud、OneDrive、Dropbox 等同步目录完成。</p>
+    <p><b>导入/导出</b>不需要长期文件句柄。导出下载一个 v2 JSON；导入读取用户选的 JSON，迁移成 snapshot，更新本地，然后尝试写入当前链接文件。</p>
+  </section>
+
+  <section>
+    <h2>Gotchas</h2>
+    <div class="gotchas">
+      <ul>
+        <li><b>浏览器支持是硬前提。</b> 文件挂载依赖 `showOpenFilePicker`，主要面向 Chrome/Edge；不支持时只能导入导出。</li>
+        <li><b>“云端已同步”只代表 Gravilog 写入了本地链接文件。</b> 云盘客户端是否已经上传到另一台设备，不在这段代码控制范围内。</li>
+        <li><b>pending sync 是保护标记，不是错误。</b> 没有文件权限、没有链接文件、写入失败时都会保持 pending，避免误以为远端已经安全。</li>
+        <li><b>冲突时会锁住编辑器。</b> 这是故意的：在两端都改过时继续自动写入，很容易覆盖另一台设备的内容。</li>
+        <li><b>合并 UI 主要合并正文，辅助数据自动取并集或最大值。</b> dates 取并集，stats 每天取较大字符数，todos 按 id 合并。</li>
+        <li><b>localStorage 满了不等于所有保存都失败。</b> 代码会退到内存缓存，并继续尝试写链接文件；但刷新前最好确认右侧状态已经不是“待同步”。</li>
+        <li><b>`savedAt` 是兜底排序依据。</b> 有同步 fingerprint 时优先看内容差异；没有基线时才更依赖时间戳，所以设备时间不准会增加冲突概率。</li>
+      </ul>
+    </div>
+  </section>
+</main>
+</body>
+</html>

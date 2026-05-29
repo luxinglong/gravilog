@@ -24,6 +24,7 @@
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/css.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/markdown.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/plaintext.min.js"></script>
+<link rel="stylesheet" href="./src/canvas/excalidraw.bundle.css?v=20260528-excalidraw">
 <link rel="stylesheet" href="./src/styles/main.css?v=20260524-calendar-room">
 </head>
 <body>
@@ -35,6 +36,7 @@
   <symbol id="i-quote" viewBox="0 0 24 24"><path d="M9 8H5.8c-.5 0-.8.3-.8.8V12h4v5H4.5C4 17 4 16.7 4 16.3V12c0-3 1.4-5 4.4-6"/><path d="M20 8h-3.2c-.5 0-.8.3-.8.8V12h4v5h-4.5c-.5 0-.5-.3-.5-.7V12c0-3 1.4-5 4.4-6"/></symbol>
   <symbol id="i-table" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M4 10h16"/><path d="M4 15h16"/><path d="M9 5v14"/><path d="M15 5v14"/></symbol>
   <symbol id="i-image" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="m4 16 4.2-4.2a1.6 1.6 0 0 1 2.3 0L15 16"/><path d="m13 14 1.2-1.2a1.6 1.6 0 0 1 2.3 0L20 16.3"/><circle cx="16.5" cy="9" r="1.2"/></symbol>
+  <symbol id="i-canvas" viewBox="0 0 24 24"><path d="M4 19.5h16"/><path d="M5 15.5 15.6 4.9a2 2 0 0 1 2.8 2.8L7.8 18.3 4 19.5l1-4Z"/><path d="m14.2 6.3 3.5 3.5"/><path d="M12 19.5c1.3-2.2 3-3.3 5-3.3"/></symbol>
   <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 9-4 3 4 3"/><path d="m16 9 4 3-4 3"/><path d="m14 5-4 14"/></symbol>
   <symbol id="i-todo" viewBox="0 0 24 24"><rect x="4" y="5" width="15" height="15" rx="3"/><path d="m8 12.5 2.5 2.5L16 9"/></symbol>
   <symbol id="i-pen" viewBox="0 0 24 24"><path d="m4 20 4.3-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Z"/><path d="m13.5 7.5 3 3"/><path d="M13 20h7"/></symbol>
@@ -75,18 +77,18 @@
     <div class="stor-status" id="linkStatus"><span class="dot-no"></span><span class="s-label">链接</span><span class="s-text">未挂载</span></div>
     <div class="stor-status" id="cloudStatus"><span class="dot-no"></span><span class="s-label">云端</span><span class="s-text">未保存</span></div>
   </div>
-  <div class="stor-btns"><button class="primary" data-action="link-file">链接文件</button><button data-action="export-file">导出</button><button data-action="import-file">导入</button></div>
-  <div class="stor-hint">链接文件：选择云盘同步目录中的 diary.json<br>导出/导入：手动备份恢复</div>
+  <div class="stor-btns"><button class="primary" data-action="link-file">链接目录</button><button data-action="export-file">导出</button><button data-action="import-file">导入</button></div>
+  <div class="stor-hint">链接目录：选择包含 diary.json 的云盘同步目录，画布资源会保存到 resources/<br>导出/导入：手动备份恢复</div>
 </div>
 
 <div class="mount-gate" id="mountGate">
   <div class="mount-panel" id="mountPanel">
     <div class="mount-title">挂载同步文件</div>
-    <div class="mount-copy">重力日记会先连接你的 diary.json，同步完成后再进入编辑模式，避免忘记挂载造成文件未同步。</div>
+    <div class="mount-copy">重力日记会先连接同步目录中的 diary.json，同步完成后再进入编辑模式，画布资源会保存到 resources/。</div>
     <div class="mount-file" id="mountFile">正在检查上次同步文件...</div>
     <div class="mount-actions">
-      <button class="primary" id="mountPrimary" data-action="mount-startup-file">加载上次同步文件</button>
-      <button id="mountChoose" data-action="choose-and-mount-file" style="display:none">选择文件</button>
+      <button class="primary" id="mountPrimary" data-action="mount-startup-file">加载上次同步位置</button>
+      <button id="mountChoose" data-action="choose-and-mount-file" style="display:none">选择目录</button>
     </div>
     <div class="mount-conflict" id="mountConflict">
       <button data-action="resolve-mount-conflict" data-source="remote">使用云盘版本</button>
@@ -130,6 +132,7 @@
   <span class="sep"></span>
   <button data-action="show-table-dialog" title="表格" aria-label="表格"><svg><use href="#i-table"></use></svg></button>
   <button data-action="pick-image" title="图片" aria-label="图片"><svg><use href="#i-image"></use></svg></button>
+  <button class="excalidraw-entry" data-action="open-canvas" title="Excalidraw" aria-label="Excalidraw"><svg><use href="#i-canvas"></use></svg></button>
   <span class="sep"></span>
   <span class="split">
     <button data-action="apply-highlight" title="水彩笔" aria-label="水彩笔" id="hlBtn" class="color-mark" style="--mark-color:#ffeb3b"><svg><use href="#i-highlighter"></use></svg></button>
@@ -147,6 +150,8 @@
 
 <!-- Image toolbar -->
 <div class="ctx-bar" id="imgBar">
+  <button class="canvas-edit" data-action="edit-canvas">Edit</button>
+  <span class="sep canvas-edit"></span>
   <button data-action="image-align" data-value="left">左对齐</button>
   <button data-action="image-align" data-value="center">居中</button>
   <button data-action="image-align" data-value="right">右对齐</button>
@@ -159,21 +164,35 @@
   <button data-action="image-delete">删除</button>
 </div>
 
-<!-- Table toolbar -->
-<div class="ctx-bar" id="tblBar">
-  <button data-action="table-add-row" data-value="before">上方插行</button>
-  <button data-action="table-add-row" data-value="after">下方插行</button>
-  <span class="sep"></span>
-  <button data-action="table-add-col" data-value="before">左侧插列</button>
-  <button data-action="table-add-col" data-value="after">右侧插列</button>
-  <span class="sep"></span>
-  <button data-action="table-delete-row">删除行</button>
-  <button data-action="table-delete-col">删除列</button>
-  <span class="sep"></span>
-  <button data-action="table-delete" style="color:#e74c3c">删除表格</button>
+<!-- Table context menu -->
+<div class="ctx-bar table-menu" id="tblBar" role="menu">
+  <button data-action="table-delete" class="danger" role="menuitem">删除表格</button>
+  <div class="ctx-submenu">
+    <button type="button" role="menuitem" aria-haspopup="true">行</button>
+    <div class="ctx-submenu-panel" role="menu">
+      <button data-action="table-delete-row" role="menuitem">删除行</button>
+      <button data-action="table-add-row" data-value="before" role="menuitem">上方新增行</button>
+      <button data-action="table-add-row" data-value="after" role="menuitem">下方新增行</button>
+      <button data-action="table-move-row" data-value="up" role="menuitem">向上移动一行</button>
+      <button data-action="table-move-row" data-value="down" role="menuitem">向下移动一行</button>
+    </div>
+  </div>
+  <div class="ctx-submenu">
+    <button type="button" role="menuitem" aria-haspopup="true">列</button>
+    <div class="ctx-submenu-panel" role="menu">
+      <button data-action="table-delete-col" role="menuitem">删除列</button>
+      <button data-action="table-add-col" data-value="before" role="menuitem">左侧新增列</button>
+      <button data-action="table-add-col" data-value="after" role="menuitem">右侧新增列</button>
+      <button data-action="table-move-col" data-value="left" role="menuitem">向左移动一列</button>
+      <button data-action="table-move-col" data-value="right" role="menuitem">向右移动一列</button>
+    </div>
+  </div>
 </div>
 
 <div class="img-modal" id="imgModal" data-action="close-image-modal"><img id="imgModalSrc" src=""></div>
+<div class="canvas-overlay" id="canvasOverlay" role="dialog" aria-modal="true" aria-label="Excalidraw canvas">
+  <div id="canvasMount"></div>
+</div>
 <div class="presenter" id="presenter" role="dialog" aria-modal="true" aria-label="选中内容展示">
   <button class="presenter-close" data-action="close-presenter" aria-label="退出展示">×</button>
   <div class="laser-pointer" id="laserPointer"></div>
@@ -211,9 +230,11 @@
 <script src="./src/storage/conflict.js?v=20260524-calendar-room"></script>
 <script src="./src/storage/indexed-db.js?v=20260524-calendar-room"></script>
 <script src="./src/storage/file-store.js?v=20260524-calendar-room"></script>
+<script src="./src/canvas/excalidraw.bundle.js?v=20260528-excalidraw"></script>
 <script src="./src/editor/editor-richtext.js?v=20260524-calendar-room"></script>
 <script src="./src/presenter/presenter.js?v=20260524-calendar-room"></script>
 <script src="./src/ui/controls.js?v=20260524-calendar-room"></script>
+<script src="./src/canvas/canvas.js?v=20260528-excalidraw"></script>
 <script src="./src/storage/storage-sync.js?v=20260524-calendar-room"></script>
 <script src="./src/calendar/calendar.js?v=20260524-calendar-room"></script>
 <script src="./src/ui/events.js?v=20260524-calendar-room"></script>

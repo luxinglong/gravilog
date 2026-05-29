@@ -491,6 +491,7 @@ doc.addEventListener('click',e=>{
 });
 doc.addEventListener('blur',()=>{clearTimeout(saveTimer);save()});
 doc.addEventListener('keydown',function(e){
+  if(handleTableNavigation(e))return;
   if(e.key==='Enter'&&handleCodeEnter(e))return;
   if((e.key==='Backspace'||e.key==='Delete')&&handleEmptyCodeBlockExit(e))return;
   if((e.key==='#'||e.key==='Backspace'||e.key==='Delete')&&handleHeadingMarkerKey(e))return;
@@ -1252,6 +1253,69 @@ function handleTab(e){
   if(blk.nodeName==='LI'){e.preventDefault();e.shiftKey?document.execCommand('outdent'):document.execCommand('indent')}
 }
 
+function getCellTextStart(cell){
+  const walker=document.createTreeWalker(cell,NodeFilter.SHOW_TEXT,null);
+  const node=walker.nextNode();
+  if(node)return {node,offset:0};
+  return {node:cell,offset:0};
+}
+
+function placeCursorInTableCell(cell){
+  if(!cell)return;
+  activeTableCell=cell;
+  const pos=getCellTextStart(cell);
+  const range=document.createRange();
+  range.setStart(pos.node,pos.offset);
+  range.collapse(true);
+  const sel=window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+  doc.focus();
+}
+
+function tableCellGrid(table){
+  return Array.from(table.rows).map(row=>Array.from(row.cells));
+}
+
+function flatTableCells(table){
+  return tableCellGrid(table).flat();
+}
+
+function moveToTableCell(cell,dr,dc){
+  const table=cell&&cell.closest('table');
+  if(!table)return false;
+  const grid=tableCellGrid(table);
+  const rowIndex=grid.findIndex(row=>row.includes(cell));
+  if(rowIndex<0)return false;
+  const colIndex=grid[rowIndex].indexOf(cell);
+  const nextRow=grid[rowIndex+dr];
+  if(!nextRow)return true;
+  const next=nextRow[Math.max(0,Math.min(colIndex+dc,nextRow.length-1))];
+  if(next)placeCursorInTableCell(next);
+  return true;
+}
+
+function handleTableNavigation(e){
+  if(e.altKey||e.ctrlKey||e.metaKey)return false;
+  const cell=getCursorTd();
+  if(!cell)return false;
+  if(e.key==='Tab'){
+    const cells=flatTableCells(cell.closest('table'));
+    const index=cells.indexOf(cell);
+    if(index<0)return false;
+    const step=e.shiftKey?-1:1;
+    const next=cells[(index+step+cells.length)%cells.length];
+    e.preventDefault();
+    placeCursorInTableCell(next);
+    return true;
+  }
+  const arrows={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]};
+  const delta=arrows[e.key];
+  if(!delta||e.shiftKey)return false;
+  e.preventDefault();
+  return moveToTableCell(cell,delta[0],delta[1]);
+}
+
 function handleCodeEnter(e){
   const code=getCursorCode();
   if(!code)return false;
@@ -1368,10 +1432,24 @@ doc.addEventListener('click',function(e){
   // Image double-click → modal
   if(e.target.tagName==='IMG'&&e.detail===2){document.getElementById('imgModalSrc').src=e.target.src;document.getElementById('imgModal').classList.add('show');return}
 
-  // Table cell → show toolbar
-  const td=e.target.closest('td,th');
-  if(td){showTblBar(td);return}
-
+});
+doc.addEventListener('focusin',function(e){
+  const td=e.target&&e.target.closest&&e.target.closest('td,th');
+  if(td&&doc.contains(td))activeTableCell=td;
+});
+doc.addEventListener('contextmenu',function(e){
+  const td=e.target.closest&&e.target.closest('td,th');
+  if(!td||!doc.contains(td))return;
+  e.preventDefault();
+  activeTableCell=td;
+  placeCursorInTableCell(td);
+  showTblMenu(e.clientX,e.clientY);
+});
+document.addEventListener('click',function(e){
+  const menu=document.getElementById('tblBar');
+  if(menu&&menu.contains(e.target))return;
+  if(e.target.closest&&e.target.closest('td,th'))return;
+  if(menu)menu.classList.remove('show');
 });
 doc.addEventListener('change',function(e){
   if(!e.target.classList.contains('code-lang'))return;
@@ -1408,25 +1486,36 @@ doc.addEventListener('compositionend',e=>{
 function showImgBar(img){
   const bar=document.getElementById('imgBar');const r=img.getBoundingClientRect();
   bar.style.top=Math.max(4,r.top-36)+'px';bar.style.left=Math.max(4,r.left)+'px';
+  bar.classList.toggle('has-canvas',!!img.getAttribute('data-canvas-id'));
   bar.classList.add('show');
 }
 function imgAlign(a){if(!selImg)return;selImg.classList.remove('align-left','align-center','align-right');selImg.classList.add('align-'+a);save()}
 function imgSize(pct){if(!selImg)return;selImg.style.width=pct;selImg.style.maxWidth=pct;save()}
 function imgDelete(){if(!selImg)return;selImg.remove();selImg=null;hideCtxBars();save()}
 
-// ===== Table toolbar =====
-function showTblBar(td){
-  const bar=document.getElementById('tblBar');const r=td.getBoundingClientRect();
-  bar.style.top=Math.max(4,r.top-36)+'px';bar.style.left=Math.max(4,r.left)+'px';
+// ===== Table context menu =====
+let activeTableCell=null;
+function showTblMenu(x,y){
+  const bar=document.getElementById('tblBar');
+  bar.style.left=Math.max(4,Math.min(x,window.innerWidth-180))+'px';
+  bar.style.top=Math.max(4,Math.min(y,window.innerHeight-190))+'px';
   bar.classList.add('show');
 }
-function getCursorTd(){const s=window.getSelection();if(!s.rangeCount)return null;let n=s.anchorNode;while(n&&n!==doc){if(n.tagName==='TD'||n.tagName==='TH')return n;n=n.parentNode}return null}
+function getCursorTd(){
+  const s=window.getSelection();
+  if(s.rangeCount){
+    let n=s.anchorNode;
+    while(n&&n!==doc){if(n.tagName==='TD'||n.tagName==='TH')return n;n=n.parentNode}
+  }
+  return activeTableCell&&doc.contains(activeTableCell)?activeTableCell:null;
+}
 function tblAddRow(pos){
-  const td=getCursorTd();if(!td)return;const tr=td.parentNode;const tbl=tr.parentNode;
+  const td=getCursorTd();if(!td)return;const tr=td.parentNode;const section=tr.parentNode;
   const newRow=document.createElement('tr');
   for(let i=0;i<tr.children.length;i++){const c=document.createElement(tr.children[i].tagName);c.innerHTML='<br>';newRow.appendChild(c)}
-  if(pos==='before')tbl.insertBefore(newRow,tr);else tr.parentNode.insertBefore(newRow,tr.nextSibling);
-  save();
+  if(pos==='before')section.insertBefore(newRow,tr);else section.insertBefore(newRow,tr.nextSibling);
+  placeCursorInTableCell(newRow.cells[Math.min(td.cellIndex,newRow.cells.length-1)]);
+  hideCtxBars();pushUndo();save();
 }
 function tblAddCol(pos){
   const td=getCursorTd();if(!td)return;const tbl=td.closest('table');
@@ -1441,9 +1530,19 @@ function tblAddCol(pos){
     else if(pos==='before')row.insertBefore(c,ref);
     else row.insertBefore(c,ref.nextSibling);
   });
-  save();
+  placeCursorInTableCell(td);
+  hideCtxBars();pushUndo();save();
 }
-function tblDelRow(){const td=getCursorTd();if(!td)return;const tr=td.parentNode;if(tr.parentNode.rows.length>1)tr.remove();save()}
+function tblDelRow(){
+  const td=getCursorTd();if(!td)return;const tr=td.parentNode;const tbl=td.closest('table');
+  if(!tbl||tbl.rows.length<=1)return;
+  const rows=Array.from(tbl.rows);
+  const index=rows.indexOf(tr);
+  const next=rows[index+1]||rows[index-1];
+  tr.remove();
+  if(next)placeCursorInTableCell(next.cells[Math.min(td.cellIndex,next.cells.length-1)]);
+  hideCtxBars();pushUndo();save();
+}
 function tblDelCol(){
   const td=getCursorTd();if(!td)return;const tbl=td.closest('table');
   if(!tbl)return;
@@ -1451,10 +1550,45 @@ function tblDelCol(){
   const rows=Array.from(tbl.rows);
   const maxCols=Math.max(...rows.map(row=>row.cells.length));
   if(maxCols<=1)return;
+  let nextCell=null;
+  for(const row of rows){
+    if(row.cells[idx+1]){nextCell=row.cells[idx+1];break}
+    if(row.cells[idx-1]){nextCell=row.cells[idx-1];break}
+  }
   rows.forEach(row=>{if(row.cells[idx])row.cells[idx].remove()});
-  save();
+  if(nextCell&&doc.contains(nextCell))placeCursorInTableCell(nextCell);
+  hideCtxBars();pushUndo();save();
 }
-function tblDelTable(){const td=getCursorTd();if(!td)return;const tbl=td.closest('table');if(tbl)tbl.remove();hideCtxBars();save()}
+function tblMoveRow(dir){
+  const td=getCursorTd();if(!td)return;const tr=td.parentNode;const section=tr.parentNode;
+  if(dir==='up'){
+    const prev=tr.previousElementSibling;
+    if(!prev)return;
+    section.insertBefore(tr,prev);
+  }else{
+    const next=tr.nextElementSibling;
+    if(!next)return;
+    section.insertBefore(next,tr);
+  }
+  placeCursorInTableCell(td);hideCtxBars();pushUndo();save();
+}
+function tblMoveCol(dir){
+  const td=getCursorTd();if(!td)return;const tbl=td.closest('table');
+  if(!tbl)return;
+  const idx=td.cellIndex;
+  if(dir==='left'&&idx<=0)return;
+  const rows=Array.from(tbl.rows);
+  const maxCols=Math.max(...rows.map(row=>row.cells.length));
+  if(dir==='right'&&idx>=maxCols-1)return;
+  rows.forEach(row=>{
+    const cell=row.cells[idx];
+    if(!cell)return;
+    if(dir==='left'&&row.cells[idx-1])row.insertBefore(cell,row.cells[idx-1]);
+    if(dir==='right')row.insertBefore(cell,row.cells[idx+2]||null);
+  });
+  placeCursorInTableCell(td);hideCtxBars();pushUndo();save();
+}
+function tblDelTable(){const td=getCursorTd();if(!td)return;const tbl=td.closest('table');if(tbl)tbl.remove();hideCtxBars();pushUndo();save()}
 
 function hideCtxBars(){document.getElementById('imgBar').classList.remove('show');document.getElementById('tblBar').classList.remove('show')}
 

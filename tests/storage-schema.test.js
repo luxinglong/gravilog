@@ -123,3 +123,30 @@ test('migrateSnapshot rebuilds structured v2 blocks and image assets for the cur
   expect(snapshot.doc).toMatch(/console\.log\("x"\)/);
   expect(snapshot.doc).toMatch(/align-center/);
 });
+
+test('excalidraw canvas images keep preview and editable scene data in v2 assets', () => {
+  const scene = { type: 'excalidraw', version: 2, elements: [{ id: 'el1', type: 'rectangle' }], appState: {}, files: {} };
+  const file = context.snapshotToV2({
+    version: 2,
+    blocks: [{ id: 'b1', type: 'image', assetId: 'canvas_1', canvasId: 'canvas_1', className: 'canvas-image', alt: 'Excalidraw canvas' }],
+    assets: {
+      canvas_1: {
+        type: 'excalidraw',
+        mime: 'image/png',
+        data: 'data:image/png;base64,preview',
+        scene,
+      },
+    },
+    calendar: { todos: {} },
+    stats: { dailyChars: {}, editDates: [] },
+    meta: { savedAt: '2026-05-28T00:00:00.000Z' },
+  });
+
+  expect(file.assets.canvas_1.type).toBe('excalidraw');
+  expect(file.assets.canvas_1.scene.elements[0].id).toBe('el1');
+
+  const snapshot = context.migrateSnapshot(file);
+  expect(snapshot.doc).toMatch(/data-canvas-id="canvas_1"/);
+  expect(snapshot.doc).toMatch(/data-canvas-scene="/);
+  expect(snapshot.doc).toMatch(/data:image\/png;base64,preview/);
+});

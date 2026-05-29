@@ -4,6 +4,7 @@
 .fbar button:active{transform:translateY(1px)}
 .fbar button:disabled{opacity:.3;cursor:default;pointer-events:none}
 .fbar button svg{width:17px;height:17px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fbar button.excalidraw-entry svg{width:19px;height:19px;stroke-width:1.65}
 .fbar button .solid{fill:currentColor;stroke:none}
 .fbar button .txt{font-size:15px;font-weight:700;line-height:1;font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
 .fbar button .txt.italic{font-style:italic}
@@ -34,9 +35,17 @@ body.dark .fbar .theme-sun{display:block}
 
 .ctx-bar{position:fixed;background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:4px 6px;display:none;gap:2px;box-shadow:0 2px 12px rgba(0,0,0,0.1);z-index:150;align-items:center;flex-wrap:wrap}
 .ctx-bar.show{display:flex}
-.ctx-bar button{background:none;border:none;border-radius:4px;height:26px;padding:0 8px;cursor:pointer;font-size:11px;color:#555;white-space:nowrap}
+.ctx-bar button{background:none;border:none;border-radius:4px;height:26px;padding:0 8px;cursor:pointer;font-size:11px;line-height:1;color:#555;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center}
 .ctx-bar button:hover{background:#f0f0ff;color:#333}
 .ctx-bar .sep{width:1px;height:16px;background:#e0e0e0;margin:0 2px}
+.table-menu{min-width:118px;display:none;flex-direction:column;align-items:stretch;gap:2px;padding:5px;overflow:visible}
+.table-menu.show{display:flex}
+.table-menu button{width:100%;text-align:left;font-size:12px}
+.table-menu button.danger{color:#e74c3c}
+.ctx-submenu{position:relative}
+.ctx-submenu>button::after{content:'\203A';float:right;color:#94a3b8;margin-left:18px}
+.ctx-submenu-panel{display:none;position:absolute;top:-5px;left:100%;min-width:132px;padding:5px;background:#fff;border:1px solid #e0e0e0;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:151}
+.ctx-submenu:hover>.ctx-submenu-panel,.ctx-submenu:focus-within>.ctx-submenu-panel{display:block}
 
 .tex-input{display:none;position:fixed;z-index:200;background:#fff;border:1px solid #e0e0e0;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.12);padding:14px;width:360px}
 .tex-input.show{display:block}

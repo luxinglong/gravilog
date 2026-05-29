@@ -1,0 +1,23 @@
+.canvas-overlay{display:none;position:fixed;inset:0;z-index:900;background:#f8fafc;color:#111827}
+.canvas-overlay.show{display:block}
+.canvas-shell{height:100vh;display:grid;grid-template-rows:50px 1fr;background:#f8fafc}
+.canvas-topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 14px;border-bottom:1px solid rgba(148,163,184,.28);background:rgba(255,255,255,.9);backdrop-filter:blur(12px);z-index:2}
+.canvas-title{font-size:13px;font-weight:700;color:#334155}
+.canvas-actions{display:flex;align-items:center;gap:8px}
+.canvas-actions button{height:32px;border:1px solid rgba(148,163,184,.42);border-radius:7px;background:#fff;color:#334155;padding:0 12px;font-size:13px;cursor:pointer}
+.canvas-actions button:hover{background:#f1f5f9;color:#0f172a}
+.canvas-actions button.primary{background:#2563eb;border-color:#2563eb;color:#fff}
+.canvas-actions button:disabled{opacity:.55;cursor:default}
+.canvas-stage{min-height:0;position:relative}
+.canvas-stage .excalidraw{--color-primary:#2563eb;--color-primary-darker:#1d4ed8}
+.doc img.canvas-image{border:1px solid rgba(148,163,184,.28);background:#fff;box-shadow:0 10px 30px rgba(15,23,42,.08)}
+.doc img.canvas-image{cursor:grab}
+.doc img.canvas-image.canvas-dragging{opacity:.45;cursor:grabbing}
+.ctx-bar .canvas-edit{display:none}
+.ctx-bar.has-canvas .canvas-edit{display:inline-flex}
+body.dark .canvas-overlay,body.dark .canvas-shell{background:rgb(18,18,18);color:#e6edf3}
+body.dark .canvas-topbar{background:rgba(18,18,18,.92);border-color:rgba(148,163,184,.24)}
+body.dark .canvas-title{color:#cbd5e1}
+body.dark .canvas-actions button{background:rgba(18,18,18,.9);border-color:rgba(148,163,184,.28);color:#cbd5e1}
+body.dark .canvas-actions button:hover{background:rgba(139,156,255,.16);color:#fff}
+body.dark .canvas-actions button.primary{background:#7dd3fc;border-color:#7dd3fc;color:#071018}

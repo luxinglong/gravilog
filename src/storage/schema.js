@@ -101,6 +101,17 @@ function assetHash(data){
   return 'asset_'+(hash>>>0).toString(36);
 }
 
+function schemaDecodeCanvasScene(value){
+  if(!value)return null;
+  try{return JSON.parse(decodeURIComponent(value))}catch(e){}
+  try{return JSON.parse(value)}catch(e){}
+  return null;
+}
+
+function schemaEncodeCanvasScene(scene){
+  try{return encodeURIComponent(JSON.stringify(scene||{}))}catch(e){return ''}
+}
+
 function addAsset(assets,src,savedAt){
   if(!src||!/^data:image\//i.test(src))return '';
   const id=assetHash(src);
@@ -111,12 +122,31 @@ function addAsset(assets,src,savedAt){
   return id;
 }
 
+function addCanvasAsset(assets,src,sceneValue,canvasId,savedAt){
+  if(!src||!/^data:image\//i.test(src)||!sceneValue)return '';
+  const scene=schemaDecodeCanvasScene(sceneValue);
+  const id=String(canvasId||assetHash(src+sceneValue)).replace(/[^\w-]/g,'')||assetHash(src+sceneValue);
+  if(!assets[id]){
+    const mime=(src.match(/^data:([^;,]+)/i)||[])[1]||'image/png';
+    assets[id]={type:'excalidraw',mime,data:src,scene,createdAt:savedAt,updatedAt:savedAt};
+  }else{
+    assets[id]=Object.assign({},assets[id],{type:'excalidraw',data:src,scene,updatedAt:savedAt});
+  }
+  return id;
+}
+
 function extractImageAsset(img,assets,savedAt){
   const src=img.getAttribute('src')||'';
-  const assetId=addAsset(assets,src,savedAt);
+  const canvasScene=img.getAttribute('data-canvas-scene')||'';
+  const canvasId=img.getAttribute('data-canvas-id')||'';
+  const assetId=canvasScene?addCanvasAsset(assets,src,canvasScene,canvasId,savedAt):addAsset(assets,src,savedAt);
   if(assetId){
     img.setAttribute('data-asset-id',assetId);
     img.removeAttribute('src');
+    if(canvasScene){
+      img.removeAttribute('data-canvas-scene');
+      img.removeAttribute('data-canvas-id');
+    }
   }
   return assetId;
 }
@@ -128,12 +158,14 @@ function extractAssetsFromElement(el,assets,savedAt){
 }
 
 function imageBlockFromElement(img,assets,savedAt){
+  const canvasId=img.getAttribute('data-canvas-id')||'';
   const assetId=extractImageAsset(img,assets,savedAt);
   return {
     id:'blk_'+Math.random().toString(36).slice(2,10),
     type:'image',
     assetId,
     src:assetId?'':img.getAttribute('src')||'',
+    canvasId,
     className:img.className||'',
     style:img.getAttribute('style')||'',
     alt:img.getAttribute('alt')||'',
@@ -198,7 +230,8 @@ function hydrateAssetRefs(html,assets){
   return String(html||'').replace(/<img\b([^>]*?)\sdata-asset-id="([^"]+)"([^>]*)>/gi,(match,before,id,after)=>{
     const asset=assets&&assets[id];
     const src=asset&&asset.data?' src="'+schemaEscapeAttr(asset.data)+'"':'';
-    return '<img'+before+src+' data-asset-id="'+schemaEscapeAttr(id)+'"'+after+'>';
+    const canvas=asset&&asset.type==='excalidraw'?' data-canvas-id="'+schemaEscapeAttr(id)+'" data-canvas-scene="'+schemaEscapeAttr(schemaEncodeCanvasScene(asset.scene))+'"':'';
+    return '<img'+before+src+' data-asset-id="'+schemaEscapeAttr(id)+'"'+canvas+after+'>';
   });
 }
 
@@ -209,7 +242,9 @@ function blockToHTML(block,assets){
     const asset=assets&&block.assetId&&assets[block.assetId];
     const src=asset&&asset.data||block.src||'';
     if(!src)return '';
-    return '<img src="'+schemaEscapeAttr(src)+'"'+(block.assetId?' data-asset-id="'+schemaEscapeAttr(block.assetId)+'"':'')+(block.className?' class="'+schemaEscapeAttr(block.className)+'"':'')+(block.style?' style="'+schemaEscapeAttr(block.style)+'"':'')+(block.alt?' alt="'+schemaEscapeAttr(block.alt)+'"':'')+'>';
+    const canvasId=block.canvasId||asset&&asset.type==='excalidraw'&&block.assetId||'';
+    const canvasScene=asset&&asset.type==='excalidraw'?schemaEncodeCanvasScene(asset.scene):'';
+    return '<img src="'+schemaEscapeAttr(src)+'"'+(block.assetId?' data-asset-id="'+schemaEscapeAttr(block.assetId)+'"':'')+(canvasId?' data-canvas-id="'+schemaEscapeAttr(canvasId)+'"':'')+(canvasScene?' data-canvas-scene="'+schemaEscapeAttr(canvasScene)+'"':'')+(block.className?' class="'+schemaEscapeAttr(block.className)+'"':'')+(block.style?' style="'+schemaEscapeAttr(block.style)+'"':'')+(block.alt?' alt="'+schemaEscapeAttr(block.alt)+'"':'')+'>';
   }
   if(block.type==='code'){
     const lang=String(block.lang||'plaintext').replace(/[^\w#+-]/g,'')||'plaintext';

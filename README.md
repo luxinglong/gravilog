@@ -6,6 +6,10 @@ Gravilog 是一个离线优先的个人日记 / 笔记编辑器。它的核心�
 
 ## Recent updates
 
+- 新增 Excalidraw 画布：可从工具栏进入沉浸式画布，保存后以图片节点插入正文，并保留可再次编辑的 scene 数据。
+- 画布资源支持目录模式外置保存：链接同步目录时，`diary.json` 只记录资源路径，预览图和场景文件会写入 `resources/canvas_xxx/preview.png` 与 `resources/canvas_xxx/scene.excalidraw.json`。
+- 完善画布迁移、冲突合并、导入导出与资源清理：目录模式读取会自动水合外置资源，导出仍可生成自包含 JSON，删除或合并后不再引用的 `canvas_*` 资源目录会被清理。
+- 画布图片支持正文内复制、粘贴和拖拽移动：复制粘贴会创建独立 `canvasId` 的画布副本，拖拽会把原画布移动到正文其他位置。
 - Windows 启动脚本统一改为 npm/Node 启动，不再依赖 Python 或 Anaconda；本地服务器会自动寻找 `8765-8779` 之间的可用端口并打开浏览器。
 - 日历月视图去掉日期格内的字数统计文本，保留内容量圆点提示，并加高日期格，缓解农历、节日和标记挤在一起的问题。
 - 代码块编辑体验重做：输入和粘贴 Python 等代码时保持稳定的多行语法高亮，不再只高亮第一行或受回车影响。
@@ -71,6 +75,7 @@ http://127.0.0.1:8765/index.html
 - LaTeX 公式：支持行内公式和块级公式。
 - 代码块：语法高亮、语言选择、粘贴整段代码、缩进和空块回退。
 - 图片：插入、粘贴、压缩、对齐、缩放、预览。
+- Excalidraw 画布：工具栏进入沉浸式绘图，保存为正文图片，支持再次编辑、复制粘贴为独立副本，以及拖拽移动到其他正文行。
 - 表格：插入表格，增删行列，删除整表。
 - 演示模式：展示选中内容，支持激光笔、自由书写和局部放大镜。
 - 日历：年、月、周、日视图，支持写作统计和日程记录。
@@ -93,7 +98,7 @@ Gravilog 仍能读取旧版 v1 数据格式：
 }
 ```
 
-浏览器本地缓存仍使用 `localStorage` 和 IndexedDB，以降低编辑器改动风险。导出和链接文件写入时，Gravilog 会写出 v2 单文件结构：
+浏览器本地缓存仍使用 `localStorage` 和 IndexedDB，以降低编辑器改动风险。导出和单文件写入时，Gravilog 会写出 v2 单文件结构：
 
 ```json
 {
@@ -122,6 +127,20 @@ Gravilog 仍能读取旧版 v1 数据格式：
 
 当前导出和链接文件会按顶层 DOM 拆成 `html`、`table`、`code`、`image` 等 block；旧数据仍可作为 `legacy-html` 读取。图片 data URL 会从正文 HTML 中抽到 `assets`，读取时再回填给当前编辑器。
 
+Excalidraw 画布作为 `type: "excalidraw"` 的图片资源保存，正文图片节点通过 `data-canvas-id` 关联资源，并通过 `data-canvas-scene` 支持再次编辑。导出 JSON 会尽量保持自包含，便于手动备份和跨设备恢复。
+
+当通过“链接目录”使用云盘同步目录时，Gravilog 会在目录下维护：
+
+```text
+diary.json
+resources/
+  canvas_xxx/
+    preview.png
+    scene.excalidraw.json
+```
+
+目录模式下 `diary.json` 只记录 `resources/...` 路径，读取、导入和冲突合并时会自动从资源目录水合预览图和 scene；保存时会清理不再被当前日记引用的孤立 `resources/canvas_*` 目录。
+
 更多说明见 [重构设计文档](docs/REFACTOR_DESIGN.md) 和 [备份与恢复策略](docs/BACKUP_AND_RECOVERY.md)。
 
 ## 当前工程结构
@@ -136,6 +155,11 @@ gravilog/
       boot.js
       date-bootstrap.js
       state-shell.js
+    canvas/
+      canvas.js
+      excalidraw-app.jsx
+      excalidraw.bundle.css
+      excalidraw.bundle.js
     editor/
       editor-richtext.js
     presenter/
@@ -160,6 +184,7 @@ gravilog/
       controls.js
       events.js
   scripts/
+    build-canvas.mjs
     check-js-syntax.cjs
     serve-static.cjs
   docs/
@@ -178,11 +203,13 @@ gravilog/
 - `index.html`：页面骨架、静态 DOM、图标符号、外部 CDN 资源引用。
 - `src/styles/main.css`：样式入口，汇总各领域 CSS。
 - `src/core/*`：启动顺序、全局状态、撤销重做和早期初始化。
+- `src/canvas/*`：Excalidraw 画布入口、沉浸式编辑器封装、正文图片节点、复制粘贴和拖拽移动逻辑。
 - `src/editor/*`：富文本编辑器、Markdown、代码块、公式、图片和表格逻辑。
 - `src/presenter/*`：演示模式逻辑。
 - `src/ui/*`：颜色选择器、弹窗、工具控件和静态 DOM 事件委托。
 - `src/storage/*`：schema/migration、本地缓存、文件链接、IndexedDB、同步和冲突处理。
 - `src/calendar/*`：日历、日程、农历和写作统计渲染。
+- `scripts/build-canvas.mjs`：打包 Excalidraw React 入口为浏览器可直接加载的 bundle。
 - `scripts/serve-static.cjs`：开发和 Windows 双击启动使用的 Node 静态文件服务器。
 - `tests/*`：存储单元测试和编辑器端到端回归测试。
 
@@ -213,6 +240,7 @@ npm run test:e2e
 - 新增本地缓存、IndexedDB、文件读写和冲突处理模块。
 - 导出和链接文件写入升级为 v2 单 JSON 文件结构。
 - 图片 data URL 从正文 HTML 中迁移到 `assets`。
+- 新增 Excalidraw 画布集成，支持正文图片化保存、再次编辑、复制粘贴、拖拽移动、目录资源外置、导入水合和孤立资源清理。
 - 编辑器渲染入口改为 block 级遍历，输入时优先轻量重渲染当前活动块。
 - 撤销栈改为 snapshot 结构，并在链接文件或导入文件后重置历史基线。
 - 新增 Vitest、Playwright、lint、format 工具链。

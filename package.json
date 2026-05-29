@@ -4,6 +4,7 @@
   "private": true,
   "description": "A single-file-first personal journal and notes editor.",
   "scripts": {
+    "build:canvas": "node scripts/build-canvas.mjs",
     "serve": "node scripts/serve-static.cjs",
     "test": "vitest run",
     "test:unit": "vitest run",
@@ -16,5 +17,11 @@
     "@playwright/test": "^1.44.0",
     "prettier": "^3.3.0",
     "vitest": "^1.6.0"
+  },
+  "dependencies": {
+    "@excalidraw/excalidraw": "^0.18.1",
+    "esbuild": "^0.28.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   }
 }

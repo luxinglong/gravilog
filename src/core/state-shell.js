@@ -2,7 +2,7 @@ const STORAGE_KEY='diary_doc',DATES_KEY='diary_edit_dates',STATS_KEY='diary_dail
 const LOCAL_SAVE_DELAY=450;
 const FILE_WRITE_DELAY=5000;
 let calView='month',calYear=new Date().getFullYear(),calMonth=new Date().getMonth(),calWeekStart=getMon(new Date()),selectedDate=null,saveTimer=null,localSaveTimer=null;
-let texDisplay=false,fileHandle=null,selImg=null,fileWritable=false,fileWritePromise=Promise.resolve(),fileWritePending=false,syncReady=false;
+let texDisplay=false,fileHandle=null,directoryHandle=null,storageMode='file',selImg=null,fileWritable=false,fileWritePromise=Promise.resolve(),fileWritePending=false,syncReady=false;
 let latestFileSnapshot=null,fileRetryTimer=null,mountConflict=null,localSaveErrorShown=false;
 let pendingCharDelta=0,pendingDateMark=false;
 let editorSavedRange=null;

@@ -248,3 +248,86 @@ test('persists checked editor todo state through saved html', async ({ page }) =
   expect(result.attr).toBe(true);
   expect(result.className).toContain('checked');
 });
+
+test('moves through table cells with tab and arrow keys', async ({ page }) => {
+  await page.goto('/index.html');
+  await page.waitForFunction(() => window.handleTableNavigation && window.placeCursorInTableCell && window.getCursorTd);
+
+  const result = await page.evaluate(() => {
+    const editor = document.getElementById('doc');
+    editor.setAttribute('contenteditable', 'true');
+    editor.innerHTML =
+      '<table><tbody><tr><td>A1</td><td>A2</td><td>A3</td></tr><tr><td>B1</td><td>B2</td><td>B3</td></tr></tbody></table>';
+    const press = (key, shiftKey = false) => {
+      editor.dispatchEvent(new KeyboardEvent('keydown', { key, shiftKey, bubbles: true, cancelable: true }));
+      return window.getCursorTd().textContent;
+    };
+
+    window.placeCursorInTableCell(editor.querySelector('td'));
+    return {
+      start: window.getCursorTd().textContent,
+      tab: press('Tab'),
+      right: press('ArrowRight'),
+      down: press('ArrowDown'),
+      left: press('ArrowLeft'),
+      up: press('ArrowUp'),
+      shiftTab: press('Tab', true),
+      wrapBack: press('Tab', true),
+    };
+  });
+
+  expect(result).toEqual({
+    start: 'A1',
+    tab: 'A2',
+    right: 'A3',
+    down: 'B3',
+    left: 'B2',
+    up: 'A2',
+    shiftTab: 'A1',
+    wrapBack: 'B3',
+  });
+});
+
+test('opens table context menu and applies row and column commands', async ({ page }) => {
+  await page.goto('/index.html');
+  await page.waitForFunction(() => window.tblAddRow && window.tblMoveCol && window.getCursorTd);
+
+  const result = await page.evaluate(() => {
+    const editor = document.getElementById('doc');
+    editor.setAttribute('contenteditable', 'true');
+    editor.innerHTML =
+      '<table><tbody><tr><td>A1</td><td>A2</td></tr><tr><td>B1</td><td>B2</td></tr></tbody></table>';
+    const rowsText = () =>
+      Array.from(editor.querySelectorAll('tr')).map((row) =>
+        Array.from(row.cells)
+          .map((td) => td.textContent)
+          .join('|'),
+      );
+
+    editor.querySelectorAll('td')[3].dispatchEvent(
+      new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 120, clientY: 140 }),
+    );
+    const menuOpen = document.getElementById('tblBar').classList.contains('show');
+    document.querySelector('[data-action="table-add-row"][data-value="before"]').click();
+    const afterRowInsert = rowsText();
+
+    editor.querySelectorAll('td')[1].dispatchEvent(
+      new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 120, clientY: 140 }),
+    );
+    document.querySelector('[data-action="table-move-col"][data-value="left"]').click();
+    const afterColMove = rowsText();
+
+    editor.querySelectorAll('td')[0].dispatchEvent(
+      new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 120, clientY: 140 }),
+    );
+    document.querySelector('[data-action="table-delete-col"]').click();
+    const afterColDelete = rowsText();
+
+    return { menuOpen, afterRowInsert, afterColMove, afterColDelete };
+  });
+
+  expect(result.menuOpen).toBe(true);
+  expect(result.afterRowInsert).toEqual(['A1|A2', '|', 'B1|B2']);
+  expect(result.afterColMove).toEqual(['A2|A1', '|', 'B2|B1']);
+  expect(result.afterColDelete).toEqual(['A1', '', 'B1']);
+});
